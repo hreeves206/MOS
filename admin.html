@@ -292,7 +292,6 @@ hr{border:none;border-top:1px solid rgba(255,255,255,.07);margin:24px 0;}
             <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--p5);margin-bottom:12px;">New Exterior Color</div>
             <div class="add-color-row">
               <div class="field"><label>Color Name</label><input type="text" id="newExtName" placeholder="Soul Red Crystal Metallic"></div>
-              <div class="field" style="flex:0 0 110px;"><label>Hex Code</label><input type="text" id="newExtHex" placeholder="#8B0000" maxlength="7"></div>
               <button class="btn btn-red btn-sm" style="margin-bottom:0;" onclick="addColorToModel('exterior')">Add</button>
             </div>
           </div>
@@ -310,7 +309,6 @@ hr{border:none;border-top:1px solid rgba(255,255,255,.07);margin:24px 0;}
             <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--p5);margin-bottom:12px;">New Interior Color</div>
             <div class="add-color-row">
               <div class="field"><label>Color Name</label><input type="text" id="newIntName" placeholder="Black Leatherette"></div>
-              <div class="field" style="flex:0 0 110px;"><label>Hex Code</label><input type="text" id="newIntHex" placeholder="#222222" maxlength="7"></div>
               <button class="btn btn-red btn-sm" style="margin-bottom:0;" onclick="addColorToModel('interior')">Add</button>
             </div>
           </div>
@@ -705,8 +703,6 @@ async function loadModelImages(){
   const section=document.getElementById('imageUploadSection');
   if(!modelId){section.style.display='none';return;}
   section.style.display='block';
-  document.getElementById('addColorFormExt').classList.remove('open');
-  document.getElementById('addColorFormInt').classList.remove('open');
   try{
     const colors=await sb('colors?model_id=eq.'+modelId+'&select=*');
     renderColorGrid('extColorGrid',colors.filter(c=>c.type==='exterior'),modelId);
@@ -721,13 +717,17 @@ async function addColorToModel(type){
   const modelId=document.getElementById('imageModelSelect').value;
   if(!modelId){toast('Select a model first','error');return;}
   const nameEl=document.getElementById(type==='exterior'?'newExtName':'newIntName');
-  const hexEl=document.getElementById(type==='exterior'?'newExtHex':'newIntHex');
-  const name=nameEl.value.trim(); const hex=hexEl.value.trim();
+  const name=nameEl.value.trim();
   if(!name){toast('Color name is required','error');return;}
   try{
-    await sb('colors','POST',{model_id:parseInt(modelId),name,type,hex_code:hex||null});
-    nameEl.value=''; hexEl.value='';
-    toast(name+' added!','success'); loadModelImages();
+    await sb('colors','POST',{model_id:parseInt(modelId),name,type});
+    nameEl.value='';
+    toast(name+' added!','success');
+    const colors=await sb('colors?model_id=eq.'+modelId+'&select=*');
+    const gridId=type==='exterior'?'extColorGrid':'intColorGrid';
+    renderColorGrid(gridId,colors.filter(c=>c.type===type),modelId);
+    const grid=document.getElementById(gridId);
+    if(grid) grid.lastElementChild?.scrollIntoView({behavior:'smooth',block:'nearest'});
   }catch(e){toast('Failed: '+e.message,'error');}
 }
 function renderColorGrid(gridId,colors,modelId){
