@@ -755,6 +755,61 @@ body {
 
 <script>
 // ─────────────────────────────────────────────
+// MAZDA COLOR LOOKUP TABLE
+// ─────────────────────────────────────────────
+const MAZDA_COLORS = {
+  // Reds
+  'soul red crystal metallic':       '#8B1A1A',
+  'soul red metallic':               '#8B1A1A',
+  'zeal red metallic':               '#9B1B1B',
+  // Blues
+  'deep crystal blue mica':          '#1B3A5C',
+  'polymetal gray metallic':         '#6B7280',
+  'eternal blue mica':               '#1A2E4A',
+  'sonic silver metallic':           '#8A8D8F',
+  'aurora blue':                     '#2B4F7A',
+  // Whites
+  'snowflake white pearl mica':      '#F5F5F0',
+  'white':                           '#F5F5F0',
+  'crystal white pearl mica':        '#F0EFE8',
+  'platinum quartz metallic':        '#E8E4DC',
+  // Blacks
+  'jet black mica':                  '#1A1A1A',
+  'black':                           '#1A1A1A',
+  // Grays
+  'polymetal gray':                  '#6B7280',
+  'machine gray metallic':           '#5A5F63',
+  'titanium flash mica':             '#4A4E52',
+  'rhodium white premium metallic':  '#D8D4CC',
+  // Browns / Tans
+  'artisan red premium metallic':    '#6B2020',
+  'burgundy':                        '#6B1A2A',
+  // Greens
+  'racing green':                    '#1A3A2A',
+  // Interiors
+  'black leatherette':               '#1A1A1A',
+  'black':                           '#1A1A1A',
+  'red leatherette':                 '#7A1A1A',
+  'white leatherette':               '#E8E4DC',
+  'greige leatherette':              '#8A7A6A',
+  'tan leatherette':                 '#8A7060',
+  'brown leatherette':               '#5A3A2A',
+  'parchment':                       '#C8B89A',
+};
+
+function getMazdaColorHex(colorName) {
+  if (!colorName) return '#555555';
+  const key = colorName.toLowerCase().trim();
+  // Exact match first
+  if (MAZDA_COLORS[key]) return MAZDA_COLORS[key];
+  // Partial match — find first key that the color name contains or vice versa
+  for (const [k, v] of Object.entries(MAZDA_COLORS)) {
+    if (key.includes(k) || k.includes(key)) return v;
+  }
+  return '#555555';
+}
+
+// ─────────────────────────────────────────────
 // CONFIG
 // ─────────────────────────────────────────────
 const SUPABASE_URL  = 'https://dvznpeelgyebzdublamt.supabase.co';
@@ -909,7 +964,7 @@ function buildStage(model, extColors, intColors) {
             <div class="color-swatches">
               ${extColors.map((c, i) => `
                 <div class="color-swatch${i===0?' active':''}" data-color-id="${c.id}" data-img="${c.image_url||''}" data-model="${model.id}" onclick="switchColor(this,'${model.id}')">
-                  <div class="swatch-circle" style="background:${c.hex_code||'#555'};"></div>
+                  <div class="swatch-circle" style="background:${c.hex_code || getMazdaColorHex(c.name)};"></div>
                   <span class="swatch-label">${c.name}</span>
                 </div>
               `).join('')}
