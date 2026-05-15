@@ -838,7 +838,9 @@ function cancelReview() {
 // ══════════════════════════════════════════════
 async function loadVehicles() {
   try {
-    const models = await sb('models?select=*,trims(*)&order=year.desc,name.asc');
+    const models = await sb('models?select=*&order=year.desc,name.asc');
+    const trims = await sb('trims?select=*');
+    models.forEach(m => { m.trims = trims.filter(t => t.model_id === m.id); });
     const el = document.getElementById('vehiclesList');
     if (!models || models.length === 0) {
       el.innerHTML = '<div class="empty-state"><div class="empty-icon">🚗</div><p>No vehicles yet. Upload a window sticker to get started.</p></div>';
