@@ -1,4 +1,6 @@
-export const config = { api: { bodyParser: { sizeLimit: '10mb' } } };
+export const config = { 
+  api: { bodyParser: { sizeLimit: '4mb' } } 
+};
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -9,8 +11,8 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const { pdfBase64 } = req.body;
-    if (!pdfBase64) return res.status(400).json({ error: 'No PDF data provided' });
+    const { pdfText } = req.body;
+    if (!pdfText) return res.status(400).json({ error: 'No PDF text provided' });
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -24,9 +26,7 @@ export default async function handler(req, res) {
         max_tokens: 4000,
         messages: [{
           role: 'user',
-          content: [
-            { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: pdfBase64 } },
-            { type: 'text', text: `You are extracting data from a Mazda window sticker PDF. Return ONLY a valid JSON object with NO markdown, NO backticks, NO explanation. Extract exactly these fields:
+          content: `You are extracting data from a Mazda window sticker. Here is the text content:\n\n${pdfText}\n\nReturn ONLY a valid JSON object with NO markdown, NO backticks, NO explanation. Extract exactly these fields:
 
 {
   "year": number,
@@ -54,8 +54,7 @@ export default async function handler(req, res) {
 }
 
 For "level": entry=base/preferred/sport, mid=premium/select/touring, top=premium plus/signature/carbon edition/grand touring.
-Extract ALL standard features listed. Do not omit any.` }
-          ]
+Extract ALL standard features listed. Do not omit any.`
         }]
       })
     });
