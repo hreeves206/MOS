@@ -4,688 +4,417 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mazda of Seattle — Admin</title>
-
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --red: #C8102E;
-    --red-dark: #9e0c23;
-    --bg: #0d0d0d;
-    --bg2: #141414;
-    --bg3: #1c1c1c;
-    --bg4: #242424;
-    --border: rgba(255,255,255,0.08);
-    --text: #f0f0f0;
-    --text2: #999;
-    --text3: #666;
-    --green: #22c55e;
-    --yellow: #eab308;
-    --rad: 10px;
-    --font: 'Segoe UI', system-ui, sans-serif;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; }
+:root {
+  --p0:#0a0a0a; --p1:#111111; --p2:#1a1a1a; --p3:#252525; --p4:#333333;
+  --p5:#666666; --p6:#999999; --p7:#cccccc; --red:#c8102e; --white:#ffffff;
+  --green:#22c55e; --yellow:#f59e0b;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--p0);color:var(--white);font-family:'Inter',sans-serif;font-size:14px;font-weight:300;}
+input,select,textarea{background:var(--p2);border:1px solid var(--p4);border-radius:6px;color:var(--white);font-family:'Inter',sans-serif;font-size:13px;padding:10px 12px;width:100%;transition:border-color .2s;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--red);}
+button{cursor:pointer;font-family:'Inter',sans-serif;}
+label{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--p6);display:block;margin-bottom:6px;}
+hr{border:none;border-top:1px solid rgba(255,255,255,.07);margin:24px 0;}
 
-  /* ── LOGIN ── */
-  #loginScreen {
-    display: flex; align-items: center; justify-content: center;
-    min-height: 100vh; background: var(--bg);
-  }
-  .login-box {
-    background: var(--bg2); border: 1px solid var(--border);
-    border-radius: 16px; padding: 48px 40px; width: 380px;
-    box-shadow: 0 24px 80px rgba(0,0,0,0.6);
-  }
-  .login-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 32px; }
-  .login-logo-bar { width: 4px; height: 36px; background: var(--red); border-radius: 2px; }
-  .login-logo-text { font-size: 13px; font-weight: 700; letter-spacing: 2px; color: var(--text2); text-transform: uppercase; }
-  .login-title { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
-  .login-sub { font-size: 13px; color: var(--text2); margin-bottom: 28px; }
-  .field { margin-bottom: 16px; }
-  .field label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--text2); margin-bottom: 6px; }
-  .field input {
-    width: 100%; padding: 11px 14px; background: var(--bg3);
-    border: 1px solid var(--border); border-radius: var(--rad);
-    color: var(--text); font-size: 14px; outline: none;
-    transition: border-color .2s;
-  }
-  .field input:focus { border-color: var(--red); }
-  .btn-primary {
-    width: 100%; padding: 13px; background: var(--red); color: #fff;
-    border: none; border-radius: var(--rad); font-size: 14px;
-    font-weight: 700; letter-spacing: 1px; cursor: pointer;
-    transition: background .2s; text-transform: uppercase;
-  }
-  .btn-primary:hover { background: var(--red-dark); }
-  .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
-  .login-err { color: #f87171; font-size: 13px; margin-top: 12px; text-align: center; display: none; }
+/* ── LAYOUT ── */
+.admin-wrap{display:flex;min-height:100vh;}
+.sidebar{width:220px;flex-shrink:0;background:var(--p1);border-right:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;padding:24px 0;}
+.sidebar-logo{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;padding:0 20px 24px;border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:12px;}
+.sidebar-logo span{color:var(--red);}
+.nav-item{padding:10px 20px;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--p5);cursor:pointer;transition:all .2s;border-left:2px solid transparent;}
+.nav-item:hover{color:var(--white);}
+.nav-item.active{color:var(--white);border-left-color:var(--red);background:rgba(200,16,46,.06);}
+.sidebar-bottom{margin-top:auto;padding:0 20px;}
+.logout-btn{width:100%;padding:10px;background:none;border:1px solid var(--p4);border-radius:6px;color:var(--p5);font-size:11px;letter-spacing:1px;text-transform:uppercase;transition:all .2s;}
+.logout-btn:hover{color:var(--white);border-color:var(--p6);}
+.main{flex:1;overflow-y:auto;}
+.page{display:none;padding:40px;}
+.page.active{display:block;}
+.page-title{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;margin-bottom:8px;}
+.page-sub{font-size:12px;color:var(--p5);margin-bottom:32px;}
 
-  /* ── APP SHELL ── */
-  #app { display: none; }
-  .topbar {
-    background: var(--bg2); border-bottom: 1px solid var(--border);
-    height: 56px; display: flex; align-items: center; padding: 0 24px;
-    gap: 16px; position: sticky; top: 0; z-index: 100;
-  }
-  .topbar-logo { font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--red); text-transform: uppercase; }
-  .topbar-sep { width: 1px; height: 20px; background: var(--border); }
-  .topbar-title { font-size: 14px; font-weight: 600; flex: 1; }
-  .topbar-user { font-size: 12px; color: var(--text2); }
-  .btn-logout {
-    padding: 6px 14px; background: transparent; border: 1px solid var(--border);
-    border-radius: 6px; color: var(--text2); font-size: 12px; cursor: pointer;
-    transition: all .2s;
-  }
-  .btn-logout:hover { border-color: var(--red); color: var(--red); }
+/* ── CARDS / PANELS ── */
+.card{background:var(--p1);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:28px;}
+.card+.card{margin-top:24px;}
+.card-title{font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:var(--p6);margin-bottom:20px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.field{margin-bottom:16px;}
 
-  .layout { display: flex; min-height: calc(100vh - 56px); }
+/* ── BUTTONS ── */
+.btn{padding:10px 22px;border-radius:6px;font-size:12px;letter-spacing:1px;text-transform:uppercase;border:none;transition:all .2s;}
+.btn-red{background:var(--red);color:#fff;} .btn-red:hover{background:#a50d25;}
+.btn-outline{background:none;border:1px solid var(--p4);color:var(--p6);} .btn-outline:hover{color:var(--white);border-color:var(--p6);}
+.btn-green{background:var(--green);color:#000;} .btn-green:hover{opacity:.85;}
+.btn-sm{padding:7px 14px;font-size:11px;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
 
-  /* ── SIDEBAR ── */
-  .sidebar {
-    width: 220px; background: var(--bg2); border-right: 1px solid var(--border);
-    padding: 20px 0; flex-shrink: 0; position: sticky;
-    top: 56px; height: calc(100vh - 56px); overflow-y: auto;
-  }
-  .nav-section { padding: 0 12px; margin-bottom: 24px; }
-  .nav-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: var(--text3); text-transform: uppercase; padding: 0 8px; margin-bottom: 6px; }
-  .nav-item {
-    display: flex; align-items: center; gap: 10px; padding: 9px 12px;
-    border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500;
-    color: var(--text2); transition: all .15s; border: none; background: none;
-    width: 100%; text-align: left;
-  }
-  .nav-item:hover { background: var(--bg3); color: var(--text); }
-  .nav-item.active { background: rgba(200,16,46,0.12); color: var(--red); }
-  .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+/* ── UPLOAD ZONE ── */
+.upload-zone{border:2px dashed var(--p4);border-radius:10px;padding:60px 24px;text-align:center;cursor:pointer;transition:all .2s;}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--red);background:rgba(200,16,46,.04);}
+.upload-zone input{display:none;}
+.upload-icon{font-size:36px;margin-bottom:12px;}
+.upload-zone h3{font-size:16px;margin-bottom:6px;}
+.upload-zone p{font-size:12px;color:var(--p5);}
 
-  /* ── MAIN ── */
-  .main { flex: 1; padding: 32px; overflow-y: auto; }
-  .page { display: none; }
-  .page.active { display: block; }
+/* ── PROGRESS / STATUS ── */
+.status-bar{background:var(--p2);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:16px 20px;margin:20px 0;display:none;}
+.status-bar.show{display:block;}
+.status-text{font-size:13px;color:var(--p6);}
+.progress-track{height:3px;background:var(--p3);border-radius:2px;margin-top:10px;overflow:hidden;}
+.progress-fill{height:100%;background:var(--red);border-radius:2px;transition:width .4s;}
 
-  .page-header { margin-bottom: 28px; }
-  .page-header h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
-  .page-header p { font-size: 13px; color: var(--text2); }
+/* ── REVIEW FORM ── */
+#reviewPanel{display:none;}
+.review-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;}
+.review-actions{display:flex;gap:10px;}
+.field-group{background:var(--p2);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:20px;margin-bottom:16px;}
+.field-group-title{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:16px;}
+.features-editor{display:flex;flex-direction:column;gap:8px;}
+.feature-row{display:flex;gap:8px;align-items:center;}
+.feature-row input{flex:1;}
+.remove-feat{background:none;border:none;color:var(--p5);font-size:16px;padding:4px 8px;transition:color .2s;} .remove-feat:hover{color:var(--red);}
+.add-feature-btn{background:none;border:1px dashed var(--p4);color:var(--p5);border-radius:6px;padding:8px;font-size:11px;letter-spacing:1px;text-transform:uppercase;transition:all .2s;margin-top:6px;} .add-feature-btn:hover{border-color:var(--p6);color:var(--white);}
+.trims-list{display:flex;flex-direction:column;gap:16px;}
+.trim-card{background:var(--p3);border-radius:8px;padding:16px;}
+.trim-card-header{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--p5);margin-bottom:12px;}
+.colors-list{display:flex;flex-direction:column;gap:8px;}
+.color-row{display:flex;gap:8px;align-items:center;}
+.color-row input{flex:2;}
+.color-row input.hex{flex:0 0 90px;}
+.color-row select{flex:1;}
+.remove-color{background:none;border:none;color:var(--p5);font-size:16px;padding:4px 8px;transition:color .2s;} .remove-color:hover{color:var(--red);}
+.add-color-btn{background:none;border:1px dashed var(--p4);color:var(--p5);border-radius:6px;padding:8px;font-size:11px;letter-spacing:1px;text-transform:uppercase;transition:all .2s;margin-top:4px;} .add-color-btn:hover{border-color:var(--p6);color:var(--white);}
 
-  /* ── CARDS ── */
-  .card {
-    background: var(--bg2); border: 1px solid var(--border);
-    border-radius: var(--rad); padding: 24px; margin-bottom: 20px;
-  }
-  .card-title { font-size: 14px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+/* ── VEHICLES LIST ── */
+.vehicle-row{display:flex;align-items:center;gap:16px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+.vehicle-row:last-child{border-bottom:none;}
+.vehicle-name{flex:1;font-size:14px;}
+.vehicle-year{font-size:12px;color:var(--p5);}
+.badge{font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:12px;}
+.badge-green{background:rgba(34,197,94,.15);color:var(--green);}
+.badge-grey{background:var(--p3);color:var(--p5);}
+.vehicle-actions{display:flex;gap:8px;}
 
-  /* ── UPLOAD ZONE ── */
-  .upload-zone {
-    border: 2px dashed var(--border); border-radius: var(--rad);
-    padding: 48px 24px; text-align: center; cursor: pointer;
-    transition: all .2s; position: relative;
-  }
-  .upload-zone:hover, .upload-zone.drag { border-color: var(--red); background: rgba(200,16,46,0.04); }
-  .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-  .upload-icon { font-size: 40px; margin-bottom: 12px; }
-  .upload-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
-  .upload-sub { font-size: 13px; color: var(--text2); }
+/* ── IMAGE UPLOAD (POST-PUBLISH) ── */
+#imageUploadSection{display:none;}
+.color-img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;margin-top:16px;}
+.color-img-card{background:var(--p2);border:1px solid rgba(255,255,255,.06);border-radius:8px;overflow:hidden;}
+.color-img-preview{height:120px;display:flex;align-items:center;justify-content:center;background:var(--p3);position:relative;overflow:hidden;}
+.color-img-preview img{width:100%;height:100%;object-fit:cover;}
+.color-img-preview .no-img{font-size:11px;color:var(--p5);text-align:center;padding:8px;}
+.color-img-info{padding:10px;}
+.color-img-name{font-size:12px;margin-bottom:4px;}
+.color-img-type{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--p5);margin-bottom:8px;}
+.color-img-upload{width:100%;padding:7px;background:none;border:1px dashed var(--p4);border-radius:4px;color:var(--p5);font-size:10px;letter-spacing:1px;text-transform:uppercase;transition:all .2s;cursor:pointer;}
+.color-img-upload:hover{border-color:var(--red);color:var(--white);}
+.color-img-input{display:none;}
+.color-img-uploading{font-size:10px;color:var(--yellow);text-align:center;margin-top:4px;display:none;}
+.color-img-done{font-size:10px;color:var(--green);text-align:center;margin-top:4px;display:none;}
 
-  /* ── PROGRESS ── */
-  .progress-wrap { margin-top: 20px; display: none; }
-  .progress-step { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
-  .progress-step:last-child { border-bottom: none; }
-  .step-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
-  .step-icon.pending { background: var(--bg3); color: var(--text3); }
-  .step-icon.active { background: var(--red); color: #fff; animation: pulse 1s infinite; }
-  .step-icon.done { background: var(--green); color: #fff; }
-  .step-icon.err { background: #ef4444; color: #fff; }
-  .step-label { font-size: 13px; font-weight: 500; }
-  .step-sub { font-size: 11px; color: var(--text2); margin-top: 2px; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.6} }
+/* ── USERS ── */
+.user-row{display:flex;align-items:center;gap:16px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+.user-row:last-child{border-bottom:none;}
+.user-name{flex:1;}
+.user-role{font-size:11px;color:var(--p5);}
 
-  /* ── REVIEW SCREEN ── */
-  #reviewScreen { display: none; }
-  .review-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  @media(max-width:900px){ .review-grid { grid-template-columns: 1fr; } }
-  .review-field { margin-bottom: 14px; }
-  .review-field label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--text2); margin-bottom: 5px; }
-  .review-field input, .review-field select, .review-field textarea {
-    width: 100%; padding: 9px 12px; background: var(--bg3);
-    border: 1px solid var(--border); border-radius: 8px;
-    color: var(--text); font-size: 13px; outline: none; transition: border-color .2s;
-  }
-  .review-field input:focus, .review-field select:focus, .review-field textarea:focus { border-color: var(--red); }
-  .review-field textarea { resize: vertical; min-height: 80px; font-family: var(--font); }
-  .review-field select option { background: var(--bg3); }
+/* ── LOGIN ── */
+#loginScreen{position:fixed;inset:0;background:var(--p0);display:flex;align-items:center;justify-content:center;z-index:999;}
+.login-box{width:360px;background:var(--p1);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:40px;}
+.login-logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;text-align:center;margin-bottom:6px;}
+.login-logo span{color:var(--red);}
+.login-sub{font-size:12px;color:var(--p5);text-align:center;margin-bottom:32px;}
+.login-error{font-size:12px;color:var(--red);text-align:center;margin-bottom:12px;display:none;}
 
-  .features-list { background: var(--bg3); border-radius: 8px; padding: 12px; max-height: 260px; overflow-y: auto; }
-  .feature-item { display: flex; align-items: center; gap: 8px; padding: 5px 0; font-size: 12px; border-bottom: 1px solid var(--border); }
-  .feature-item:last-child { border-bottom: none; }
-  .feature-item input[type=checkbox] { accent-color: var(--red); flex-shrink: 0; }
-  .feature-cat { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--red); margin: 10px 0 4px; }
-
-  .review-actions { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
-  .btn-success { padding: 12px 28px; background: var(--green); color: #fff; border: none; border-radius: var(--rad); font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity .2s; }
-  .btn-success:hover { opacity: .85; }
-  .btn-secondary { padding: 12px 28px; background: var(--bg3); color: var(--text); border: 1px solid var(--border); border-radius: var(--rad); font-size: 14px; font-weight: 600; cursor: pointer; transition: all .2s; }
-  .btn-secondary:hover { border-color: var(--text2); }
-  .btn-danger { padding: 8px 18px; background: transparent; color: #f87171; border: 1px solid rgba(248,113,113,0.3); border-radius: 8px; font-size: 12px; cursor: pointer; transition: all .2s; }
-  .btn-danger:hover { background: rgba(248,113,113,0.1); }
-  .btn-sm { padding: 6px 14px; font-size: 12px; border-radius: 7px; }
-
-  /* ── VEHICLES LIST ── */
-  .model-card {
-    background: var(--bg2); border: 1px solid var(--border); border-radius: var(--rad);
-    padding: 20px; margin-bottom: 12px; display: flex; align-items: center; gap: 16px;
-    transition: border-color .2s;
-  }
-  .model-card:hover { border-color: rgba(255,255,255,0.15); }
-  .model-info { flex: 1; }
-  .model-name { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
-  .model-meta { font-size: 12px; color: var(--text2); }
-  .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-  .badge-green { background: rgba(34,197,94,0.15); color: var(--green); }
-  .badge-gray { background: var(--bg4); color: var(--text3); }
-  .badge-red { background: rgba(200,16,46,0.15); color: var(--red); }
-
-  .trim-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
-  .trim-row:last-child { border-bottom: none; }
-
-  /* ── USERS ── */
-  .user-row { display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
-  .user-row:last-child { border-bottom: none; }
-  .user-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--red); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; }
-  .user-info { flex: 1; }
-  .user-name { font-size: 14px; font-weight: 600; }
-  .user-role { font-size: 11px; color: var(--text2); }
-
-  .add-user-form { background: var(--bg3); border-radius: var(--rad); padding: 20px; margin-top: 16px; display: none; }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-
-  /* ── TOAST ── */
-  #toast {
-    position: fixed; bottom: 24px; right: 24px; padding: 14px 20px;
-    border-radius: var(--rad); font-size: 14px; font-weight: 500;
-    opacity: 0; transform: translateY(8px); transition: all .3s;
-    z-index: 9999; max-width: 320px; pointer-events: none;
-  }
-  #toast.show { opacity: 1; transform: translateY(0); }
-  #toast.success { background: #166534; color: #bbf7d0; border: 1px solid #15803d; }
-  #toast.error { background: #7f1d1d; color: #fecaca; border: 1px solid #b91c1c; }
-  #toast.info { background: #1e3a5f; color: #bfdbfe; border: 1px solid #2563eb; }
-
-  /* ── MISC ── */
-  .divider { height: 1px; background: var(--border); margin: 20px 0; }
-  .empty-state { text-align: center; padding: 48px 24px; color: var(--text3); }
-  .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
-  .empty-state p { font-size: 14px; }
-  .stat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 24px; }
-  .stat { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--rad); padding: 20px; }
-  .stat-val { font-size: 28px; font-weight: 700; }
-  .stat-lbl { font-size: 12px; color: var(--text2); margin-top: 4px; }
-  .tag { display: inline-block; padding: 2px 8px; background: var(--bg4); border-radius: 4px; font-size: 11px; color: var(--text2); margin: 2px; }
-
-  .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.2); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; margin-right: 6px; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .collapsible-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 12px 0; }
-  .collapsible-body { display: none; padding-top: 8px; }
-  .collapsible-body.open { display: block; }
-
-  /* scrollbar */
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+/* ── TOAST ── */
+#toast{position:fixed;bottom:28px;right:28px;padding:12px 20px;border-radius:8px;font-size:13px;background:var(--p3);color:var(--white);transform:translateY(80px);opacity:0;transition:all .3s;z-index:9999;pointer-events:none;}
+#toast.show{transform:translateY(0);opacity:1;}
+#toast.success{background:#166534;color:#bbf7d0;}
+#toast.error{background:#7f1d1d;color:#fecaca;}
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script>
-  if (typeof pdfjsLib !== 'undefined') {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-  }
-</script>
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════ LOGIN -->
+<!-- LOGIN -->
 <div id="loginScreen">
   <div class="login-box">
-    <div class="login-logo">
-      <div class="login-logo-bar"></div>
-      <div class="login-logo-text">Mazda of Seattle</div>
-    </div>
-    <div class="login-title">Admin Portal</div>
-    <div class="login-sub">Sign in to manage your vehicle inventory</div>
-    <div class="field">
-      <label>Username</label>
-      <input type="text" id="loginUser" placeholder="Enter username" autocomplete="username">
-    </div>
-    <div class="field">
-      <label>Password</label>
-      <input type="password" id="loginPass" placeholder="Enter password" autocomplete="current-password">
-    </div>
-    <button class="btn-primary" id="loginBtn" onclick="doLogin()">Sign In</button>
-    <div class="login-err" id="loginErr">Invalid username or password</div>
+    <div class="login-logo">Mazda <span>Admin</span></div>
+    <div class="login-sub">Mazda of Seattle Internal</div>
+    <div class="login-error" id="loginError">Invalid username or password.</div>
+    <div class="field"><label>Username</label><input type="text" id="loginUser" placeholder="username" autocomplete="username"></div>
+    <div class="field"><label>Password</label><input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password"></div>
+    <button class="btn btn-red" style="width:100%;margin-top:8px;" onclick="doLogin()">Sign In</button>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════ APP -->
-<div id="app">
-  <div class="topbar">
-    <div class="topbar-logo">MOS</div>
-    <div class="topbar-sep"></div>
-    <div class="topbar-title">Admin Portal</div>
-    <div class="topbar-user" id="topbarUser"></div>
-    <button class="btn-logout" onclick="doLogout()">Sign Out</button>
-  </div>
-  <div class="layout">
+<!-- ADMIN SHELL -->
+<div class="admin-wrap" id="adminShell" style="display:none;">
+  <nav class="sidebar">
+    <div class="sidebar-logo">Mazda <span>Admin</span></div>
+    <div class="nav-item active" onclick="showPage('upload')">Upload Sticker</div>
+    <div class="nav-item" onclick="showPage('vehicles')">Vehicles</div>
+    <div class="nav-item" id="navImages" onclick="showPage('images')" style="display:none;">Manage Images</div>
+    <div class="nav-item" id="navUsers" onclick="showPage('users')">Users</div>
+    <div class="sidebar-bottom">
+      <button class="logout-btn" onclick="logout()">Sign Out</button>
+    </div>
+  </nav>
 
-    <!-- Sidebar -->
-    <div class="sidebar">
-      <div class="nav-section">
-        <div class="nav-label">Dashboard</div>
-        <button class="nav-item active" onclick="navTo('dashboard')" id="nav-dashboard">
-          <span class="nav-icon">📊</span> Overview
-        </button>
+  <div class="main">
+
+    <!-- ══ UPLOAD PAGE ══ -->
+    <div class="page active" id="page-upload">
+      <div class="page-title">Upload Window Sticker</div>
+      <div class="page-sub">Drop a PDF window sticker — Claude will extract all vehicle data automatically.</div>
+
+      <!-- Upload zone -->
+      <div id="uploadArea">
+        <div class="upload-zone card" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+          <input type="file" id="fileInput" accept=".pdf" onchange="handlePDF(this.files[0])">
+          <div class="upload-icon">📄</div>
+          <h3>Drop Window Sticker PDF</h3>
+          <p>Click to browse or drag & drop</p>
+        </div>
       </div>
-      <div class="nav-section">
-        <div class="nav-label">Inventory</div>
-        <button class="nav-item" onclick="navTo('upload')" id="nav-upload">
-          <span class="nav-icon">📄</span> Upload Sticker
-        </button>
-        <button class="nav-item" onclick="navTo('vehicles')" id="nav-vehicles">
-          <span class="nav-icon">🚗</span> Vehicles
-        </button>
+
+      <!-- Status -->
+      <div class="status-bar" id="statusBar">
+        <div class="status-text" id="statusText">Processing…</div>
+        <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
       </div>
-      <div class="nav-section" id="adminNav">
-        <div class="nav-label">Settings</div>
-        <button class="nav-item" onclick="navTo('users')" id="nav-users">
-          <span class="nav-icon">👥</span> Users
-        </button>
+
+      <!-- Review Panel -->
+      <div id="reviewPanel">
+        <div class="review-header">
+          <div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;">Review Extracted Data</div>
+            <div style="font-size:12px;color:var(--p5);">Edit any field before saving</div>
+          </div>
+          <div class="review-actions">
+            <button class="btn btn-outline" onclick="resetUpload()">Start Over</button>
+            <button class="btn btn-outline" onclick="saveVehicle(false)">Save Draft</button>
+            <button class="btn btn-red" onclick="saveVehicle(true)">Publish to Site</button>
+          </div>
+        </div>
+
+        <!-- Model Info -->
+        <div class="field-group">
+          <div class="field-group-title">Model Information</div>
+          <div class="grid3">
+            <div class="field"><label>Model Name</label><input type="text" id="r_name"></div>
+            <div class="field"><label>Year</label><input type="text" id="r_year"></div>
+            <div class="field"><label>Slug (URL key)</label><input type="text" id="r_slug"></div>
+          </div>
+        </div>
+
+        <!-- Trims -->
+        <div class="field-group">
+          <div class="field-group-title">Trims</div>
+          <div class="trims-list" id="trimsList"></div>
+          <button class="add-feature-btn" onclick="addTrim()" style="margin-top:12px;">+ Add Trim</button>
+        </div>
+
+        <!-- Colors -->
+        <div class="field-group">
+          <div class="field-group-title">Colors</div>
+          <div class="colors-list" id="colorsList"></div>
+          <button class="add-color-btn" onclick="addColor()">+ Add Color</button>
+        </div>
       </div>
     </div>
 
-    <!-- Main -->
-    <div class="main">
+    <!-- ══ VEHICLES PAGE ══ -->
+    <div class="page" id="page-vehicles">
+      <div class="page-title">Vehicles</div>
+      <div class="page-sub">All models in the database.</div>
+      <div class="card">
+        <div id="vehiclesList"><div style="color:var(--p5);font-size:13px;">Loading…</div></div>
+      </div>
+    </div>
 
-      <!-- ── DASHBOARD ── -->
-      <div class="page active" id="page-dashboard">
-        <div class="page-header">
-          <h1>Overview</h1>
-          <p>Welcome back. Here's a snapshot of your inventory.</p>
-        </div>
-        <div class="stat-row">
-          <div class="stat"><div class="stat-val" id="statModels">—</div><div class="stat-lbl">Published Models</div></div>
-          <div class="stat"><div class="stat-val" id="statTrims">—</div><div class="stat-lbl">Total Trims</div></div>
-          <div class="stat"><div class="stat-val" id="statDraft">—</div><div class="stat-lbl">Drafts</div></div>
+    <!-- ══ IMAGES PAGE ══ -->
+    <div class="page" id="page-images">
+      <div class="page-title">Manage Images</div>
+      <div class="page-sub">Upload exterior color PNGs and interior photos for each model.</div>
+
+      <div class="field" style="max-width:320px;margin-bottom:28px;">
+        <label>Select Model</label>
+        <select id="imageModelSelect" onchange="loadModelImages()">
+          <option value="">— Choose a model —</option>
+        </select>
+      </div>
+
+      <div id="imageUploadSection">
+        <div class="card">
+          <div class="card-title">Exterior Colors</div>
+          <p style="font-size:12px;color:var(--p5);margin-bottom:4px;">Upload a PNG with transparent background for each exterior color.</p>
+          <div class="color-img-grid" id="extColorGrid"></div>
         </div>
         <div class="card">
-          <div class="card-title">📋 Recent Activity</div>
-          <div id="recentList"><div class="empty-state"><div class="empty-icon">📭</div><p>No vehicles yet. Upload a window sticker to get started.</p></div></div>
-        </div>
-        <div class="card">
-          <div class="card-title">⚡ Quick Actions</div>
-          <div style="display:flex;gap:12px;flex-wrap:wrap;">
-            <button class="btn-primary btn-sm" onclick="navTo('upload')">+ Upload Window Sticker</button>
-            <button class="btn-secondary btn-sm" onclick="navTo('vehicles')">View All Vehicles</button>
-          </div>
+          <div class="card-title">Interior Colors / Photos</div>
+          <p style="font-size:12px;color:var(--p5);margin-bottom:4px;">Upload a cabin photo for each interior option.</p>
+          <div class="color-img-grid" id="intColorGrid"></div>
         </div>
       </div>
+    </div>
 
-      <!-- ── UPLOAD ── -->
-      <div class="page" id="page-upload">
-        <div class="page-header">
-          <h1>Upload Window Sticker</h1>
-          <p>Upload a Mazda window sticker PDF — Claude will extract all vehicle data automatically.</p>
+    <!-- ══ USERS PAGE ══ -->
+    <div class="page" id="page-users">
+      <div class="page-title">Users</div>
+      <div class="page-sub">Manage admin and manager accounts.</div>
+      <div class="card" style="max-width:520px;">
+        <div class="card-title">Add User</div>
+        <div class="grid2">
+          <div class="field"><label>Username</label><input type="text" id="newUsername" placeholder="jsmith"></div>
+          <div class="field"><label>Display Name</label><input type="text" id="newDisplay" placeholder="Jane Smith"></div>
         </div>
-
-        <div class="card" id="uploadCard">
-          <div class="upload-zone" id="uploadZone">
-            <input type="file" id="pdfInput" accept=".pdf" onchange="handlePDF(this.files[0])">
-            <div class="upload-icon">📄</div>
-            <div class="upload-title">Drop window sticker PDF here</div>
-            <div class="upload-sub">or click to browse · PDF files only</div>
-          </div>
-
-          <div class="progress-wrap" id="progressWrap">
-            <div class="progress-step" id="step1">
-              <div class="step-icon pending" id="step1-icon">1</div>
-              <div><div class="step-label">Reading PDF</div><div class="step-sub" id="step1-sub">Waiting...</div></div>
-            </div>
-            <div class="progress-step" id="step2">
-              <div class="step-icon pending" id="step2-icon">2</div>
-              <div><div class="step-label">Claude AI Extraction</div><div class="step-sub" id="step2-sub">Waiting...</div></div>
-            </div>
-            <div class="progress-step" id="step3">
-              <div class="step-icon pending" id="step3-icon">3</div>
-              <div><div class="step-label">Building Review Screen</div><div class="step-sub" id="step3-sub">Waiting...</div></div>
-            </div>
+        <div class="grid2">
+          <div class="field"><label>Password</label><input type="password" id="newPass" placeholder="••••••••"></div>
+          <div class="field"><label>Role</label>
+            <select id="newRole">
+              <option value="manager">Manager</option>
+              <option value="admin">Admin</option>
+            </select>
           </div>
         </div>
-
-        <!-- REVIEW SCREEN -->
-        <div id="reviewScreen">
-          <div class="card">
-            <div class="card-title">✅ Review Extracted Data — <span style="color:var(--text2);font-weight:400;font-size:13px;">Edit any field before publishing</span></div>
-
-            <div class="review-grid">
-              <div>
-                <div class="review-field">
-                  <label>Year</label>
-                  <input type="number" id="rv-year" placeholder="2026">
-                </div>
-                <div class="review-field">
-                  <label>Model Name</label>
-                  <input type="text" id="rv-model" placeholder="CX-50 Hybrid">
-                </div>
-                <div class="review-field">
-                  <label>Trim Name</label>
-                  <input type="text" id="rv-trim" placeholder="2.5 Hybrid Preferred">
-                </div>
-                <div class="review-field">
-                  <label>Trim Level</label>
-                  <select id="rv-level">
-                    <option value="entry">Entry Level</option>
-                    <option value="mid">Mid Level</option>
-                    <option value="top">Top Level</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-                <div class="review-field">
-                  <label>VIN</label>
-                  <input type="text" id="rv-vin">
-                </div>
-              </div>
-              <div>
-                <div class="review-field">
-                  <label>Engine</label>
-                  <input type="text" id="rv-engine" placeholder="2.5L 4-Cylinder Hybrid">
-                </div>
-                <div class="review-field">
-                  <label>Horsepower</label>
-                  <input type="text" id="rv-hp" placeholder="219 Combined Net HP">
-                </div>
-                <div class="review-field">
-                  <label>Transmission</label>
-                  <input type="text" id="rv-trans" placeholder="e-CVT">
-                </div>
-                <div class="review-field">
-                  <label>Drivetrain</label>
-                  <input type="text" id="rv-drive" placeholder="Electric AWD">
-                </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                  <div class="review-field">
-                    <label>City MPG</label>
-                    <input type="number" id="rv-mpgc" placeholder="39">
-                  </div>
-                  <div class="review-field">
-                    <label>Hwy MPG</label>
-                    <input type="number" id="rv-mpgh" placeholder="37">
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="review-grid" style="margin-top:8px;">
-              <div>
-                <div class="review-field">
-                  <label>Exterior Color</label>
-                  <input type="text" id="rv-extcolor" placeholder="Jet Black Mica">
-                </div>
-                <div class="review-field">
-                  <label>Interior Color / Material</label>
-                  <input type="text" id="rv-intcolor" placeholder="Black Leatherette">
-                </div>
-                <div class="review-field">
-                  <label>Towing Capacity</label>
-                  <input type="text" id="rv-tow" placeholder="1,500 lbs">
-                </div>
-              </div>
-              <div>
-                <div class="review-field">
-                  <label>Package Name</label>
-                  <input type="text" id="rv-pkg" placeholder="Preferred">
-                </div>
-                <div class="review-field">
-                  <label>Package Features (one per line)</label>
-                  <textarea id="rv-pkgfeatures" rows="4" placeholder="8-Way Power Driver Seat&#10;Heated Front Seats&#10;Wireless Phone Charger"></textarea>
-                </div>
-              </div>
-            </div>
-
-            <div class="divider"></div>
-
-            <div class="collapsible-header" onclick="toggleCollapse('featureCollapse')">
-              <div class="card-title" style="margin:0">🔧 Standard Features <span style="color:var(--text2);font-weight:400;font-size:12px;">(deselect any to hide from site)</span></div>
-              <span style="color:var(--text2);font-size:12px;" id="featureCollapseArrow">▼ Show</span>
-            </div>
-            <div class="collapsible-body" id="featureCollapse">
-              <div id="featuresList" class="features-list"></div>
-            </div>
-
-            <div class="review-actions">
-              <button class="btn-success" onclick="publishVehicle()">✓ Publish to Site</button>
-              <button class="btn-secondary" onclick="saveDraft()">Save as Draft</button>
-              <button class="btn-danger" onclick="cancelReview()">✕ Cancel</button>
-            </div>
-          </div>
-        </div>
+        <button class="btn btn-red btn-sm" onclick="addUser()">Add User</button>
       </div>
-
-      <!-- ── VEHICLES ── -->
-      <div class="page" id="page-vehicles">
-        <div class="page-header">
-          <h1>Vehicles</h1>
-          <p>All models and trims in your database.</p>
-        </div>
-        <div id="vehiclesList">
-          <div class="empty-state"><div class="empty-icon">🚗</div><p>No vehicles yet.</p></div>
-        </div>
+      <div class="card" style="max-width:520px;margin-top:20px;">
+        <div class="card-title">All Users</div>
+        <div id="usersList"><div style="color:var(--p5);font-size:13px;">Loading…</div></div>
       </div>
+    </div>
 
-      <!-- ── USERS ── -->
-      <div class="page" id="page-users">
-        <div class="page-header">
-          <h1>User Management</h1>
-          <p>Add or remove admin portal users.</p>
-        </div>
-        <div class="card">
-          <div class="card-title">👥 Current Users</div>
-          <div id="usersList"></div>
-          <div class="divider"></div>
-          <button class="btn-secondary btn-sm" onclick="toggleAddUser()">+ Add New User</button>
-          <div class="add-user-form" id="addUserForm">
-            <div class="form-row">
-              <div class="review-field" style="margin:0">
-                <label>Display Name</label>
-                <input type="text" id="newDisplayName" placeholder="Jane Smith">
-              </div>
-              <div class="review-field" style="margin:0">
-                <label>Username</label>
-                <input type="text" id="newUsername" placeholder="jsmith">
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="review-field" style="margin:0">
-                <label>Password</label>
-                <input type="password" id="newPassword" placeholder="Temporary password">
-              </div>
-              <div class="review-field" style="margin:0">
-                <label>Role</label>
-                <select id="newRole">
-                  <option value="manager">Manager</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-            </div>
-            <div style="display:flex;gap:10px;margin-top:4px;">
-              <button class="btn-primary btn-sm" onclick="addUser()">Create User</button>
-              <button class="btn-secondary btn-sm" onclick="toggleAddUser()">Cancel</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div><!-- /main -->
-  </div><!-- /layout -->
-</div><!-- /app -->
+  </div><!-- .main -->
+</div><!-- .admin-wrap -->
 
 <div id="toast"></div>
+
+<!-- PDF.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
 <script>
 // ══════════════════════════════════════════════
 // CONFIG
 // ══════════════════════════════════════════════
-const SUPABASE_URL = 'https://dvznpeelgyebzdublamt.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2em5wZWVsZ3llYnpkdWJsYW10Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwMjEyMjIsImV4cCI6MjA5MzU5NzIyMn0.x4AXUr4PcGkxZUR19T0FhNth1Lo8PsIaeUJxLQiqK9o';
-const CLAUDE_API  = 'https://api.anthropic.com/v1/messages';
+const SUPABASE_URL  = 'https://dvznpeelgyebzdublamt.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2em5wZWVsZ3llYnpkdWJsYW10Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwMjEyMjIsImV4cCI6MjA5MzU5NzIyMn0.x4AXUr4PcGkxZUR19T0FhNth1Lo8PsIaeUJxLQiqK9o';
+const STORAGE_URL   = `${SUPABASE_URL}/storage/v1/object/public/vehicle-images`;
 
-let currentUser = null;
-let extractedData = null;
+const sbHeaders = {
+  'apikey': SUPABASE_ANON,
+  'Authorization': `Bearer ${SUPABASE_ANON}`,
+  'Content-Type': 'application/json'
+};
 
-// ══════════════════════════════════════════════
-// SUPABASE HELPERS
-// ══════════════════════════════════════════════
-async function sb(path, method='GET', body=null) {
-  const opts = {
-    method,
-    headers: {
-      'apikey': SUPABASE_KEY,
-      'Authorization': 'Bearer ' + SUPABASE_KEY,
-      'Content-Type': 'application/json',
-      'Prefer': method === 'POST' ? 'return=representation' : ''
-    }
-  };
+async function sb(path, method = 'GET', body = null) {
+  const opts = { method, headers: sbHeaders };
   if (body) opts.body = JSON.stringify(body);
-  const r = await fetch(SUPABASE_URL + '/rest/v1/' + path, opts);
-  if (!r.ok) { const e = await r.text(); throw new Error(e); }
-  return r.status === 204 ? null : r.json();
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, opts);
+  if (!r.ok) {
+    const txt = await r.text();
+    throw new Error(`DB error: ${txt}`);
+  }
+  const txt = await r.text();
+  return txt ? JSON.parse(txt) : null;
 }
 
 // ══════════════════════════════════════════════
 // AUTH
 // ══════════════════════════════════════════════
+let currentUser = null;
+
+async function hashPass(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
 async function doLogin() {
-  const username = document.getElementById('loginUser').value.trim();
-  const password = document.getElementById('loginPass').value;
-  const btn = document.getElementById('loginBtn');
-  const err = document.getElementById('loginErr');
-  err.style.display = 'none';
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>Signing in...';
+  const user = document.getElementById('loginUser').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  if (!user || !pass) return;
   try {
-    const users = await sb(`admin_users?username=eq.${encodeURIComponent(username)}&select=*`);
-    if (!users || users.length === 0) throw new Error('Not found');
-    const user = users[0];
-    const hashBuf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(password));
-    const hashHex = Array.from(new Uint8Array(hashBuf)).map(b=>b.toString(16).padStart(2,"0")).join("");
-    const match = hashHex === user.password_hash;
-    if (!match) throw new Error('Bad password');
-    currentUser = user;
-    await sb(`admin_users?id=eq.${user.id}`, 'PATCH', { last_login: new Date().toISOString() });
+    const hash = await hashPass(pass);
+    const rows = await sb(`admin_users?username=eq.${encodeURIComponent(user)}&password_hash=eq.${hash}&select=*`);
+    if (!rows || !rows.length) {
+      document.getElementById('loginError').style.display = 'block';
+      return;
+    }
+    currentUser = rows[0];
     document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    document.getElementById('topbarUser').textContent = user.display_name || user.username;
-    if (user.role !== 'admin') document.getElementById('adminNav').style.display = 'none';
-    loadDashboard();
+    document.getElementById('adminShell').style.display = 'flex';
+    if (currentUser.role === 'admin') {
+      document.getElementById('navUsers').style.display = 'block';
+    }
+    document.getElementById('navImages').style.display = 'block';
     loadVehicles();
-    if (user.role === 'admin') loadUsers();
+    loadUsers();
+    loadImageModelSelect();
   } catch(e) {
-    err.style.display = 'block';
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = 'Sign In';
+    toast('Login failed: ' + e.message, 'error');
   }
 }
 
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && document.getElementById('loginScreen').style.display !== 'none') doLogin();
-});
+document.getElementById('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+document.getElementById('loginUser').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 
-function doLogout() {
+function logout() {
   currentUser = null;
-  document.getElementById('app').style.display = 'none';
   document.getElementById('loginScreen').style.display = 'flex';
-  document.getElementById('loginUser').value = '';
-  document.getElementById('loginPass').value = '';
+  document.getElementById('adminShell').style.display = 'none';
 }
 
 // ══════════════════════════════════════════════
 // NAVIGATION
 // ══════════════════════════════════════════════
-function navTo(page) {
+function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-' + page).classList.add('active');
-  document.getElementById('nav-' + page).classList.add('active');
+  document.getElementById(`page-${name}`).classList.add('active');
+  event.currentTarget?.classList.add('active');
 }
 
 // ══════════════════════════════════════════════
-// DASHBOARD
+// PDF EXTRACTION
 // ══════════════════════════════════════════════
-async function loadDashboard() {
-  try {
-    const [models, trims] = await Promise.all([
-      sb('models?select=*'),
-      sb('trims?select=*')
-    ]);
-    const published = models.filter(m => m.published).length;
-    const drafts = models.filter(m => !m.published).length;
-    document.getElementById('statModels').textContent = published;
-    document.getElementById('statTrims').textContent = trims.length;
-    document.getElementById('statDraft').textContent = drafts;
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-    if (models.length > 0) {
-      const sorted = [...models].sort((a,b) => new Date(b.created_at) - new Date(a.created_at)).slice(0,5);
-      document.getElementById('recentList').innerHTML = sorted.map(m => `
-        <div class="trim-row">
-          <div style="flex:1"><strong>${m.year} ${m.name}</strong></div>
-          <span class="badge ${m.published ? 'badge-green' : 'badge-gray'}">${m.published ? 'Published' : 'Draft'}</span>
-        </div>
-      `).join('');
-    }
-  } catch(e) { console.error(e); }
-}
-
-// ══════════════════════════════════════════════
-// PDF UPLOAD + CLAUDE EXTRACTION
-// ══════════════════════════════════════════════
-async function extractTextFromPDF(file) {
-  const arrayBuffer = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-  let fullText = '';
-  for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i);
-    const content = await page.getTextContent();
-    fullText += content.items.map(item => item.str).join(' ') + '\n';
-  }
-  return fullText;
-}
-
-function handlePDF(file) {
+async function handlePDF(file) {
   if (!file) return;
-  const wrap = document.getElementById('progressWrap');
-  wrap.style.display = 'block';
-  document.getElementById('uploadZone').style.pointerEvents = 'none';
-  document.getElementById('uploadZone').style.opacity = '0.5';
+  setStatus('Reading PDF…', 10);
 
-  setStep(1, 'active', 'Reading ' + file.name);
-
-  (async () => {
-    try {
-      const pdfText = await extractTextFromPDF(file);
-      setStep(1, 'done', 'PDF text extracted');
-      setStep(2, 'active', 'Sending to Claude AI...');
-
-      const data = await extractWithClaude(pdfText);
-      setStep(2, 'done', 'Extraction complete');
-      setStep(3, 'active', 'Building review screen...');
-      extractedData = data;
-      populateReview(data);
-      setStep(3, 'done', 'Ready to review');
-      setTimeout(() => {
-        document.getElementById('reviewScreen').style.display = 'block';
-        document.getElementById('reviewScreen').scrollIntoView({ behavior: 'smooth' });
-      }, 500);
-    } catch(err) {
-      setStep(1, 'err', 'Error: ' + err.message);
-      toast('Extraction failed: ' + err.message, 'error');
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    let fullText = '';
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      fullText += content.items.map(it => it.str).join(' ') + '\n';
     }
-  })();
+    setStatus('Sending to Claude AI…', 40);
+    const data = await extractWithClaude(fullText);
+    setStatus('Populating review form…', 85);
+    populateReview(data);
+    setStatus('Done', 100);
+    document.getElementById('statusBar').style.display = 'none';
+    document.getElementById('reviewPanel').style.display = 'block';
+    document.getElementById('uploadArea').style.display = 'none';
+  } catch(e) {
+    setStatus('Error: ' + e.message, 0);
+    toast('Extraction failed: ' + e.message, 'error');
+  }
+}
+
+function setStatus(msg, pct) {
+  const bar = document.getElementById('statusBar');
+  bar.classList.add('show');
+  document.getElementById('statusText').textContent = msg;
+  document.getElementById('progressFill').style.width = pct + '%';
 }
 
 async function extractWithClaude(pdfText) {
@@ -694,159 +423,238 @@ async function extractWithClaude(pdfText) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ pdfText })
   });
-
   if (!response.ok) {
     const err = await response.text();
     throw new Error('Extraction error: ' + err);
   }
-
-  return await response.json();
+  return response.json();
 }
 
-function setStep(n, state, sub) {
-  const icon = document.getElementById(`step${n}-icon`);
-  const subEl = document.getElementById(`step${n}-sub`);
-  icon.className = 'step-icon ' + state;
-  icon.textContent = state === 'done' ? '✓' : state === 'err' ? '✕' : n;
-  if (subEl) subEl.textContent = sub;
+// ══════════════════════════════════════════════
+// REVIEW FORM POPULATION
+// ══════════════════════════════════════════════
+function populateReview(data) {
+  document.getElementById('r_name').value  = data.name  || '';
+  document.getElementById('r_year').value  = data.year  || '';
+  document.getElementById('r_slug').value  = (data.name || '').toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+
+  // Trims
+  const tl = document.getElementById('trimsList');
+  tl.innerHTML = '';
+  (data.trims || []).forEach((t, i) => addTrim(t));
+
+  // Colors
+  const cl = document.getElementById('colorsList');
+  cl.innerHTML = '';
+  (data.colors || []).forEach(c => addColor(c));
 }
 
-function populateReview(d) {
-  document.getElementById('rv-year').value = d.year || '';
-  document.getElementById('rv-model').value = d.model || '';
-  document.getElementById('rv-trim').value = d.trim || '';
-  document.getElementById('rv-level').value = d.level || 'entry';
-  document.getElementById('rv-vin').value = d.vin || '';
-  document.getElementById('rv-engine').value = d.engine || '';
-  document.getElementById('rv-hp').value = d.horsepower || '';
-  document.getElementById('rv-trans').value = d.transmission || '';
-  document.getElementById('rv-drive').value = d.drivetrain || '';
-  document.getElementById('rv-mpgc').value = d.mpg_city || '';
-  document.getElementById('rv-mpgh').value = d.mpg_hwy || '';
-  document.getElementById('rv-tow').value = d.towing || '';
-  document.getElementById('rv-extcolor').value = d.exterior_color || '';
-  document.getElementById('rv-intcolor').value = d.interior_color || '';
-  document.getElementById('rv-pkg').value = d.package_name || '';
-  document.getElementById('rv-pkgfeatures').value = (d.package_features || []).join('\n');
+function addTrim(t = {}) {
+  const tl = document.getElementById('trimsList');
+  const idx = tl.children.length;
+  const div = document.createElement('div');
+  div.className = 'trim-card';
+  div.innerHTML = `
+    <div class="trim-card-header">Trim ${idx + 1} <button style="float:right;background:none;border:none;color:var(--p5);cursor:pointer;font-size:12px;" onclick="this.closest('.trim-card').remove()">✕ Remove</button></div>
+    <div class="grid3">
+      <div class="field"><label>Name</label><input class="t_name" value="${t.name||''}" placeholder="e.g. Select"></div>
+      <div class="field"><label>Level</label><input class="t_level" value="${t.level||idx+1}" type="number" min="1"></div>
+      <div class="field"><label>Engine</label><input class="t_engine" value="${t.engine||''}"></div>
+    </div>
+    <div class="grid3">
+      <div class="field"><label>Transmission</label><input class="t_transmission" value="${t.transmission||''}"></div>
+      <div class="field"><label>Drivetrain</label><input class="t_drivetrain" value="${t.drivetrain||''}"></div>
+      <div class="field"><label>Horsepower</label><input class="t_horsepower" value="${t.horsepower||''}" type="number"></div>
+    </div>
+    <div class="grid3">
+      <div class="field"><label>MPG City</label><input class="t_mpg_city" value="${t.mpg_city||''}" type="number"></div>
+      <div class="field"><label>MPG Hwy</label><input class="t_mpg_hwy" value="${t.mpg_hwy||''}" type="number"></div>
+      <div class="field"><label>Towing (lbs)</label><input class="t_towing" value="${t.towing_capacity||''}" type="number"></div>
+    </div>
+    <div class="field"><label>VIN</label><input class="t_vin" value="${t.vin||''}"></div>
+    <div style="margin-top:12px;">
+      <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--p5);margin-bottom:10px;">Features by Category</div>
+      <div class="features-editor" id="feats-${idx}"></div>
+      <button class="add-feature-btn" onclick="addFeature(${idx})">+ Add Feature</button>
+    </div>`;
+  tl.appendChild(div);
 
-  // Features list
-  const list = document.getElementById('featuresList');
-  list.innerHTML = '';
-  const features = d.features || {};
-  Object.entries(features).forEach(([cat, items]) => {
-    if (!items || !items.length) return;
-    list.innerHTML += `<div class="feature-cat">${cat}</div>`;
-    items.forEach((f, i) => {
-      list.innerHTML += `
-        <div class="feature-item">
-          <input type="checkbox" checked id="feat-${cat}-${i}" data-cat="${cat}" data-feat="${f}">
-          <label for="feat-${cat}-${i}">${f}</label>
-        </div>`;
-    });
+  // Populate features
+  (t.features || []).forEach(f => {
+    if (typeof f === 'string') addFeature(idx, { category: 'General', text: f });
+    else addFeature(idx, f);
   });
 }
 
-function toggleCollapse(id) {
-  const body = document.getElementById(id);
-  const arrow = document.getElementById(id + 'Arrow');
-  body.classList.toggle('open');
-  if (arrow) arrow.textContent = body.classList.contains('open') ? '▲ Hide' : '▼ Show';
+function addFeature(trimIdx, f = {}) {
+  const container = document.getElementById(`feats-${trimIdx}`);
+  if (!container) return;
+  const row = document.createElement('div');
+  row.className = 'feature-row';
+  row.innerHTML = `
+    <input type="text" placeholder="Category" value="${f.category||'General'}" style="flex:0 0 130px;" class="feat-cat">
+    <input type="text" placeholder="Feature description" value="${f.text||f.feature_text||''}" class="feat-text">
+    <button class="remove-feat" onclick="this.parentElement.remove()">✕</button>`;
+  container.appendChild(row);
+}
+
+function addColor(c = {}) {
+  const cl = document.getElementById('colorsList');
+  const row = document.createElement('div');
+  row.className = 'color-row';
+  row.innerHTML = `
+    <input type="text" placeholder="Color name" value="${c.name||''}">
+    <select>
+      <option value="exterior"${c.type==='exterior'?' selected':''}>Exterior</option>
+      <option value="interior"${c.type==='interior'?' selected':''}>Interior</option>
+    </select>
+    <input class="hex" type="text" placeholder="#hex" value="${c.hex_code||''}" maxlength="7">
+    <button class="remove-color" onclick="this.parentElement.remove()">✕</button>`;
+  cl.appendChild(row);
 }
 
 // ══════════════════════════════════════════════
-// PUBLISH / SAVE
+// SAVE TO SUPABASE
 // ══════════════════════════════════════════════
-async function publishVehicle(draft=false) {
-  await saveVehicle(!draft);
-}
-async function saveDraft() { await saveVehicle(false); }
+async function saveVehicle(publish) {
+  const name = document.getElementById('r_name').value.trim();
+  const year = document.getElementById('r_year').value.trim();
+  const slug = document.getElementById('r_slug').value.trim();
+  if (!name) { toast('Model name is required', 'error'); return; }
 
-async function saveVehicle(publish=true) {
+  setStatus('Saving model…', 20);
+  document.getElementById('statusBar').classList.add('show');
+
   try {
-    const year = parseInt(document.getElementById('rv-year').value);
-    const modelName = document.getElementById('rv-model').value.trim();
-    const trimName = document.getElementById('rv-trim').value.trim();
-
-    if (!modelName || !trimName) { toast('Model and trim name are required', 'error'); return; }
-
-    toast('Saving...', 'info');
-
     // Upsert model
-    const slug = `${year}-${modelName.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'')}`;
+    const modelRows = await sb('models?select=id&name=eq.' + encodeURIComponent(name) + '&year=eq.' + encodeURIComponent(year));
     let modelId;
-    const existingModels = await sb(`models?slug=eq.${slug}&select=id`);
-    if (existingModels && existingModels.length > 0) {
-      modelId = existingModels[0].id;
-      await sb(`models?id=eq.${modelId}`, 'PATCH', { published: publish, updated_at: new Date().toISOString() });
+
+    if (modelRows && modelRows.length) {
+      modelId = modelRows[0].id;
+      await sb(`models?id=eq.${modelId}`, 'PATCH', { name, year, slug, published: publish, updated_at: new Date().toISOString() });
     } else {
-      const newModel = await sb('models', 'POST', { name: modelName, year, slug, published: publish });
-      modelId = newModel[0].id;
+      const created = await sb('models?select=id', 'POST', { name, year, slug, published: publish, sort_order: 99 });
+      // Supabase returns array on insert with Prefer: return=representation
+      // Use PATCH with select workaround
+      const newRows = await sb('models?select=id&name=eq.' + encodeURIComponent(name) + '&year=eq.' + encodeURIComponent(year));
+      modelId = newRows[0].id;
     }
 
-    // Insert trim
-    const trimData = {
-      model_id: modelId,
-      name: trimName,
-      level: document.getElementById('rv-level').value,
-      engine: document.getElementById('rv-engine').value,
-      horsepower: document.getElementById('rv-hp').value,
-      transmission: document.getElementById('rv-trans').value,
-      drivetrain: document.getElementById('rv-drive').value,
-      mpg_city: parseInt(document.getElementById('rv-mpgc').value) || null,
-      mpg_hwy: parseInt(document.getElementById('rv-mpgh').value) || null,
-      towing_capacity: document.getElementById('rv-tow').value,
-      vin: document.getElementById('rv-vin').value,
-    };
-    const newTrim = await sb('trims', 'POST', trimData);
-    const trimId = newTrim[0].id;
+    setStatus('Saving trims…', 45);
 
-    // Insert colors
-    const extColor = document.getElementById('rv-extcolor').value.trim();
-    const intColor = document.getElementById('rv-intcolor').value.trim();
-    if (extColor) await sb('colors', 'POST', { model_id: modelId, trim_id: trimId, name: extColor, type: 'exterior' });
-    if (intColor) await sb('colors', 'POST', { model_id: modelId, trim_id: trimId, name: intColor, type: 'interior' });
+    // Save trims
+    const trimCards = document.querySelectorAll('#trimsList .trim-card');
+    for (const card of trimCards) {
+      const trimName = card.querySelector('.t_name').value.trim();
+      if (!trimName) continue;
 
-    // Insert package
-    const pkgName = document.getElementById('rv-pkg').value.trim();
-    const pkgFeats = document.getElementById('rv-pkgfeatures').value.trim().split('\n').filter(f => f.trim());
-    if (pkgName) {
-      await sb('packages', 'POST', { trim_id: trimId, name: pkgName, package_features: pkgFeats });
-    }
+      const trimData = {
+        model_id:        modelId,
+        name:            trimName,
+        level:           parseInt(card.querySelector('.t_level').value) || 1,
+        engine:          card.querySelector('.t_engine').value.trim(),
+        transmission:    card.querySelector('.t_transmission').value.trim(),
+        drivetrain:      card.querySelector('.t_drivetrain').value.trim(),
+        horsepower:      parseInt(card.querySelector('.t_horsepower').value) || null,
+        mpg_city:        parseInt(card.querySelector('.t_mpg_city').value) || null,
+        mpg_hwy:         parseInt(card.querySelector('.t_mpg_hwy').value) || null,
+        towing_capacity: parseInt(card.querySelector('.t_towing').value) || null,
+        vin:             card.querySelector('.t_vin').value.trim(),
+      };
 
-    // Insert selected features
-    const checkboxes = document.querySelectorAll('#featuresList input[type=checkbox]:checked');
-    const featureInserts = [];
-    let order = 0;
-    checkboxes.forEach(cb => {
-      featureInserts.push({ trim_id: trimId, category: cb.dataset.cat, feature_text: cb.dataset.feat, sort_order: order++ });
-    });
-    if (featureInserts.length > 0) {
-      // Insert in batches of 50
-      for (let i = 0; i < featureInserts.length; i += 50) {
-        await sb('features', 'POST', featureInserts.slice(i, i+50));
+      // Check existing trim
+      const existingTrim = await sb(`trims?model_id=eq.${modelId}&name=eq.${encodeURIComponent(trimName)}&select=id`);
+      let trimId;
+
+      if (existingTrim && existingTrim.length) {
+        trimId = existingTrim[0].id;
+        await sb(`trims?id=eq.${trimId}`, 'PATCH', trimData);
+        // Clear old features
+        await sb(`features?trim_id=eq.${trimId}`, 'DELETE');
+      } else {
+        await sb('trims', 'POST', trimData);
+        const newTrim = await sb(`trims?model_id=eq.${modelId}&name=eq.${encodeURIComponent(trimName)}&select=id`);
+        trimId = newTrim[0].id;
+      }
+
+      // Save features
+      const featRows = card.querySelectorAll('.features-editor .feature-row');
+      for (const row of featRows) {
+        const cat  = row.querySelector('.feat-cat').value.trim() || 'General';
+        const text = row.querySelector('.feat-text').value.trim();
+        if (text) {
+          await sb('features', 'POST', { trim_id: trimId, category: cat, feature_text: text, sort_order: 0 });
+        }
       }
     }
 
-    toast(publish ? '✓ Vehicle published to site!' : '✓ Saved as draft', 'success');
-    cancelReview();
-    loadDashboard();
-    loadVehicles();
+    setStatus('Saving colors…', 70);
+
+    // Save colors (delete old ones first)
+    await sb(`colors?model_id=eq.${modelId}`, 'DELETE');
+    const colorRows = document.querySelectorAll('#colorsList .color-row');
+    for (const row of colorRows) {
+      const inputs  = row.querySelectorAll('input');
+      const selects = row.querySelectorAll('select');
+      const cName   = inputs[0].value.trim();
+      const cType   = selects[0].value;
+      const cHex    = inputs[1].value.trim();
+      if (cName) {
+        await sb('colors', 'POST', { model_id: modelId, name: cName, type: cType, hex_code: cHex || null });
+      }
+    }
+
+    setStatus('Done!', 100);
+    setTimeout(() => document.getElementById('statusBar').classList.remove('show'), 2000);
+    toast(publish ? 'Vehicle published to site!' : 'Draft saved!', 'success');
+
+    // Show image upload CTA
+    showImageUploadPrompt(modelId, name);
 
   } catch(e) {
+    toast('Save failed: ' + e.message, 'error');
+    setStatus('Error: ' + e.message, 0);
     console.error(e);
-    toast('Error saving: ' + e.message, 'error');
   }
 }
 
-function cancelReview() {
-  document.getElementById('reviewScreen').style.display = 'none';
-  document.getElementById('progressWrap').style.display = 'none';
-  document.getElementById('uploadZone').style.pointerEvents = '';
-  document.getElementById('uploadZone').style.opacity = '';
-  document.getElementById('pdfInput').value = '';
-  setStep(1,'pending','Waiting...');
-  setStep(2,'pending','Waiting...');
-  setStep(3,'pending','Waiting...');
+function showImageUploadPrompt(modelId, modelName) {
+  // Add a prompt below the review panel
+  let existing = document.getElementById('postPublishCTA');
+  if (existing) existing.remove();
+
+  const cta = document.createElement('div');
+  cta.id = 'postPublishCTA';
+  cta.className = 'card';
+  cta.style.marginTop = '24px';
+  cta.style.borderColor = 'rgba(200,16,46,.3)';
+  cta.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+      <div>
+        <div style="font-size:14px;margin-bottom:4px;">${modelName} saved successfully.</div>
+        <div style="font-size:12px;color:var(--p5);">Now upload color photos — exterior PNGs and interior shots.</div>
+      </div>
+      <button class="btn btn-red" onclick="goToImagesFor(${modelId})">Upload Images →</button>
+    </div>`;
+  document.getElementById('reviewPanel').after(cta);
+}
+
+function goToImagesFor(modelId) {
+  showPage('images');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('navImages').classList.add('active');
+  document.getElementById('imageModelSelect').value = modelId;
+  loadModelImages();
+}
+
+function resetUpload() {
+  document.getElementById('uploadArea').style.display = 'block';
+  document.getElementById('reviewPanel').style.display = 'none';
+  document.getElementById('statusBar').classList.remove('show');
+  document.getElementById('fileInput').value = '';
+  const cta = document.getElementById('postPublishCTA');
+  if (cta) cta.remove();
 }
 
 // ══════════════════════════════════════════════
@@ -854,40 +662,160 @@ function cancelReview() {
 // ══════════════════════════════════════════════
 async function loadVehicles() {
   try {
-    const models = await sb('models?select=*&order=year.desc,name.asc');
-    const trims = await sb('trims?select=*');
-    models.forEach(m => { m.trims = trims.filter(t => t.model_id === m.id); });
-    const el = document.getElementById('vehiclesList');
-    if (!models || models.length === 0) {
-      el.innerHTML = '<div class="empty-state"><div class="empty-icon">🚗</div><p>No vehicles yet. Upload a window sticker to get started.</p></div>';
-      return;
-    }
-    el.innerHTML = models.map(m => `
-      <div class="model-card">
-        <div style="font-size:28px;">🚗</div>
-        <div class="model-info">
-          <div class="model-name">${m.year} ${m.name}</div>
-          <div class="model-meta">${(m.trims||[]).length} trim${(m.trims||[]).length !== 1 ? 's' : ''} · ${(m.trims||[]).map(t=>t.name).join(', ')}</div>
+    const models = await sb('models?select=*&order=sort_order.asc');
+    const list   = document.getElementById('vehiclesList');
+    if (!models.length) { list.innerHTML = '<div style="color:var(--p5);font-size:13px;">No vehicles yet.</div>'; return; }
+    list.innerHTML = models.map(m => `
+      <div class="vehicle-row">
+        <div>
+          <div class="vehicle-name">${m.name}</div>
+          <div class="vehicle-year">${m.year || ''}</div>
         </div>
-        <span class="badge ${m.published ? 'badge-green' : 'badge-gray'}">${m.published ? 'Published' : 'Draft'}</span>
-        <button class="btn-danger" onclick="togglePublish('${m.id}', ${m.published})">${m.published ? 'Unpublish' : 'Publish'}</button>
-        <button class="btn-danger" onclick="deleteModel('${m.id}', '${m.year} ${m.name}')">Delete</button>
-      </div>
-    `).join('');
-  } catch(e) { console.error(e); }
+        <span class="badge ${m.published ? 'badge-green' : 'badge-grey'}">${m.published ? 'Published' : 'Draft'}</span>
+        <div class="vehicle-actions">
+          <button class="btn btn-outline btn-sm" onclick="togglePublish(${m.id}, ${m.published})">${m.published ? 'Unpublish' : 'Publish'}</button>
+          <button class="btn btn-outline btn-sm" onclick="goToImagesFor(${m.id})">Images</button>
+          <button class="btn btn-outline btn-sm" style="color:var(--red);" onclick="deleteVehicle(${m.id}, '${m.name}')">Delete</button>
+        </div>
+      </div>`).join('');
+  } catch(e) {
+    toast('Failed to load vehicles: ' + e.message, 'error');
+  }
 }
 
 async function togglePublish(id, current) {
   await sb(`models?id=eq.${id}`, 'PATCH', { published: !current });
-  toast(!current ? 'Published to site' : 'Unpublished', 'success');
-  loadVehicles(); loadDashboard();
+  toast(current ? 'Unpublished' : 'Published!', 'success');
+  loadVehicles();
 }
 
-async function deleteModel(id, name) {
-  if (!confirm(`Delete ${name}? This will remove all trims, features, and colors. This cannot be undone.`)) return;
+async function deleteVehicle(id, name) {
+  if (!confirm(`Delete ${name} and all its data? This cannot be undone.`)) return;
+  await sb(`colors?model_id=eq.${id}`, 'DELETE');
+  const trims = await sb(`trims?model_id=eq.${id}&select=id`);
+  for (const t of trims) {
+    await sb(`features?trim_id=eq.${t.id}`, 'DELETE');
+    await sb(`packages?trim_id=eq.${t.id}`, 'DELETE');
+  }
+  await sb(`trims?model_id=eq.${id}`, 'DELETE');
   await sb(`models?id=eq.${id}`, 'DELETE');
-  toast('Deleted ' + name, 'success');
-  loadVehicles(); loadDashboard();
+  toast(`${name} deleted`, 'success');
+  loadVehicles();
+}
+
+// ══════════════════════════════════════════════
+// IMAGE MANAGEMENT
+// ══════════════════════════════════════════════
+async function loadImageModelSelect() {
+  try {
+    const models = await sb('models?select=id,name,year&order=sort_order.asc');
+    const sel = document.getElementById('imageModelSelect');
+    sel.innerHTML = '<option value="">— Choose a model —</option>' +
+      models.map(m => `<option value="${m.id}">${m.name}${m.year ? ' ' + m.year : ''}</option>`).join('');
+  } catch(e) {}
+}
+
+async function loadModelImages() {
+  const modelId = document.getElementById('imageModelSelect').value;
+  const section = document.getElementById('imageUploadSection');
+  if (!modelId) { section.style.display = 'none'; return; }
+  section.style.display = 'block';
+
+  try {
+    const colors = await sb(`colors?model_id=eq.${modelId}&select=*`);
+    const ext = colors.filter(c => c.type === 'exterior');
+    const int = colors.filter(c => c.type === 'interior');
+    renderColorImageGrid('extColorGrid', ext, modelId);
+    renderColorImageGrid('intColorGrid', int, modelId);
+  } catch(e) {
+    toast('Failed to load colors: ' + e.message, 'error');
+  }
+}
+
+function renderColorImageGrid(gridId, colors, modelId) {
+  const grid = document.getElementById(gridId);
+  if (!colors.length) {
+    grid.innerHTML = '<p style="font-size:12px;color:var(--p5);">No colors defined for this model yet. Add them via Upload Sticker first.</p>';
+    return;
+  }
+  grid.innerHTML = colors.map(c => `
+    <div class="color-img-card" id="colorcard-${c.id}">
+      <div class="color-img-preview">
+        ${c.image_url
+          ? `<img src="${c.image_url}" alt="${c.name}" loading="lazy">`
+          : `<div class="no-img">${c.hex_code ? `<div style="width:32px;height:32px;border-radius:50%;background:${c.hex_code};margin:0 auto 6px;"></div>` : ''}No image</div>`}
+      </div>
+      <div class="color-img-info">
+        <div class="color-img-name">${c.name}</div>
+        <div class="color-img-type">${c.type}</div>
+        <button class="color-img-upload" onclick="document.getElementById('ci-${c.id}').click()">
+          ${c.image_url ? '↻ Replace' : '↑ Upload'}
+        </button>
+        <input type="file" class="color-img-input" id="ci-${c.id}" accept="image/*" onchange="uploadColorImage(this, ${c.id}, '${modelId}', '${c.type}')">
+        <div class="color-img-uploading" id="uploading-${c.id}">Uploading…</div>
+        <div class="color-img-done" id="done-${c.id}">✓ Saved</div>
+      </div>
+    </div>`).join('');
+}
+
+async function uploadColorImage(input, colorId, modelId, colorType) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const uploadingEl = document.getElementById(`uploading-${colorId}`);
+  const doneEl      = document.getElementById(`done-${colorId}`);
+  uploadingEl.style.display = 'block';
+  doneEl.style.display = 'none';
+
+  try {
+    // Build storage path: vehicle-images/{modelId}/{colorType}/{colorId}.{ext}
+    const ext  = file.name.split('.').pop().toLowerCase();
+    const path = `${modelId}/${colorType}/${colorId}.${ext}`;
+
+    // Upload to Supabase Storage
+    const storageRes = await fetch(
+      `${SUPABASE_URL}/storage/v1/object/vehicle-images/${path}`,
+      {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_ANON,
+          'Authorization': `Bearer ${SUPABASE_ANON}`,
+          'Content-Type': file.type,
+          'x-upsert': 'true',
+        },
+        body: file,
+      }
+    );
+
+    if (!storageRes.ok) {
+      const err = await storageRes.text();
+      throw new Error('Storage upload failed: ' + err);
+    }
+
+    // Build public URL
+    const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/vehicle-images/${path}`;
+
+    // Save URL back to colors row
+    await sb(`colors?id=eq.${colorId}`, 'PATCH', { image_url: publicUrl });
+
+    // Update preview
+    const card = document.getElementById(`colorcard-${colorId}`);
+    const preview = card.querySelector('.color-img-preview');
+    const existImg = preview.querySelector('img');
+    if (existImg) {
+      existImg.src = publicUrl + '?t=' + Date.now();
+    } else {
+      preview.innerHTML = `<img src="${publicUrl}" alt="color" style="width:100%;height:100%;object-fit:cover;">`;
+    }
+
+    uploadingEl.style.display = 'none';
+    doneEl.style.display = 'block';
+    setTimeout(() => doneEl.style.display = 'none', 3000);
+    toast('Image uploaded!', 'success');
+  } catch(e) {
+    uploadingEl.style.display = 'none';
+    toast('Upload failed: ' + e.message, 'error');
+  }
 }
 
 // ══════════════════════════════════════════════
@@ -895,50 +823,36 @@ async function deleteModel(id, name) {
 // ══════════════════════════════════════════════
 async function loadUsers() {
   try {
-    const users = await sb('admin_users?select=*&order=created_at.asc');
-    const el = document.getElementById('usersList');
-    el.innerHTML = users.map(u => `
+    const users = await sb('admin_users?select=id,username,display_name,role');
+    const list  = document.getElementById('usersList');
+    list.innerHTML = users.map(u => `
       <div class="user-row">
-        <div class="user-avatar">${(u.display_name||u.username)[0].toUpperCase()}</div>
-        <div class="user-info">
-          <div class="user-name">${u.display_name || u.username}</div>
-          <div class="user-role">@${u.username} · ${u.role} · Last login: ${u.last_login ? new Date(u.last_login).toLocaleDateString() : 'Never'}</div>
-        </div>
-        <span class="badge ${u.role === 'admin' ? 'badge-red' : 'badge-gray'}">${u.role}</span>
-        ${u.id !== currentUser.id ? `<button class="btn-danger" onclick="deleteUser('${u.id}', '${u.username}')">Remove</button>` : '<span style="font-size:11px;color:var(--text3)">You</span>'}
-      </div>
-    `).join('');
-  } catch(e) { console.error(e); }
-}
-
-function toggleAddUser() {
-  const f = document.getElementById('addUserForm');
-  f.style.display = f.style.display === 'block' ? 'none' : 'block';
+        <div class="user-name">${u.display_name || u.username}</div>
+        <div class="user-role">@${u.username} · ${u.role}</div>
+        ${currentUser?.role === 'admin' && u.id !== currentUser?.id
+          ? `<button class="btn btn-outline btn-sm" style="color:var(--red);" onclick="removeUser(${u.id},'${u.username}')">Remove</button>`
+          : '<span style="font-size:11px;color:var(--p5);">You</span>'}
+      </div>`).join('');
+  } catch(e) {}
 }
 
 async function addUser() {
-  const displayName = document.getElementById('newDisplayName').value.trim();
-  const username = document.getElementById('newUsername').value.trim().toLowerCase();
-  const password = document.getElementById('newPassword').value;
-  const role = document.getElementById('newRole').value;
-  if (!username || !password) { toast('Username and password are required', 'error'); return; }
-  try {
-    const hashBuf2 = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(password));
-    const hash = Array.from(new Uint8Array(hashBuf2)).map(b=>b.toString(16).padStart(2,"0")).join("");
-    await sb('admin_users', 'POST', { username, password_hash: hash, display_name: displayName, role });
-    toast('User created: ' + username, 'success');
-    document.getElementById('newDisplayName').value = '';
-    document.getElementById('newUsername').value = '';
-    document.getElementById('newPassword').value = '';
-    toggleAddUser();
-    loadUsers();
-  } catch(e) {
-    toast('Error: ' + e.message, 'error');
-  }
+  const username = document.getElementById('newUsername').value.trim();
+  const display  = document.getElementById('newDisplay').value.trim();
+  const pass     = document.getElementById('newPass').value;
+  const role     = document.getElementById('newRole').value;
+  if (!username || !pass) { toast('Username and password required', 'error'); return; }
+  const hash = await hashPass(pass);
+  await sb('admin_users', 'POST', { username, display_name: display, password_hash: hash, role });
+  toast(`@${username} added`, 'success');
+  document.getElementById('newUsername').value = '';
+  document.getElementById('newDisplay').value  = '';
+  document.getElementById('newPass').value     = '';
+  loadUsers();
 }
 
-async function deleteUser(id, username) {
-  if (!confirm(`Remove user @${username}? They will no longer be able to log in.`)) return;
+async function removeUser(id, username) {
+  if (!confirm(`Remove @${username}? They will no longer be able to log in.`)) return;
   await sb(`admin_users?id=eq.${id}`, 'DELETE');
   toast('Removed @' + username, 'success');
   loadUsers();
@@ -948,7 +862,7 @@ async function deleteUser(id, username) {
 // TOAST
 // ══════════════════════════════════════════════
 let toastTimer;
-function toast(msg, type='info') {
+function toast(msg, type = 'info') {
   const el = document.getElementById('toast');
   el.textContent = msg;
   el.className = 'show ' + type;
@@ -962,7 +876,10 @@ function toast(msg, type='info') {
 const zone = document.getElementById('uploadZone');
 zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
 zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
-zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag'); if (e.dataTransfer.files[0]) handlePDF(e.dataTransfer.files[0]); });
+zone.addEventListener('drop', e => {
+  e.preventDefault(); zone.classList.remove('drag');
+  if (e.dataTransfer.files[0]) handlePDF(e.dataTransfer.files[0]);
+});
 </script>
 </body>
 </html>
