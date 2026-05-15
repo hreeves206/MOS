@@ -116,8 +116,8 @@ header {
 .model-card.coming-soon::before { display:none; }
 
 /* Car image in card — pure black stage */
-.mc-img-wrap { background:#000; position:relative; overflow:hidden; aspect-ratio:16/10; display:flex; align-items:center; justify-content:center; }
-.mc-img-wrap::after { content:''; position:absolute; inset:0; background:radial-gradient(ellipse 85% 85% at 50% 50%, transparent 40%, rgba(0,0,0,.55) 100%); pointer-events:none; z-index:1; }
+.mc-img-wrap { background:transparent; position:relative; overflow:hidden; aspect-ratio:16/10; display:flex; align-items:center; justify-content:center; }
+.mc-img-wrap::after { display:none; }
 .mc-img { width:100%; height:100%; object-fit:contain; padding:16px 10px 18px; position:relative; z-index:2; transition:transform .35s ease; }
 .model-card:hover .mc-img { transform:scale(1.04); }
 /* Placeholder for coming soon */
@@ -195,7 +195,7 @@ header {
 .config-inner { max-width:1060px; margin:0 auto; }
 
 /* Car stage — pure black, Porsche-style */
-.car-stage { background:#000; border-radius:var(--rad2); overflow:hidden; position:relative; }
+.car-stage { background:transparent; border-radius:var(--rad2); overflow:hidden; position:relative; }
 .cs-glow { position:absolute; bottom:0; left:5%; right:5%; height:38%; pointer-events:none; z-index:1; transition:background 1.1s ease; }
 .cs-vignette { position:absolute; inset:0; pointer-events:none; z-index:2; background:radial-gradient(ellipse 88% 88% at 50% 50%, transparent 42%, rgba(0,0,0,.58) 100%); }
 #mainCarImg { width:100%; display:block; position:relative; z-index:3; padding:30px 22px 38px; transition:opacity .38s ease, transform .38s ease; transform-origin:50% 55%; }
@@ -229,8 +229,8 @@ header {
 /* 3 cars at top */
 .trim-cars { display:grid; grid-template-columns:repeat(3,1fr); gap:3px; margin-bottom:0; }
 .trim-car-col { display:flex; flex-direction:column; }
-.trim-car-bg { background:#000; border-radius:16px 16px 0 0; overflow:hidden; position:relative; }
-.trim-car-bg::after { content:''; position:absolute; inset:0; pointer-events:none; z-index:1; background:radial-gradient(ellipse 85% 85% at 50% 50%, transparent 40%, rgba(0,0,0,.52) 100%); }
+.trim-car-bg { background:transparent; border-radius:16px 16px 0 0; overflow:hidden; position:relative; }
+.trim-car-bg::after { display:none; }
 .trim-car-bg img { width:100%; display:block; padding:22px 14px 26px; position:relative; z-index:2; transition:transform .35s ease; }
 .trim-car-col:hover .trim-car-bg img { transform:scale(1.04); }
 
@@ -266,8 +266,8 @@ header {
 .cmp-cars { display:grid; grid-template-columns:210px repeat(3,1fr); gap:0; align-items:end; }
 .cmp-blank {}
 .cmp-car-col { display:flex; flex-direction:column; align-items:center; padding:0 6px; }
-.cmp-car-bg { width:100%; background:#000; border-radius:14px 14px 0 0; overflow:hidden; position:relative; }
-.cmp-car-bg::after { content:''; position:absolute; inset:0; pointer-events:none; z-index:1; background:radial-gradient(ellipse 80% 80% at 50% 50%, transparent 30%, rgba(0,0,0,.5) 100%); }
+.cmp-car-bg { width:100%; background:transparent; border-radius:14px 14px 0 0; overflow:hidden; position:relative; }
+.cmp-car-bg::after { display:none; }
 .cmp-car-bg img { width:100%; object-fit:contain; padding:14px 8px 16px; display:block; position:relative; z-index:2; transition:opacity .35s, transform .3s; }
 .cmp-car-bg img.fading { opacity:0; transform:scale(.97); }
 .cmp-car-name { font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:2px; color:#fff; margin-top:10px; margin-bottom:2px; text-align:center; }
@@ -299,13 +299,13 @@ header {
 .m-close { background:transparent; color:var(--t3); border:1px solid rgba(255,255,255,.1); padding:7px 18px; font-family:'Inter',sans-serif; font-size:8px; letter-spacing:3px; text-transform:uppercase; cursor:pointer; border-radius:8px; transition:all .2s; }
 .m-close:hover { background:var(--red); border-color:var(--red); color:#fff; }
 .m-hero { display:grid; grid-template-columns:1fr 1.1fr; }
-.m-car { background:#000; display:flex; align-items:center; justify-content:center; padding:28px 16px; border-right:1px solid rgba(255,255,255,.06); min-height:240px; position:relative; }
+.m-car { background:transparent; display:flex; align-items:center; justify-content:center; padding:28px 16px; border-right:1px solid rgba(255,255,255,.06); min-height:240px; position:relative; }
 .m-car::after { content:''; position:absolute; bottom:0; left:0; right:0; height:50%; background:radial-gradient(ellipse at center bottom,rgba(200,16,46,.07),transparent 70%); pointer-events:none; }
 .m-car img { width:100%; object-fit:contain; max-height:200px; position:relative; z-index:1; }
 .m-info { padding:30px 34px; }
 .m-tag { font-size:8px; letter-spacing:5px; text-transform:uppercase; color:var(--red); margin-bottom:8px; font-weight:500; }
 .m-name { font-family:'Bebas Neue',sans-serif; font-size:clamp(34px,4.5vw,52px); letter-spacing:2px; color:#fff; line-height:.95; margin-bottom:8px; }
-.m-price { font-size:20px; font-weight:700; color:#ffffff; margin-bottom:12px; }
+.m-price { display:none; }
 .m-price span { font-size:10px; font-weight:400; color:var(--t4); }
 .m-desc { font-size:12px; line-height:1.9; color:var(--t3); font-weight:300; }
 .m-hl { display:grid; grid-template-columns:repeat(4,1fr); border-top:1px solid rgba(255,255,255,.07); border-bottom:1px solid rgba(255,255,255,.07); }
@@ -392,7 +392,6 @@ footer { background:var(--p0); border-top:1px solid rgba(255,255,255,.05); }
             <div class="mc-year">2026</div>
             <div class="mc-category">Crossover SUV</div>
             <div class="mc-name">CX-50 Hybrid</div>
-            <div class="mc-price">From $34,750</div>
             <div class="mc-status-pill"><span class="available-pill">● Explore Now</span></div>
           </div>
         </div>
@@ -405,7 +404,6 @@ footer { background:var(--p0); border-top:1px solid rgba(255,255,255,.05); }
             <div class="mc-year">2026</div>
             <div class="mc-category">Sports Car</div>
             <div class="mc-name">MX-5 Miata</div>
-            <div class="mc-price">From $29,000</div>
             <div class="mc-status-pill"><span class="soon-pill">Coming Soon</span></div>
           </div>
         </div>
@@ -415,7 +413,6 @@ footer { background:var(--p0); border-top:1px solid rgba(255,255,255,.05); }
             <div class="mc-year">2026</div>
             <div class="mc-category">Sports Car</div>
             <div class="mc-name">MX-5 Miata RF</div>
-            <div class="mc-price">From $34,000</div>
             <div class="mc-status-pill"><span class="soon-pill">Coming Soon</span></div>
           </div>
         </div>
@@ -425,7 +422,6 @@ footer { background:var(--p0); border-top:1px solid rgba(255,255,255,.05); }
             <div class="mc-year">2026</div>
             <div class="mc-category">Hatchback</div>
             <div class="mc-name">Mazda3 Hatchback</div>
-            <div class="mc-price">From $24,000</div>
             <div class="mc-status-pill"><span class="soon-pill">Coming Soon</span></div>
           </div>
         </div>
@@ -435,7 +431,6 @@ footer { background:var(--p0); border-top:1px solid rgba(255,255,255,.05); }
             <div class="mc-year">2026</div>
             <div class="mc-category">Sedan</div>
             <div class="mc-name">Mazda3 Sedan</div>
-            <div class="mc-price">From $23,000</div>
             <div class="mc-status-pill"><span class="soon-pill">Coming Soon</span></div>
           </div>
         </div>
@@ -445,7 +440,6 @@ footer { background:var(--p0); border-top:1px solid rgba(255,255,255,.05); }
             <div class="mc-year">2026</div>
             <div class="mc-category">Crossover SUV</div>
             <div class="mc-name">CX-30</div>
-            <div class="mc-price">From $26,000</div>
             <div class="mc-status-pill"><span class="soon-pill">Coming Soon</span></div>
           </div>
         </div>
@@ -455,7 +449,6 @@ footer { background:var(--p0); border-top:1px solid rgba(255,255,255,.05); }
             <div class="mc-year">2026</div>
             <div class="mc-category">Crossover SUV</div>
             <div class="mc-name">CX-5</div>
-            <div class="mc-price">From $30,000</div>
             <div class="mc-status-pill"><span class="soon-pill">Coming Soon</span></div>
           </div>
         </div>
@@ -465,7 +458,6 @@ footer { background:var(--p0); border-top:1px solid rgba(255,255,255,.05); }
             <div class="mc-year">2026</div>
             <div class="mc-category">Crossover SUV</div>
             <div class="mc-name">CX-50 Gas</div>
-            <div class="mc-price">From $30,000</div>
             <div class="mc-status-pill"><span class="soon-pill">Coming Soon</span></div>
           </div>
         </div>
@@ -475,7 +467,6 @@ footer { background:var(--p0); border-top:1px solid rgba(255,255,255,.05); }
             <div class="mc-year">2026</div>
             <div class="mc-category">Midsize SUV</div>
             <div class="mc-name">CX-70 Gas</div>
-            <div class="mc-price">From $42,000</div>
             <div class="mc-status-pill"><span class="soon-pill">Coming Soon</span></div>
           </div>
         </div>
@@ -485,7 +476,6 @@ footer { background:var(--p0); border-top:1px solid rgba(255,255,255,.05); }
             <div class="mc-year">2026</div>
             <div class="mc-category">Midsize SUV</div>
             <div class="mc-name">CX-70 PHEV</div>
-            <div class="mc-price">From $47,000</div>
             <div class="mc-status-pill"><span class="soon-pill">Coming Soon</span></div>
           </div>
         </div>
@@ -495,7 +485,6 @@ footer { background:var(--p0); border-top:1px solid rgba(255,255,255,.05); }
             <div class="mc-year">2026</div>
             <div class="mc-category">3-Row SUV</div>
             <div class="mc-name">CX-90 Gas</div>
-            <div class="mc-price">From $40,000</div>
             <div class="mc-status-pill"><span class="soon-pill">Coming Soon</span></div>
           </div>
         </div>
@@ -505,7 +494,6 @@ footer { background:var(--p0); border-top:1px solid rgba(255,255,255,.05); }
             <div class="mc-year">2026</div>
             <div class="mc-category">3-Row SUV</div>
             <div class="mc-name">CX-90 PHEV</div>
-            <div class="mc-price">From $48,000</div>
             <div class="mc-status-pill"><span class="soon-pill">Coming Soon</span></div>
           </div>
         </div>
@@ -519,7 +507,7 @@ footer { background:var(--p0); border-top:1px solid rgba(255,255,255,.05); }
       <div class="ft-brand">Mazda <em>of Seattle</em></div>
       <a class="h-cta" href="https://www.mazdaofseattle.com" target="_blank" style="font-size:9px;padding:8px 18px;">Visit Our Website</a>
     </div>
-    <div class="ft-legal">Pricing shown is estimated base MSRP and excludes taxes, title, license, and destination charges. Actual pricing set by dealer. Models and features subject to change without notice.</div>
+    <div class="ft-legal">Models and features subject to change without notice. See your Mazda of Seattle sales associate for complete details.</div>
   </footer>
 </div>
 
@@ -547,7 +535,6 @@ footer { background:var(--p0); border-top:1px solid rgba(255,255,255,.05); }
       <div class="dstat"><div class="dstat-lbl">City / Hwy MPG</div><div class="dstat-val">39 / 37</div></div>
       <div class="dstat"><div class="dstat-lbl">Drive System</div><div class="dstat-val">Electric AWD</div></div>
       <div class="dstat"><div class="dstat-lbl">Battery Warranty</div><div class="dstat-val">96 Mo / 100K Mi</div></div>
-      <div class="dstat"><div class="dstat-lbl">Starting From</div><div class="dstat-val">$34,750</div></div>
     </div>
   </section>
 
@@ -607,7 +594,6 @@ footer { background:var(--p0); border-top:1px solid rgba(255,255,255,.05); }
         <div class="tc reveal d1">
           <div class="tc-top">
             <div class="tc-badge">Entry Level</div>
-            <div class="tc-price-wrap"><div class="tc-price">$34,750</div><div class="tc-est">Est. MSRP</div></div>
           </div>
           <div class="tc-body">
             <div class="tc-name">PREFERRED</div>
@@ -628,7 +614,6 @@ footer { background:var(--p0); border-top:1px solid rgba(255,255,255,.05); }
         <div class="tc hl reveal d2">
           <div class="tc-top">
             <div class="tc-badge">Mid Level</div>
-            <div class="tc-price-wrap"><div class="tc-price">$38,150</div><div class="tc-est">Est. MSRP</div></div>
           </div>
           <div class="tc-body">
             <div class="tc-name">PREMIUM</div>
@@ -649,7 +634,6 @@ footer { background:var(--p0); border-top:1px solid rgba(255,255,255,.05); }
         <div class="tc reveal d3">
           <div class="tc-top">
             <div class="tc-badge">Top Level</div>
-            <div class="tc-price-wrap"><div class="tc-price">$40,450</div><div class="tc-est">Est. MSRP</div></div>
           </div>
           <div class="tc-body">
             <div class="tc-name">PREMIUM PLUS</div>
@@ -679,9 +663,9 @@ footer { background:var(--p0); border-top:1px solid rgba(255,255,255,.05); }
       </div>
       <div class="cmp-cars reveal">
         <div class="cmp-blank"></div>
-        <div class="cmp-car-col"><div class="cmp-car-bg"><img id="cmpImg0" src="" alt="Preferred"/></div><div class="cmp-car-name">PREFERRED</div><div class="cmp-car-price">$34,750</div><div class="cmp-car-lvl">Est. MSRP · Entry Level</div></div>
-        <div class="cmp-car-col"><div class="cmp-car-bg"><img id="cmpImg1" src="" alt="Premium"/></div><div class="cmp-car-name">PREMIUM</div><div class="cmp-car-price">$38,150</div><div class="cmp-car-lvl">Est. MSRP · Mid Level</div></div>
-        <div class="cmp-car-col"><div class="cmp-car-bg"><img id="cmpImg2" src="" alt="Premium Plus"/></div><div class="cmp-car-name">PREMIUM PLUS</div><div class="cmp-car-price">$40,450</div><div class="cmp-car-lvl">Est. MSRP · Top Level</div></div>
+        <div class="cmp-car-col"><div class="cmp-car-bg"><img id="cmpImg0" src="" alt="Preferred"/></div><div class="cmp-car-name">PREFERRED</div><div class="cmp-car-lvl">Entry Level</div></div>
+        <div class="cmp-car-col"><div class="cmp-car-bg"><img id="cmpImg1" src="" alt="Premium"/></div><div class="cmp-car-name">PREMIUM</div><div class="cmp-car-lvl">Mid Level</div></div>
+        <div class="cmp-car-col"><div class="cmp-car-bg"><img id="cmpImg2" src="" alt="Premium Plus"/></div><div class="cmp-car-name">PREMIUM PLUS</div><div class="cmp-car-lvl">Top Level</div></div>
       </div>
       <div class="cmp-grid reveal">
         <div class="cmp-cat">Seating &amp; Interior</div>
@@ -754,7 +738,7 @@ footer { background:var(--p0); border-top:1px solid rgba(255,255,255,.05); }
       <button class="ft-back-home" onclick="showHome()">← Back to All Models</button>
       <a class="h-cta" href="https://www.mazdaofseattle.com/search/new-mazda-cx-50-hybrid-seattle-wa/?cy=98105&md=22807&tp=new" target="_blank" style="font-size:9px;padding:8px 18px;">View Inventory</a>
     </div>
-    <div class="ft-legal">Estimated base MSRP excludes taxes, title, license, and $1,495 destination charge. MPG 39 city / 37 hwy per EPA estimates — actual results will vary. Features, specifications, and pricing subject to change. Certain colors subject to additional paint charge. 2025 IIHS TOP SAFETY PICK+ as of August 2025. See your Mazda of Seattle sales associate for complete details.</div>
+    <div class="ft-legal">MPG 39 city / 37 hwy per EPA estimates — actual results will vary. Features and specifications subject to change. Certain colors subject to additional paint charge. 2025 IIHS TOP SAFETY PICK+ as of August 2025. See your Mazda of Seattle sales associate for complete details.</div>
   </footer>
 
 </div><!-- end cx50h view -->
@@ -794,19 +778,19 @@ const colors = [
 
 const trimData = {
   preferred: {
-    tag:'Entry Level · 2026 CX-50 Hybrid', name:'PREFERRED', price:'$34,750 <span>Est. MSRP</span>',
+    tag:'Entry Level · 2026 CX-50 Hybrid', name:'PREFERRED', price:'',
     desc:"The ideal starting point. Every CX-50 Hybrid Preferred ships with Mazda's complete i-Activsense® safety suite, wireless connectivity, heated front seats, and panoramic moonroof.",
     hl:[{icon:'🔊',l:'Audio',v:'8-Speaker HD'},{icon:'🪑',l:'Seats',v:'Half Leatherette'},{icon:'🛞',l:'Wheels',v:'17-Inch Alloy'},{icon:'⚡',l:'Drive',v:'Electric AWD'}],
     feat:{'Comfort & Interior':['Half Leatherette-Trimmed Seats','8-Way Power Driver Seat w/ Lumbar','Heated Front Seats','Power Panoramic Moonroof','40/60 Split Fold-Down Rear Seat','Leather-Wrapped Steering Wheel & Gear Selector','Electric Parking Brake','Push Button Engine Start','Mazda Advanced Keyless Entry','Dual-Zone Auto Climate Control','Rear AC Vents','Wireless Phone Charger'],'Technology':['10.25" Color Center Display','Multi-Function Commander Control','AM/FM/HD Radio® with 8-Speakers','Wireless Apple CarPlay','Wireless Android Auto','Alexa Built-In','Bluetooth Hands-Free Phone/Audio','4 USB (Type C) Inputs','Mazda Connected Services','Rearview Camera'],'Safety & Exterior':['Radar Cruise Control w/ Stop & Go','Blind Spot Monitoring','Rear Cross Traffic Alert','Lane Keep Assist','Emergency Lane Keeping','Smart Brake Support','Vehicle Exit Warning','Front & Rear Parking Sensors','Power Rear Liftgate','LED Headlights w/ Auto On/Off','Rain-Sensing Wipers','17-Inch Alloy Wheels (P225/65R17)']}
   },
   premium: {
-    tag:'Mid Level · 2026 CX-50 Hybrid', name:'PREMIUM', price:'$38,150 <span>Est. MSRP</span>',
+    tag:'Mid Level · 2026 CX-50 Hybrid', name:'PREMIUM', price:'',
     desc:'A significant step in luxury. Full leather in black or exclusive Hybrid red, Bose® 12-speaker audio, ventilated and heated seats, and driver seat memory.',
     hl:[{icon:'🎵',l:'Audio',v:'Bose® 12-Speaker'},{icon:'🪑',l:'Seats',v:'Full Leather'},{icon:'🌬️',l:'Cooling',v:'Ventilated Seats'},{icon:'💺',l:'Memory',v:'2-Position Driver'}],
     feat:{'Comfort & Interior':['Full Leather-Trimmed Seats (Black or Red)','8-Way Power Driver Seat w/ Lumbar','Driver Seat Memory (2 Positions)','6-Way Power Passenger Seat','Heated & Ventilated Front Seats','Auto-Dimming Rearview Mirror','Dual-Zone Auto Climate Control','Rear AC Vents','Wireless Phone Charger','Power Panoramic Moonroof','Wiper De-Icer','Black Roof Rails','Black Exhaust Pipes'],'Technology':['10.25" Color Center Display','Bose® 12-Speaker Audio System','SiriusXM® 3-Month Trial','Wireless Apple CarPlay & Android Auto','Alexa Built-In','Bluetooth Hands-Free Phone/Audio','4 USB (Type C) Inputs','Mazda Connected Services','Traffic Sign Recognition'],'Safety & Exterior':['Radar Cruise Control w/ Stop & Go','Blind Spot Monitoring','Rear Cross Traffic Alert','Lane Keep Assist','Emergency Lane Keeping','Smart Brake Support','Vehicle Exit Warning','Front & Rear Parking Sensors','Traffic Sign Recognition','Power Rear Liftgate','LED Headlights w/ Auto On/Off','Rain-Sensing Wipers','Dual Heated Power Side Mirrors','17-Inch Alloy Wheels (P225/65R17)']}
   },
   premium_plus: {
-    tag:'Top Level · 2026 CX-50 Hybrid', name:'PREMIUM PLUS', price:'$40,450 <span>Est. MSRP</span>',
+    tag:'Top Level · 2026 CX-50 Hybrid', name:'PREMIUM PLUS', price:'',
     desc:'The pinnacle. 19-inch turbine alloy wheels, full-color Active Driving Display, Adaptive Front Lighting, heated rear seats, heated steering wheel, and auto power-folding mirrors.',
     hl:[{icon:'🛞',l:'Wheels',v:'19-Inch Alloy'},{icon:'📺',l:'HUD',v:'Active Display'},{icon:'💡',l:'Lighting',v:'Adaptive Front'},{icon:'🔄',l:'Mirrors',v:'Auto Folding'}],
     feat:{'Comfort & Interior':['Full Leather-Trimmed Seats','8-Way Power Driver Seat w/ Memory','6-Way Power Passenger Seat','Heated & Ventilated Front Seats','Heated Rear Seats','Heated Steering Wheel','Auto-Dimming Mirror w/ HomeLink®','Black Metal Paint Trim Inserts','Dual-Zone Auto Climate Control','Power Panoramic Moonroof','Wiper De-Icer','Roof Rails','Wireless Phone Charger'],'Technology':['10.25" Color Center Display','Active Driving Display (Full-Color HUD)','Bose® 12-Speaker Audio System','SiriusXM® 3-Month Trial','Wireless Apple CarPlay & Android Auto','Alexa Built-In','Bluetooth Hands-Free Phone/Audio','4 USB (Type C) Inputs','Mazda Connected Services','Traffic Sign Recognition'],'Safety & Exterior':['Radar Cruise Control w/ Stop & Go','Blind Spot Monitoring','Emergency Lane Keeping w/ Road Keep Assist','Smart Brake Support','Traffic Sign Recognition','Front & Rear Parking Sensors','Adaptive Front Lighting System','Auto Power Folding Side Mirrors','Power Rear Liftgate','LED Headlights w/ Auto On/Off','Rain-Sensing Wipers','19-Inch Alloy Wheels (P225/55R19)']}
@@ -924,7 +908,7 @@ function openModal(key){
   const d=trimData[key];
   document.getElementById('mTag').textContent=d.tag;
   document.getElementById('mName').textContent=d.name;
-  document.getElementById('mPrice').innerHTML=d.price;
+  // pricing removed
   document.getElementById('mDesc').textContent=d.desc;
   const ac=colors.find(c=>c.key===activeKey)||colors[0];
   document.getElementById('mCarImg').src=ac.img;
