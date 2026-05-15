@@ -49,10 +49,7 @@ export default async function handler(req, res) {
       ]
     }
   ],
-  "colors": [
-    { "name": "e.g. Soul Red Crystal Metallic", "type": "exterior", "hex_code": "#8B1A1A" },
-    { "name": "e.g. Black Leatherette", "type": "interior", "hex_code": "#111111" }
-  ]
+  "colors": []
 }
 
 Rules:
@@ -61,8 +58,6 @@ Rules:
 - "mpg_city" and "mpg_hwy" are integers
 - "year" is a string
 - Extract ALL standard features listed on the sticker. Do not omit any.
-- Include both exterior and interior colors found on the sticker
-- hex_code is your best approximation for the color — it does not need to be exact
 - If a field is unknown, use null for numbers and empty string for text`
         }]
       })
