@@ -458,110 +458,148 @@ body {
   text-transform: uppercase;
   color: var(--red);
   margin-bottom: 20px;
+  display: block;
 }
 
 .trim-tabs {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
   margin-bottom: 40px;
 }
 
 .trim-tab {
-  padding: 10px 20px;
-  font-size: 12px;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
+  padding: 20px 16px;
   background: var(--p2);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 8px;
   color: var(--p5);
   cursor: pointer;
   transition: all 0.2s;
+  text-align: left;
 }
 
 .trim-tab:hover {
   color: var(--white);
   border-color: rgba(255,255,255,0.2);
+  background: var(--p3);
 }
 
 .trim-tab.active {
   color: var(--white);
   background: var(--p3);
   border-color: var(--red);
+  border-left-width: 3px;
+}
+
+.trim-tab-name {
+  display: block;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  letter-spacing: 1.5px;
 }
 
 /* ── TRIM STATS ── */
 .trim-stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-  background: rgba(255,255,255,0.05);
-  border-radius: 8px;
-  overflow: hidden;
-  margin-bottom: 48px;
+  gap: 12px;
+  margin-bottom: 36px;
 }
 
 .stat-cell {
-  background: var(--p1);
-  padding: 24px 20px;
+  background: var(--p2);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  padding: 24px 16px;
   text-align: center;
 }
 
 .stat-value {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 36px;
+  font-size: 48px;
   letter-spacing: 1px;
   color: var(--white);
   line-height: 1;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .stat-unit {
-  font-size: 12px;
-  color: var(--red);
-  letter-spacing: 1px;
-}
-
-.stat-label {
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 1.5px;
   text-transform: uppercase;
   color: var(--p5);
-  margin-top: 4px;
+}
+
+/* ── TRIM META ── */
+.trim-meta {
+  display: flex;
+  gap: 0;
+  margin-bottom: 40px;
+  background: var(--p2);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.trim-meta-item {
+  flex: 1;
+  padding: 16px 20px;
+  border-right: 1px solid rgba(255,255,255,0.06);
+}
+
+.trim-meta-item:last-child { border-right: none; }
+
+.trim-meta-label {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--p5);
+  margin-bottom: 6px;
+}
+
+.trim-meta-val {
+  font-size: 14px;
+  color: var(--p7);
 }
 
 /* ── FEATURES ── */
 .features-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 32px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
   margin-bottom: 48px;
 }
 
-.feature-category {}
+.feature-category-card {
+  background: var(--p2);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  padding: 20px;
+}
 
 .category-title {
-  font-size: 10px;
-  letter-spacing: 2.5px;
+  font-size: 11px;
+  letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--gold);
-  margin-bottom: 16px;
+  margin-bottom: 14px;
   padding-bottom: 10px;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
 }
 
 .feature-list {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 7px;
 }
 
 .feature-item {
   font-size: 13px;
-  color: var(--p7);
-  padding-left: 14px;
+  color: var(--p6);
+  padding-left: 12px;
   position: relative;
   line-height: 1.4;
 }
@@ -570,43 +608,53 @@ body {
   content: '';
   position: absolute;
   left: 0;
-  top: 8px;
-  width: 4px;
-  height: 4px;
+  top: 7px;
+  width: 3px;
+  height: 3px;
   border-radius: 50%;
   background: var(--red);
 }
 
 /* ── PACKAGES ── */
 .packages-row {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 16px;
   margin-bottom: 48px;
 }
 
 .package-card {
-  flex: 1;
-  min-width: 200px;
   background: var(--p2);
   border: 1px solid rgba(255,255,255,0.06);
+  border-top: 2px solid var(--red);
   border-radius: 8px;
   padding: 20px;
 }
 
 .package-name {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 18px;
+  font-size: 20px;
   letter-spacing: 1.5px;
   color: var(--white);
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .package-feature {
   font-size: 12px;
   color: var(--p6);
-  padding: 5px 0;
+  padding: 6px 0;
   border-bottom: 1px solid rgba(255,255,255,0.04);
+  padding-left: 10px;
+  position: relative;
+}
+
+.package-feature::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 12px;
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: var(--red);
 }
 
 .package-feature:last-child { border-bottom: none; }
@@ -614,49 +662,71 @@ body {
 /* ── TRIM COMPARE ── */
 .compare-section { margin-top: 60px; }
 
-.compare-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
+.compare-wrap {
+  background: var(--p2);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  overflow: hidden;
 }
 
-.compare-table th {
-  padding: 14px 16px;
-  text-align: left;
+.compare-specs-row {
+  display: flex;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.compare-specs-row:last-child { border-bottom: none; }
+
+.compare-spec-label {
+  flex: 0 0 180px;
+  padding: 14px 20px;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--p5);
+  background: rgba(255,255,255,0.02);
+  border-right: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  align-items: center;
+}
+
+.compare-trim-name {
+  flex: 1;
+  padding: 14px 20px;
   font-family: 'Bebas Neue', sans-serif;
   font-size: 16px;
   letter-spacing: 1.5px;
   color: var(--white);
-  background: var(--p2);
-  border-bottom: 2px solid var(--red);
+  border-right: 1px solid rgba(255,255,255,0.05);
 }
 
-.compare-table th:first-child {
-  color: var(--p5);
-  font-size: 11px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  font-family: 'Inter', sans-serif;
-}
+.compare-trim-name:last-child { border-right: none; }
 
-.compare-table td {
-  padding: 12px 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
+.compare-spec-val {
+  flex: 1;
+  padding: 13px 20px;
+  font-size: 13px;
   color: var(--p7);
-  vertical-align: top;
+  border-right: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  align-items: center;
 }
 
-.compare-table tr:hover td { background: rgba(255,255,255,0.02); }
+.compare-spec-val:last-child { border-right: none; }
 
-.compare-table td:first-child {
-  color: var(--p5);
-  font-size: 11px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  white-space: nowrap;
+.compare-diff-header .compare-spec-label {
+  background: var(--p3);
+  color: var(--gold);
+  font-size: 10px;
 }
 
-.check { color: #4ade80; font-size: 14px; }
+.compare-diff-header .compare-trim-name {
+  background: var(--p3);
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  color: var(--p6);
+}
+
+.check { color: #4ade80; font-size: 16px; }
 .dash  { color: var(--p4); }
 
 /* ── EMPTY STATE ── */
@@ -999,16 +1069,32 @@ function buildStage(model, extColors, intColors) {
     </div>`;
 }
 
+// ── Helpers ──
+function toTitleCase(str) {
+  return String(str).toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+}
+function cleanHp(val) {
+  if (!val) return null;
+  const n = parseInt(String(val).replace(/[^0-9]/g, ''));
+  return isNaN(n) ? null : n;
+}
+function cleanTowing(val) {
+  if (!val) return null;
+  const n = parseInt(String(val).replace(/[^0-9]/g, ''));
+  return isNaN(n) ? null : n;
+}
+
 // ── Trim Section ──
 function buildTrimSection(model, trims, activeTrim, features, packages) {
   if (!trims.length) return '<p style="color:var(--p5);font-size:13px;">No trims available yet.</p>';
-
   return `
     <div class="trim-section">
       <p class="section-label">Select Trim</p>
       <div class="trim-tabs">
-        ${trims.map((t, i) =>
-          `<button class="trim-tab${i===0?' active':''}" data-trim="${t.id}">${t.name}</button>`
+        ${trims.map((t, i) => `
+          <button class="trim-tab${i===0?' active':''}" data-trim="${t.id}">
+            <span class="trim-tab-name">${toTitleCase(t.name)}</span>
+          </button>`
         ).join('')}
       </div>
       <div class="trim-details">
@@ -1020,49 +1106,49 @@ function buildTrimSection(model, trims, activeTrim, features, packages) {
 function buildTrimDetails(trim, features, packages) {
   const cats = {};
   features.forEach(f => {
-    (cats[f.category] = cats[f.category] || []).push(f);
+    const cat = f.category || 'General';
+    (cats[cat] = cats[cat] || []).push(f);
   });
+
+  const hp = cleanHp(trim.horsepower);
+  const tow = cleanTowing(trim.towing_capacity);
 
   const statsHtml = `
     <div class="trim-stats">
       <div class="stat-cell">
         <div class="stat-value">${trim.mpg_city || '—'}</div>
-        <div class="stat-unit">MPG</div>
-        <div class="stat-label">City</div>
+        <div class="stat-unit">MPG City</div>
       </div>
       <div class="stat-cell">
         <div class="stat-value">${trim.mpg_hwy || '—'}</div>
-        <div class="stat-unit">MPG</div>
-        <div class="stat-label">Highway</div>
+        <div class="stat-unit">MPG Hwy</div>
       </div>
       <div class="stat-cell">
-        <div class="stat-value">${trim.horsepower || '—'}</div>
-        <div class="stat-unit">HP</div>
-        <div class="stat-label">Horsepower</div>
+        <div class="stat-value">${hp || '—'}</div>
+        <div class="stat-unit">Horsepower</div>
       </div>
       <div class="stat-cell">
-        <div class="stat-value">${trim.towing_capacity ? trim.towing_capacity.toLocaleString() : '—'}</div>
-        <div class="stat-unit">${trim.towing_capacity ? 'LBS' : ''}</div>
-        <div class="stat-label">Towing</div>
+        <div class="stat-value">${tow ? tow.toLocaleString() : '—'}</div>
+        <div class="stat-unit">Lbs Towing</div>
       </div>
     </div>`;
 
   const metaHtml = `
-    <div style="display:flex;gap:24px;margin-bottom:32px;flex-wrap:wrap;">
-      ${trim.engine ? `<div><span style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--p5);">Engine</span><br><span style="font-size:14px;color:var(--p7);">${trim.engine}</span></div>` : ''}
-      ${trim.transmission ? `<div><span style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--p5);">Transmission</span><br><span style="font-size:14px;color:var(--p7);">${trim.transmission}</span></div>` : ''}
-      ${trim.drivetrain ? `<div><span style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--p5);">Drivetrain</span><br><span style="font-size:14px;color:var(--p7);">${trim.drivetrain}</span></div>` : ''}
+    <div class="trim-meta">
+      ${trim.engine ? `<div class="trim-meta-item"><span class="trim-meta-label">Engine</span><span class="trim-meta-val">${toTitleCase(trim.engine)}</span></div>` : ''}
+      ${trim.transmission ? `<div class="trim-meta-item"><span class="trim-meta-label">Transmission</span><span class="trim-meta-val">${trim.transmission}</span></div>` : ''}
+      ${trim.drivetrain ? `<div class="trim-meta-item"><span class="trim-meta-label">Drivetrain</span><span class="trim-meta-val">${toTitleCase(trim.drivetrain)}</span></div>` : ''}
     </div>`;
 
   const featCats = Object.keys(cats);
   const featHtml = featCats.length ? `
-    <p class="section-label" style="margin-bottom:20px;">Features</p>
+    <p class="section-label" style="margin-bottom:20px;">Standard Features</p>
     <div class="features-grid">
       ${featCats.map(cat => `
-        <div class="feature-category">
-          <div class="category-title">${cat}</div>
+        <div class="feature-category-card">
+          <div class="category-title">${toTitleCase(cat)}</div>
           <ul class="feature-list">
-            ${cats[cat].map(f => `<li class="feature-item">${f.feature_text}</li>`).join('')}
+            ${cats[cat].map(f => `<li class="feature-item">${toTitleCase(f.feature_text)}</li>`).join('')}
           </ul>
         </div>
       `).join('')}
@@ -1072,11 +1158,11 @@ function buildTrimDetails(trim, features, packages) {
     <p class="section-label" style="margin-bottom:16px;">Available Packages</p>
     <div class="packages-row">
       ${packages.map(pkg => {
-        const items = Array.isArray(pkg.package_features) ? pkg.package_features : (pkg.package_features || []);
+        const items = Array.isArray(pkg.package_features) ? pkg.package_features : [];
         return `
           <div class="package-card">
-            <div class="package-name">${pkg.name}</div>
-            ${items.map(f => `<div class="package-feature">${f}</div>`).join('')}
+            <div class="package-name">${toTitleCase(pkg.name)}</div>
+            ${items.map(f => `<div class="package-feature">${toTitleCase(f)}</div>`).join('')}
           </div>`;
       }).join('')}
     </div>` : '';
@@ -1084,41 +1170,58 @@ function buildTrimDetails(trim, features, packages) {
   return statsHtml + metaHtml + featHtml + pkgHtml;
 }
 
-// ── Trim Compare Table ──
+// ── Trim Compare ──
 function buildCompare(trims, featuresByTrim) {
-  const rows = [
-    { label: 'Engine',       key: 'engine' },
-    { label: 'Transmission', key: 'transmission' },
-    { label: 'Drivetrain',   key: 'drivetrain' },
-    { label: 'Horsepower',   key: 'horsepower' },
-    { label: 'MPG City',     key: 'mpg_city' },
-    { label: 'MPG Hwy',      key: 'mpg_hwy' },
-    { label: 'Towing',       key: 'towing_capacity' },
-  ];
+  // Find features that differ between trims — much more useful than repeating same specs
+  const allFeatureTexts = {};
+  trims.forEach(t => {
+    (featuresByTrim[t.id] || []).forEach(f => {
+      allFeatureTexts[f.feature_text] = allFeatureTexts[f.feature_text] || new Set();
+      allFeatureTexts[f.feature_text].add(t.id);
+    });
+  });
+  // Features present in some but not all trims = differentiators
+  const differentiators = Object.entries(allFeatureTexts)
+    .filter(([text, trimSet]) => trimSet.size < trims.length)
+    .sort((a, b) => b[1].size - a[1].size)
+    .slice(0, 12);
+
+  const specsHtml = `
+    <div class="compare-specs-row">
+      <div class="compare-spec-label"></div>
+      ${trims.map(t => `<div class="compare-trim-name">${toTitleCase(t.name)}</div>`).join('')}
+    </div>
+    ${[
+      {label:'MPG City', vals: trims.map(t => t.mpg_city || '—')},
+      {label:'MPG Highway', vals: trims.map(t => t.mpg_hwy || '—')},
+      {label:'Horsepower', vals: trims.map(t => cleanHp(t.horsepower) || '—')},
+      {label:'Towing', vals: trims.map(t => { const v=cleanTowing(t.towing_capacity); return v ? v.toLocaleString()+' lbs' : '—'; })},
+      {label:'Drivetrain', vals: trims.map(t => toTitleCase(t.drivetrain||'—'))},
+    ].map(row => `
+      <div class="compare-specs-row">
+        <div class="compare-spec-label">${row.label}</div>
+        ${row.vals.map(v => `<div class="compare-spec-val">${v}</div>`).join('')}
+      </div>`).join('')}`;
+
+  const diffHtml = differentiators.length ? `
+    <div style="margin-top:8px;">
+      <div class="compare-specs-row compare-diff-header">
+        <div class="compare-spec-label">What You Get</div>
+        ${trims.map(t => `<div class="compare-trim-name">${toTitleCase(t.name)}</div>`).join('')}
+      </div>
+      ${differentiators.map(([text, trimSet]) => `
+        <div class="compare-specs-row">
+          <div class="compare-spec-label">${toTitleCase(text)}</div>
+          ${trims.map(t => `<div class="compare-spec-val">${trimSet.has(t.id) ? '<span class="check">✓</span>' : '<span class="dash">—</span>'}</div>`).join('')}
+        </div>`).join('')}
+    </div>` : '';
 
   return `
     <div class="compare-section">
       <p class="section-label" style="margin-bottom:20px;">Trim Comparison</p>
-      <div style="overflow-x:auto;">
-        <table class="compare-table">
-          <thead>
-            <tr>
-              <th>Spec</th>
-              ${trims.map(t => `<th>${t.name}</th>`).join('')}
-            </tr>
-          </thead>
-          <tbody>
-            ${rows.map(row => `
-              <tr>
-                <td>${row.label}</td>
-                ${trims.map(t => {
-                  const val = t[row.key];
-                  return `<td>${val !== null && val !== undefined && val !== '' ? val : '<span class="dash">—</span>'}</td>`;
-                }).join('')}
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
+      <div class="compare-wrap">
+        ${specsHtml}
+        ${diffHtml}
       </div>
     </div>`;
 }
