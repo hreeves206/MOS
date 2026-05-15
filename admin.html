@@ -232,6 +232,12 @@
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  if (typeof pdfjsLib !== 'undefined') {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+</script>
 </head>
 <body>
 
@@ -638,6 +644,18 @@ async function loadDashboard() {
 // ══════════════════════════════════════════════
 // PDF UPLOAD + CLAUDE EXTRACTION
 // ══════════════════════════════════════════════
+async function extractTextFromPDF(file) {
+  const arrayBuffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  let fullText = '';
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    fullText += content.items.map(item => item.str).join(' ') + '\n';
+  }
+  return fullText;
+}
+
 function handlePDF(file) {
   if (!file) return;
   const wrap = document.getElementById('progressWrap');
@@ -647,14 +665,13 @@ function handlePDF(file) {
 
   setStep(1, 'active', 'Reading ' + file.name);
 
-  const reader = new FileReader();
-  reader.onload = async (e) => {
-    const base64 = e.target.result.split(',')[1];
-    setStep(1, 'done', 'PDF loaded');
-    setStep(2, 'active', 'Sending to Claude AI...');
-
+  (async () => {
     try {
-      const data = await extractWithClaude(base64);
+      const pdfText = await extractTextFromPDF(file);
+      setStep(1, 'done', 'PDF text extracted');
+      setStep(2, 'active', 'Sending to Claude AI...');
+
+      const data = await extractWithClaude(pdfText);
       setStep(2, 'done', 'Extraction complete');
       setStep(3, 'active', 'Building review screen...');
       extractedData = data;
@@ -665,18 +682,17 @@ function handlePDF(file) {
         document.getElementById('reviewScreen').scrollIntoView({ behavior: 'smooth' });
       }, 500);
     } catch(err) {
-      setStep(2, 'err', 'Error: ' + err.message);
+      setStep(1, 'err', 'Error: ' + err.message);
       toast('Extraction failed: ' + err.message, 'error');
     }
-  };
-  reader.readAsDataURL(file);
+  })();
 }
 
-async function extractWithClaude(base64PDF) {
+async function extractWithClaude(pdfText) {
   const response = await fetch('/api/extract', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ pdfBase64: base64PDF })
+    body: JSON.stringify({ pdfText })
   });
 
   if (!response.ok) {
