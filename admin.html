@@ -160,8 +160,40 @@ hr{border:none;border-top:1px solid rgba(255,255,255,.07);margin:24px 0;}
 </div>
 
 <!-- EDIT TRIM MODAL -->
+<!-- Hidden template for trim edit form -->
+<template id="trimModalTemplate">
+  <div class="modal-header">
+    <div class="modal-title">Edit Trim</div>
+    <button class="modal-close" onclick="closeTrimModal()">✕</button>
+  </div>
+  <input type="hidden" id="editTrimId">
+  <div class="grid3">
+    <div class="field"><label>Trim Name</label><input type="text" id="et_name"></div>
+    <div class="field"><label>Level</label><input type="number" id="et_level" min="1"></div>
+    <div class="field"><label>Engine</label><input type="text" id="et_engine"></div>
+  </div>
+  <div class="grid3">
+    <div class="field"><label>Transmission</label><input type="text" id="et_transmission"></div>
+    <div class="field"><label>Drivetrain</label><input type="text" id="et_drivetrain"></div>
+    <div class="field"><label>Horsepower</label><input type="number" id="et_horsepower"></div>
+  </div>
+  <div class="grid3">
+    <div class="field"><label>MPG City</label><input type="number" id="et_mpg_city"></div>
+    <div class="field"><label>MPG Highway</label><input type="number" id="et_mpg_hwy"></div>
+    <div class="field"><label>Towing (lbs)</label><input type="number" id="et_towing"></div>
+  </div>
+  <hr>
+  <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--p5);margin-bottom:12px;">Features</div>
+  <div class="features-editor" id="editFeaturesList"></div>
+  <button class="add-feature-btn" onclick="addEditFeature()">+ Add Feature</button>
+  <div class="modal-footer">
+    <button class="btn btn-outline" onclick="closeTrimModal()">Cancel</button>
+    <button class="btn btn-red" onclick="saveTrimEdits()">Save Changes</button>
+  </div>
+</template>
+
 <div class="modal-overlay" id="trimModal">
-  <div class="modal-box">
+  <div class="modal-box" id="trimModalBox">
     <div class="modal-header">
       <div class="modal-title">Edit Trim</div>
       <button class="modal-close" onclick="closeTrimModal()">✕</button>
@@ -169,7 +201,7 @@ hr{border:none;border-top:1px solid rgba(255,255,255,.07);margin:24px 0;}
     <input type="hidden" id="editTrimId">
     <div class="grid3">
       <div class="field"><label>Trim Name</label><input type="text" id="et_name"></div>
-      <div class="field"><label>Level (sort order)</label><input type="number" id="et_level" min="1"></div>
+      <div class="field"><label>Level</label><input type="number" id="et_level" min="1"></div>
       <div class="field"><label>Engine</label><input type="text" id="et_engine"></div>
     </div>
     <div class="grid3">
@@ -180,7 +212,7 @@ hr{border:none;border-top:1px solid rgba(255,255,255,.07);margin:24px 0;}
     <div class="grid3">
       <div class="field"><label>MPG City</label><input type="number" id="et_mpg_city"></div>
       <div class="field"><label>MPG Highway</label><input type="number" id="et_mpg_hwy"></div>
-      <div class="field"><label>Towing Capacity (lbs)</label><input type="number" id="et_towing"></div>
+      <div class="field"><label>Towing (lbs)</label><input type="number" id="et_towing"></div>
     </div>
     <hr>
     <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--p5);margin-bottom:12px;">Features</div>
@@ -213,7 +245,8 @@ hr{border:none;border-top:1px solid rgba(255,255,255,.07);margin:24px 0;}
     <!-- UPLOAD -->
     <div class="page active" id="page-upload">
       <div class="page-title">Upload Window Sticker</div>
-      <div class="page-sub">Drop a Mazda window sticker PDF — Claude extracts all vehicle data automatically.</div>
+      <div class="page-sub">Upload a PDF window sticker — Claude extracts the data automatically.</div>
+
       <div id="uploadArea">
         <div class="upload-zone card" id="uploadZone" onclick="document.getElementById('fileInput').click()">
           <input type="file" id="fileInput" accept=".pdf" onchange="handlePDF(this.files[0])">
@@ -222,15 +255,17 @@ hr{border:none;border-top:1px solid rgba(255,255,255,.07);margin:24px 0;}
           <p>Click to browse or drag &amp; drop · PDF files only</p>
         </div>
       </div>
+
       <div class="status-bar" id="statusBar">
         <div class="status-text" id="statusText">Processing…</div>
         <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
       </div>
+
       <div id="reviewPanel">
         <div class="review-header">
           <div>
             <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;">Review Extracted Data</div>
-            <div style="font-size:12px;color:var(--p5);">Edit any field before saving — Claude isn't always perfect</div>
+            <div style="font-size:12px;color:var(--p5);">Edit any field before saving</div>
           </div>
           <div class="review-actions">
             <button class="btn btn-outline" onclick="resetUpload()">Start Over</button>
@@ -238,21 +273,46 @@ hr{border:none;border-top:1px solid rgba(255,255,255,.07);margin:24px 0;}
             <button class="btn btn-red" onclick="saveVehicle(true)">Publish to Site ✓</button>
           </div>
         </div>
-        <div class="field-group">
-          <div class="field-group-title">Model Information</div>
-          <div class="grid3">
-            <div class="field"><label>Model Name</label><input type="text" id="r_name"></div>
-            <div class="field"><label>Year</label><input type="text" id="r_year"></div>
-            <div class="field"><label>Slug (URL key)</label><input type="text" id="r_slug"></div>
+
+        <!-- ADD TO EXISTING OR NEW -->
+        <div class="field-group" id="modelTargetGroup">
+          <div class="field-group-title">Which Vehicle?</div>
+          <div style="display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap;">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;font-size:13px;color:var(--p7);">
+              <input type="radio" name="modelTarget" value="new" checked onchange="toggleModelTarget(this.value)" style="width:auto;background:none;border:none;padding:0;">
+              Create new vehicle
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;font-size:13px;color:var(--p7);">
+              <input type="radio" name="modelTarget" value="existing" onchange="toggleModelTarget(this.value)" style="width:auto;background:none;border:none;padding:0;">
+              Add trim to existing vehicle
+            </label>
+          </div>
+          <div id="newModelFields">
+            <div class="grid3">
+              <div class="field"><label>Model Name</label><input type="text" id="r_name"></div>
+              <div class="field"><label>Year</label><input type="text" id="r_year"></div>
+              <div class="field"><label>Slug</label><input type="text" id="r_slug"></div>
+            </div>
+          </div>
+          <div id="existingModelFields" style="display:none;">
+            <div class="field" style="max-width:360px;">
+              <label>Select Existing Vehicle</label>
+              <select id="r_existing_model">
+                <option value="">— Choose —</option>
+              </select>
+            </div>
+            <p style="font-size:12px;color:var(--p5);margin-top:8px;">The trim below will be added to this vehicle. Colors will not be overwritten.</p>
           </div>
         </div>
+
         <div class="field-group">
           <div class="field-group-title">Trims</div>
           <div class="trims-list" id="trimsList"></div>
           <button class="add-feature-btn" onclick="addTrim()" style="margin-top:12px;">+ Add Trim</button>
         </div>
-        <div class="field-group">
-          <div class="field-group-title">Colors</div>
+
+        <div class="field-group" id="colorsGroup">
+          <div class="field-group-title">Colors <span style="font-size:10px;font-weight:300;letter-spacing:0;text-transform:none;color:var(--p5);">(only applies to new vehicles)</span></div>
           <div class="colors-list" id="colorsList"></div>
           <button class="add-color-btn" onclick="addColor()">+ Add Color</button>
         </div>
@@ -479,6 +539,10 @@ function populateReview(data){
   (data.trims||[]).forEach(t=>addTrim(t));
   const cl=document.getElementById('colorsList'); cl.innerHTML='';
   (data.colors||[]).forEach(c=>addColor(c));
+  // Reset to "new" mode and populate existing model dropdown
+  document.querySelector('input[name="modelTarget"][value="new"]').checked=true;
+  toggleModelTarget('new');
+  populateExistingModels();
 }
 function addTrim(t={}){
   const tl=document.getElementById('trimsList');
@@ -488,7 +552,7 @@ function addTrim(t={}){
   div.innerHTML=`
     <div class="trim-card-header"><span>Trim ${idx+1}</span><button style="background:none;border:none;color:var(--p5);cursor:pointer;font-size:12px;" onclick="this.closest('.trim-card').remove()">✕ Remove</button></div>
     <div class="grid3">
-      <div class="field"><label>Name</label><input class="t_name" value="${esc(t.name||'')}" placeholder="e.g. Select"></div>
+      <div class="field"><label>Name</label><input class="t_name" value="${esc(t.name||'')}" placeholder="e.g. 2.5 Hybrid Preferred"></div>
       <div class="field"><label>Level</label><input class="t_level" value="${t.level||idx+1}" type="number" min="1"></div>
       <div class="field"><label>Engine</label><input class="t_engine" value="${esc(t.engine||'')}"></div>
     </div>
@@ -502,13 +566,44 @@ function addTrim(t={}){
       <div class="field"><label>MPG Hwy</label><input class="t_mpg_hwy" value="${t.mpg_hwy||''}" type="number"></div>
       <div class="field"><label>Towing (lbs)</label><input class="t_towing" value="${t.towing_capacity||''}" type="number"></div>
     </div>
-    <div style="margin-top:12px;">
-      <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--p5);margin-bottom:10px;">Features by Category</div>
+    <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.06);">
+      <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--p5);margin-bottom:10px;">Standard Features</div>
       <div class="features-editor" id="feats-${idx}"></div>
       <button class="add-feature-btn" data-idx="${idx}" onclick="addFeature(this.dataset.idx)">+ Add Feature</button>
+    </div>
+    <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.06);">
+      <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--p5);margin-bottom:10px;">Packages <span style="font-size:9px;color:var(--p5);text-transform:none;letter-spacing:0;">(optional add-ons for this trim)</span></div>
+      <div class="pkg-list" id="pkgs-${idx}"></div>
+      <button class="add-feature-btn" data-idx="${idx}" onclick="addPackage(this.dataset.idx)" style="margin-top:6px;">+ Add Package</button>
     </div>`;
   tl.appendChild(div);
   (t.features||[]).forEach(f=>{ if(typeof f==='string') addFeature(idx,{category:'General',text:f}); else addFeature(idx,f); });
+  (t.packages||[]).forEach(p=>addPackage(idx,p));
+}
+
+function addPackage(trimIdx, p={}){
+  const container = document.getElementById('pkgs-'+trimIdx); if(!container) return;
+  const wrap = document.createElement('div');
+  wrap.className='pkg-card';
+  wrap.style.cssText='background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:6px;padding:12px;margin-bottom:8px;';
+  wrap.innerHTML=`
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+      <input type="text" class="pkg-name" placeholder="Package name (e.g. Preferred Package)" value="${esc(p.name||'')}">
+      <button style="background:none;border:none;color:var(--p5);cursor:pointer;font-size:16px;flex-shrink:0;" onclick="this.closest('.pkg-card').remove()">✕</button>
+    </div>
+    <div class="pkg-feats-list"></div>
+    <button class="add-feature-btn" style="font-size:10px;padding:5px;" onclick="addPkgFeature(this)">+ Add Feature</button>`;
+  container.appendChild(wrap);
+  const items = Array.isArray(p.package_features) ? p.package_features : (Array.isArray(p.features) ? p.features : []);
+  items.forEach(f => addPkgFeature(wrap.querySelector('.add-feature-btn'), f));
+}
+
+function addPkgFeature(btn, val=''){
+  const list = btn.previousElementSibling;
+  const row = document.createElement('div');
+  row.style.cssText='display:flex;gap:6px;margin-bottom:4px;';
+  row.innerHTML=`<input type="text" class="pkg-feat" placeholder="Feature" value="${esc(val)}" style="flex:1;"><button style="background:none;border:none;color:var(--p5);cursor:pointer;" onclick="this.parentElement.remove()">✕</button>`;
+  list.appendChild(row);
 }
 function addFeature(idx,f={}){
   const c=document.getElementById('feats-'+idx); if(!c) return;
@@ -523,48 +618,95 @@ function addColor(c={}){
   cl.appendChild(row);
 }
 
+// ── MODEL TARGET TOGGLE ──
+function toggleModelTarget(val){
+  document.getElementById('newModelFields').style.display = val==='new' ? 'block' : 'none';
+  document.getElementById('existingModelFields').style.display = val==='existing' ? 'block' : 'none';
+  document.getElementById('colorsGroup').style.display = val==='new' ? 'block' : 'none';
+}
+
+async function populateExistingModels(){
+  const models = await sb('models?select=id,name,year&order=sort_order.asc');
+  const sel = document.getElementById('r_existing_model');
+  sel.innerHTML = '<option value="">— Choose —</option>' +
+    models.map(m=>`<option value="${m.id}">${esc(m.name)}${m.year?' '+m.year:''}</option>`).join('');
+}
+
 // ── SAVE VEHICLE ──
 async function saveVehicle(publish){
-  const name=document.getElementById('r_name').value.trim();
-  const year=document.getElementById('r_year').value.trim();
-  const slug=document.getElementById('r_slug').value.trim();
-  if(!name){toast('Model name is required','error');return;}
-  setStatus('Saving model…',20); document.getElementById('statusBar').classList.add('show');
+  const target = document.querySelector('input[name="modelTarget"]:checked').value;
+  setStatus('Saving…',20); document.getElementById('statusBar').classList.add('show');
+
   try{
-    const existing=await sb('models?select=id&name=eq.'+encodeURIComponent(name)+'&year=eq.'+encodeURIComponent(year));
-    let modelId;
-    if(existing&&existing.length){
-      modelId=existing[0].id;
-      await sb('models?id=eq.'+modelId,'PATCH',{name,year,slug,published:publish,updated_at:new Date().toISOString()});
-    }else{
-      await sb('models','POST',{name,year,slug,published:publish,sort_order:99});
-      const nr=await sb('models?select=id&name=eq.'+encodeURIComponent(name)+'&year=eq.'+encodeURIComponent(year));
-      modelId=nr[0].id;
+    let modelId, modelName;
+
+    if(target === 'existing'){
+      modelId = document.getElementById('r_existing_model').value;
+      if(!modelId){toast('Please select an existing vehicle','error');document.getElementById('statusBar').classList.remove('show');return;}
+      const m = await sb('models?select=name&id=eq.'+modelId);
+      modelName = m[0]?.name || 'Vehicle';
+    } else {
+      const name=document.getElementById('r_name').value.trim();
+      const year=document.getElementById('r_year').value.trim();
+      const slug=document.getElementById('r_slug').value.trim();
+      if(!name){toast('Model name is required','error');document.getElementById('statusBar').classList.remove('show');return;}
+      modelName = name;
+      const existing=await sb('models?select=id&name=eq.'+encodeURIComponent(name)+'&year=eq.'+encodeURIComponent(year));
+      if(existing&&existing.length){
+        modelId=existing[0].id;
+        await sb('models?id=eq.'+modelId,'PATCH',{name,year,slug,published:publish,updated_at:new Date().toISOString()});
+      }else{
+        await sb('models','POST',{name,year,slug,published:publish,sort_order:99});
+        const nr=await sb('models?select=id&name=eq.'+encodeURIComponent(name)+'&year=eq.'+encodeURIComponent(year));
+        modelId=nr[0].id;
+      }
     }
+
     setStatus('Saving trims…',45);
     for(const card of document.querySelectorAll('#trimsList .trim-card')){
       const trimName=card.querySelector('.t_name').value.trim(); if(!trimName) continue;
       const td={model_id:modelId,name:trimName,level:parseInt(card.querySelector('.t_level').value)||1,engine:card.querySelector('.t_engine').value.trim(),transmission:card.querySelector('.t_transmission').value.trim(),drivetrain:card.querySelector('.t_drivetrain').value.trim(),horsepower:parseInt(card.querySelector('.t_horsepower').value)||null,mpg_city:parseInt(card.querySelector('.t_mpg_city').value)||null,mpg_hwy:parseInt(card.querySelector('.t_mpg_hwy').value)||null,towing_capacity:parseInt(card.querySelector('.t_towing').value)||null};
       const et=await sb('trims?model_id=eq.'+modelId+'&name=eq.'+encodeURIComponent(trimName)+'&select=id');
       let trimId;
-      if(et&&et.length){trimId=et[0].id;await sb('trims?id=eq.'+trimId,'PATCH',td);await sb('features?trim_id=eq.'+trimId,'DELETE');}
-      else{await sb('trims','POST',td);const nt=await sb('trims?model_id=eq.'+modelId+'&name=eq.'+encodeURIComponent(trimName)+'&select=id');trimId=nt[0].id;}
+      if(et&&et.length){
+        trimId=et[0].id;
+        await sb('trims?id=eq.'+trimId,'PATCH',td);
+        await sb('features?trim_id=eq.'+trimId,'DELETE');
+        await sb('packages?trim_id=eq.'+trimId,'DELETE');
+      }else{
+        await sb('trims','POST',td);
+        const nt=await sb('trims?model_id=eq.'+modelId+'&name=eq.'+encodeURIComponent(trimName)+'&select=id');
+        trimId=nt[0].id;
+      }
       for(const row of card.querySelectorAll('.features-editor .feature-row')){
         const cat=row.querySelector('.feat-cat').value.trim()||'General';
         const text=row.querySelector('.feat-text').value.trim();
         if(text) await sb('features','POST',{trim_id:trimId,category:cat,feature_text:text,sort_order:0});
       }
+      // Save packages for this trim
+      const pkgCards = card.querySelectorAll('.pkg-card');
+      for(const pkg of pkgCards){
+        const pkgName = pkg.querySelector('.pkg-name').value.trim();
+        if(!pkgName) continue;
+        const pkgFeats = Array.from(pkg.querySelectorAll('.pkg-feat')).map(i=>i.value.trim()).filter(Boolean);
+        await sb('packages','POST',{trim_id:trimId,name:pkgName,package_features:pkgFeats});
+      }
     }
-    setStatus('Saving colors…',70);
-    await sb('colors?model_id=eq.'+modelId,'DELETE');
-    for(const row of document.querySelectorAll('#colorsList .color-row')){
-      const inputs=row.querySelectorAll('input');
-      const cName=inputs[0].value.trim(); const cType=row.querySelector('select').value; const cHex=inputs[1].value.trim();
-      if(cName) await sb('colors','POST',{model_id:modelId,name:cName,type:cType,hex_code:cHex||null});
+
+    // Only save colors for new vehicles
+    if(target === 'new'){
+      setStatus('Saving colors…',70);
+      await sb('colors?model_id=eq.'+modelId,'DELETE');
+      for(const row of document.querySelectorAll('#colorsList .color-row')){
+        const inputs=row.querySelectorAll('input');
+        const cName=inputs[0].value.trim(); const cType=row.querySelector('select').value; const cHex=inputs[1].value.trim();
+        if(cName) await sb('colors','POST',{model_id:modelId,name:cName,type:cType,hex_code:cHex||null});
+      }
     }
+
     setStatus('Done!',100);
     setTimeout(()=>document.getElementById('statusBar').classList.remove('show'),2000);
-    showPublishSuccess(modelId,name,publish);
+    showPublishSuccess(modelId,modelName,publish);
     loadVehicles(); loadImageModelSelect();
   }catch(e){toast('Save failed: '+e.message,'error');setStatus('Error: '+e.message,0);console.error(e);}
 }
@@ -635,12 +777,41 @@ async function deleteVehicle(id,name){
 async function openEditTrims(modelId){
   const trims=await sb('trims?model_id=eq.'+modelId+'&select=*&order=level.asc');
   if(!trims||!trims.length){toast('No trims found','error');return;}
+  // If multiple trims, show a clean picker in the modal area
   if(trims.length===1){openTrimModal(trims[0]);return;}
-  const names=trims.map((t,i)=>(i+1)+'. '+t.name).join('\n');
-  const choice=prompt('Which trim to edit? Enter number:\n'+names);
-  const idx=parseInt(choice)-1;
-  if(isNaN(idx)||idx<0||idx>=trims.length) return;
-  openTrimModal(trims[idx]);
+  // Show trim picker inside the modal
+  document.getElementById('editTrimId').value='';
+  document.getElementById('editFeaturesList').innerHTML='';
+  const box = document.querySelector('#trimModal .modal-box');
+  box.innerHTML=`
+    <div class="modal-header">
+      <div class="modal-title">Select Trim to Edit</div>
+      <button class="modal-close" onclick="closeTrimModal()">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      ${trims.map(t=>`
+        <button class="btn btn-outline" style="text-align:left;padding:14px 18px;" data-trim-json='${JSON.stringify(t).replace(/'/g,"&#39;")}' onclick="openTrimModalFromBtn(this)">
+          <strong style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;">${esc(t.name)}</strong>
+          <span style="font-size:11px;color:var(--p5);margin-left:12px;">${t.mpg_city||'—'} city / ${t.mpg_hwy||'—'} hwy MPG · ${t.horsepower||'—'} HP</span>
+        </button>`).join('')}
+    </div>`;
+  document.getElementById('trimModal').classList.add('open');
+}
+
+function openTrimModalFromBtn(btn){
+  const trim = JSON.parse(btn.dataset.trimJson.replace(/&#39;/g,"'"));
+  const box = document.getElementById('trimModalBox');
+  box.innerHTML = document.getElementById('trimModalTemplate').innerHTML;
+  openTrimModal(trim);
+}
+
+function closeTrimModal(){
+  // If we rebuilt the box for the picker, restore the form template
+  const box = document.getElementById('trimModalBox');
+  if(!box.querySelector('#editTrimId')){
+    box.innerHTML = document.getElementById('trimModalTemplate').innerHTML;
+  }
+  document.getElementById('trimModal').classList.remove('open');
 }
 async function openTrimModal(trim){
   document.getElementById('editTrimId').value=trim.id;
@@ -668,7 +839,7 @@ function addEditFeature(){
   row.innerHTML=`<input type="text" placeholder="Category" value="General" style="flex:0 0 130px;" class="ef-cat"><input type="text" placeholder="Feature description" class="ef-text"><button class="remove-feat" onclick="this.parentElement.remove()">✕</button>`;
   list.appendChild(row); row.querySelector('.ef-text').focus();
 }
-function closeTrimModal(){document.getElementById('trimModal').classList.remove('open');}
+
 async function saveTrimEdits(){
   const trimId=document.getElementById('editTrimId').value; if(!trimId) return;
   const data={name:document.getElementById('et_name').value.trim(),level:parseInt(document.getElementById('et_level').value)||1,engine:document.getElementById('et_engine').value.trim(),transmission:document.getElementById('et_transmission').value.trim(),drivetrain:document.getElementById('et_drivetrain').value.trim(),horsepower:parseInt(document.getElementById('et_horsepower').value)||null,mpg_city:parseInt(document.getElementById('et_mpg_city').value)||null,mpg_hwy:parseInt(document.getElementById('et_mpg_hwy').value)||null,towing_capacity:parseInt(document.getElementById('et_towing').value)||null};
