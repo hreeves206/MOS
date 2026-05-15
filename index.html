@@ -680,6 +680,16 @@ body {
 
 .package-feature:last-child { border-bottom: none; }
 
+/* ── PACKAGES SECTION ── */
+.packages-section {
+  margin-bottom: 60px;
+  padding: 48px;
+  background: rgba(255,255,255,0.02);
+  border-top: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  text-align: center;
+}
+
 /* ── TRIM COMPARE ── */
 .compare-section { margin-top: 60px; }
 
@@ -1002,9 +1012,13 @@ function render(data) {
     const firstFeatures = firstTrim.id ? featuresByTrim[firstTrim.id] || [] : [];
     const firstPackages = firstTrim.id ? packagesByTrim[firstTrim.id] || [] : [];
 
+    // Collect ALL packages across all trims for this model
+    const allModelPackages = trims.flatMap(t => packagesByTrim[t.id] || []);
+
     section.innerHTML = `
       ${buildStage(model, extColors, intColors)}
-      ${buildTrimSection(model, trims, firstTrim, firstFeatures, firstPackages)}
+      ${allModelPackages.length ? buildPackagesSection(allModelPackages) : ''}
+      ${buildTrimSection(model, trims, firstTrim, firstFeatures)}
       ${trims.length > 1 ? buildCompare(trims, featuresByTrim) : ''}
     `;
 
@@ -1021,7 +1035,7 @@ function render(data) {
         btn.classList.add('active');
         // Re-render stats + features + packages
         section.querySelector('.trim-details').innerHTML =
-          buildTrimDetails(trim, featuresByTrim[trim.id] || [], packagesByTrim[trim.id] || []);
+          buildTrimDetails(trim, featuresByTrim[trim.id] || []);
       });
     });
 
@@ -1105,8 +1119,28 @@ function cleanTowing(val) {
   return isNaN(n) ? null : n;
 }
 
+// ── Packages Section (shown above trims, all packages for the model) ──
+function buildPackagesSection(packages) {
+  if (!packages.length) return '';
+  return `
+    <div class="packages-section">
+      <p class="section-label" style="margin-bottom:20px;">Available Packages</p>
+      <div class="packages-row packages-centered">
+        ${packages.map(pkg => {
+          const items = Array.isArray(pkg.package_features) ? pkg.package_features : [];
+          return `
+            <div class="package-card package-card-large">
+              <div class="package-name">${toTitleCase(pkg.name)}</div>
+              <div class="package-feature-count">${items.length} included features</div>
+              ${items.map(f => `<div class="package-feature">${toTitleCase(f)}</div>`).join('')}
+            </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+}
+
 // ── Trim Section ──
-function buildTrimSection(model, trims, activeTrim, features, packages) {
+function buildTrimSection(model, trims, activeTrim, features) {
   if (!trims.length) return '<p style="color:var(--p5);font-size:13px;">No trims available yet.</p>';
   return `
     <div class="trim-section">
@@ -1119,7 +1153,7 @@ function buildTrimSection(model, trims, activeTrim, features, packages) {
         ).join('')}
       </div>
       <div class="trim-details">
-        ${buildTrimDetails(activeTrim, features, packages)}
+        ${buildTrimDetails(activeTrim, features)}
       </div>
     </div>`;
 }
@@ -1136,7 +1170,7 @@ function normalizeCat(cat) {
   return cat;
 }
 
-function buildTrimDetails(trim, features, packages) {
+function buildTrimDetails(trim, features) {
   const cats = {};
   features.forEach(f => {
     const cat = normalizeCat(f.category || 'General');
@@ -1192,22 +1226,7 @@ function buildTrimDetails(trim, features, packages) {
       `).join('')}
     </div>` : '';
 
-  const pkgHtml = packages.length ? `
-    <p class="section-label" style="margin-bottom:20px;">Available Packages</p>
-    <div class="packages-row packages-centered">
-      ${packages.map(pkg => {
-        const items = Array.isArray(pkg.package_features) ? pkg.package_features : [];
-        return `
-          <div class="package-card package-card-large">
-            <div class="package-name">${toTitleCase(pkg.name)}</div>
-            <div class="package-feature-count">${items.length} included features</div>
-            ${items.map(f => `<div class="package-feature">${toTitleCase(f)}</div>`).join('')}
-          </div>`;
-      }).join('')}
-    </div>` : '';
-
-  // Packages shown BEFORE features
-  return statsHtml + metaHtml + pkgHtml + featHtml;
+  return statsHtml + metaHtml + featHtml;
 }
 
 // ── Trim Compare ──

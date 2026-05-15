@@ -280,36 +280,28 @@ hr{border:none;border-top:1px solid rgba(255,255,255,.07);margin:24px 0;}
       </div>
       <div id="imageUploadSection">
         <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
             <div>
               <div class="card-title" style="margin-bottom:4px;">Exterior Colors</div>
               <p style="font-size:12px;color:var(--p5);">PNG with transparent background — one per color.</p>
             </div>
-            <button class="btn btn-outline btn-sm" onclick="toggleAddColorForm('exterior')">+ Add Color</button>
           </div>
-          <div class="add-color-form" id="addColorFormExt">
-            <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--p5);margin-bottom:12px;">New Exterior Color</div>
-            <div class="add-color-row">
-              <div class="field"><label>Color Name</label><input type="text" id="newExtName" placeholder="Soul Red Crystal Metallic"></div>
-              <button class="btn btn-red btn-sm" style="margin-bottom:0;" onclick="addColorToModel('exterior')">Add</button>
-            </div>
+          <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:16px;">
+            <div style="flex:1;"><label>Add Exterior Color</label><input type="text" id="newExtName" placeholder="e.g. Soul Red Crystal Metallic" onkeydown="if(event.key==='Enter')addColorToModel('exterior')"></div>
+            <button class="btn btn-red btn-sm" style="flex-shrink:0;" onclick="addColorToModel('exterior')">Add</button>
           </div>
           <div class="color-img-grid" id="extColorGrid"></div>
         </div>
         <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
             <div>
               <div class="card-title" style="margin-bottom:4px;">Interior Colors / Photos</div>
               <p style="font-size:12px;color:var(--p5);">Cabin photo for each interior option.</p>
             </div>
-            <button class="btn btn-outline btn-sm" onclick="toggleAddColorForm('interior')">+ Add Color</button>
           </div>
-          <div class="add-color-form" id="addColorFormInt">
-            <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--p5);margin-bottom:12px;">New Interior Color</div>
-            <div class="add-color-row">
-              <div class="field"><label>Color Name</label><input type="text" id="newIntName" placeholder="Black Leatherette"></div>
-              <button class="btn btn-red btn-sm" style="margin-bottom:0;" onclick="addColorToModel('interior')">Add</button>
-            </div>
+          <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:16px;">
+            <div style="flex:1;"><label>Add Interior Color</label><input type="text" id="newIntName" placeholder="e.g. Black Leatherette" onkeydown="if(event.key==='Enter')addColorToModel('interior')"></div>
+            <button class="btn btn-red btn-sm" style="flex-shrink:0;" onclick="addColorToModel('interior')">Add</button>
           </div>
           <div class="color-img-grid" id="intColorGrid"></div>
         </div>
@@ -712,10 +704,7 @@ async function loadModelImages(){
     renderColorGrid('intColorGrid',colors.filter(c=>c.type==='interior'),modelId);
   }catch(e){toast('Failed to load colors: '+e.message,'error');}
 }
-function toggleAddColorForm(type){
-  const id=type==='exterior'?'addColorFormExt':'addColorFormInt';
-  document.getElementById(id).classList.toggle('open');
-}
+
 async function addColorToModel(type){
   const modelId=document.getElementById('imageModelSelect').value;
   if(!modelId){toast('Select a model first','error');return;}
