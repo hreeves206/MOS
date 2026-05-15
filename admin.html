@@ -10,7 +10,7 @@
 :root {
   --p0:#0a0a0a; --p1:#111111; --p2:#1a1a1a; --p3:#252525; --p4:#333333;
   --p5:#666666; --p6:#999999; --p7:#cccccc; --red:#c8102e; --white:#ffffff;
-  --green:#22c55e; --yellow:#f59e0b;
+  --green:#22c55e; --yellow:#f59e0b; --blue:#3b82f6;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--p0);color:var(--white);font-family:'Inter',sans-serif;font-size:14px;font-weight:300;}
@@ -19,8 +19,6 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--red);}
 button{cursor:pointer;font-family:'Inter',sans-serif;}
 label{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--p6);display:block;margin-bottom:6px;}
 hr{border:none;border-top:1px solid rgba(255,255,255,.07);margin:24px 0;}
-
-/* ── LAYOUT ── */
 .admin-wrap{display:flex;min-height:100vh;}
 .sidebar{width:220px;flex-shrink:0;background:var(--p1);border-right:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;padding:24px 0;}
 .sidebar-logo{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;padding:0 20px 24px;border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:12px;}
@@ -28,7 +26,7 @@ hr{border:none;border-top:1px solid rgba(255,255,255,.07);margin:24px 0;}
 .nav-item{padding:10px 20px;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--p5);cursor:pointer;transition:all .2s;border-left:2px solid transparent;}
 .nav-item:hover{color:var(--white);}
 .nav-item.active{color:var(--white);border-left-color:var(--red);background:rgba(200,16,46,.06);}
-.sidebar-bottom{margin-top:auto;padding:0 20px;}
+.sidebar-bottom{margin-top:auto;padding:20px 20px 0;}
 .logout-btn{width:100%;padding:10px;background:none;border:1px solid var(--p4);border-radius:6px;color:var(--p5);font-size:11px;letter-spacing:1px;text-transform:uppercase;transition:all .2s;}
 .logout-btn:hover{color:var(--white);border-color:var(--p6);}
 .main{flex:1;overflow-y:auto;}
@@ -36,101 +34,111 @@ hr{border:none;border-top:1px solid rgba(255,255,255,.07);margin:24px 0;}
 .page.active{display:block;}
 .page-title{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;margin-bottom:8px;}
 .page-sub{font-size:12px;color:var(--p5);margin-bottom:32px;}
-
-/* ── CARDS / PANELS ── */
 .card{background:var(--p1);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:28px;}
 .card+.card{margin-top:24px;}
 .card-title{font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:var(--p6);margin-bottom:20px;}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
 .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
 .field{margin-bottom:16px;}
-
-/* ── BUTTONS ── */
 .btn{padding:10px 22px;border-radius:6px;font-size:12px;letter-spacing:1px;text-transform:uppercase;border:none;transition:all .2s;}
 .btn-red{background:var(--red);color:#fff;} .btn-red:hover{background:#a50d25;}
 .btn-outline{background:none;border:1px solid var(--p4);color:var(--p6);} .btn-outline:hover{color:var(--white);border-color:var(--p6);}
 .btn-green{background:var(--green);color:#000;} .btn-green:hover{opacity:.85;}
 .btn-sm{padding:7px 14px;font-size:11px;}
 .btn:disabled{opacity:.4;cursor:not-allowed;}
-
-/* ── UPLOAD ZONE ── */
 .upload-zone{border:2px dashed var(--p4);border-radius:10px;padding:60px 24px;text-align:center;cursor:pointer;transition:all .2s;}
 .upload-zone:hover,.upload-zone.drag{border-color:var(--red);background:rgba(200,16,46,.04);}
 .upload-zone input{display:none;}
 .upload-icon{font-size:36px;margin-bottom:12px;}
 .upload-zone h3{font-size:16px;margin-bottom:6px;}
 .upload-zone p{font-size:12px;color:var(--p5);}
-
-/* ── PROGRESS / STATUS ── */
 .status-bar{background:var(--p2);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:16px 20px;margin:20px 0;display:none;}
 .status-bar.show{display:block;}
 .status-text{font-size:13px;color:var(--p6);}
 .progress-track{height:3px;background:var(--p3);border-radius:2px;margin-top:10px;overflow:hidden;}
 .progress-fill{height:100%;background:var(--red);border-radius:2px;transition:width .4s;}
-
-/* ── REVIEW FORM ── */
 #reviewPanel{display:none;}
-.review-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;}
-.review-actions{display:flex;gap:10px;}
+.review-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+.review-actions{display:flex;gap:10px;flex-wrap:wrap;}
 .field-group{background:var(--p2);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:20px;margin-bottom:16px;}
 .field-group-title{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:16px;}
 .features-editor{display:flex;flex-direction:column;gap:8px;}
 .feature-row{display:flex;gap:8px;align-items:center;}
 .feature-row input{flex:1;}
-.remove-feat{background:none;border:none;color:var(--p5);font-size:16px;padding:4px 8px;transition:color .2s;} .remove-feat:hover{color:var(--red);}
-.add-feature-btn{background:none;border:1px dashed var(--p4);color:var(--p5);border-radius:6px;padding:8px;font-size:11px;letter-spacing:1px;text-transform:uppercase;transition:all .2s;margin-top:6px;} .add-feature-btn:hover{border-color:var(--p6);color:var(--white);}
+.remove-feat{background:none;border:none;color:var(--p5);font-size:16px;padding:4px 8px;transition:color .2s;flex-shrink:0;}
+.remove-feat:hover{color:var(--red);}
+.add-feature-btn{background:none;border:1px dashed var(--p4);color:var(--p5);border-radius:6px;padding:8px;font-size:11px;letter-spacing:1px;text-transform:uppercase;transition:all .2s;margin-top:6px;}
+.add-feature-btn:hover{border-color:var(--p6);color:var(--white);}
 .trims-list{display:flex;flex-direction:column;gap:16px;}
 .trim-card{background:var(--p3);border-radius:8px;padding:16px;}
-.trim-card-header{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--p5);margin-bottom:12px;}
+.trim-card-header{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--p5);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;}
 .colors-list{display:flex;flex-direction:column;gap:8px;}
 .color-row{display:flex;gap:8px;align-items:center;}
 .color-row input{flex:2;}
 .color-row input.hex{flex:0 0 90px;}
 .color-row select{flex:1;}
-.remove-color{background:none;border:none;color:var(--p5);font-size:16px;padding:4px 8px;transition:color .2s;} .remove-color:hover{color:var(--red);}
-.add-color-btn{background:none;border:1px dashed var(--p4);color:var(--p5);border-radius:6px;padding:8px;font-size:11px;letter-spacing:1px;text-transform:uppercase;transition:all .2s;margin-top:4px;} .add-color-btn:hover{border-color:var(--p6);color:var(--white);}
-
-/* ── VEHICLES LIST ── */
-.vehicle-row{display:flex;align-items:center;gap:16px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+.remove-color{background:none;border:none;color:var(--p5);font-size:16px;padding:4px 8px;transition:color .2s;flex-shrink:0;}
+.remove-color:hover{color:var(--red);}
+.add-color-btn{background:none;border:1px dashed var(--p4);color:var(--p5);border-radius:6px;padding:8px;font-size:11px;letter-spacing:1px;text-transform:uppercase;transition:all .2s;margin-top:4px;}
+.add-color-btn:hover{border-color:var(--p6);color:var(--white);}
+.vehicle-row{display:flex;align-items:center;gap:16px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.05);flex-wrap:wrap;}
 .vehicle-row:last-child{border-bottom:none;}
-.vehicle-name{flex:1;font-size:14px;}
+.vehicle-name{font-size:14px;}
 .vehicle-year{font-size:12px;color:var(--p5);}
 .badge{font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:12px;}
 .badge-green{background:rgba(34,197,94,.15);color:var(--green);}
 .badge-grey{background:var(--p3);color:var(--p5);}
-.vehicle-actions{display:flex;gap:8px;}
-
-/* ── IMAGE UPLOAD (POST-PUBLISH) ── */
+.vehicle-actions{display:flex;gap:8px;flex-wrap:wrap;}
+/* modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:var(--p1);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:32px;width:100%;max-width:680px;max-height:90vh;overflow-y:auto;}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;}
+.modal-close{background:none;border:none;color:var(--p5);font-size:20px;padding:4px 8px;transition:color .2s;}
+.modal-close:hover{color:var(--white);}
+.modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,.07);}
+/* images */
 #imageUploadSection{display:none;}
 .color-img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;margin-top:16px;}
 .color-img-card{background:var(--p2);border:1px solid rgba(255,255,255,.06);border-radius:8px;overflow:hidden;}
-.color-img-preview{height:120px;display:flex;align-items:center;justify-content:center;background:var(--p3);position:relative;overflow:hidden;}
+.color-img-preview{height:120px;display:flex;align-items:center;justify-content:center;background:var(--p3);overflow:hidden;}
 .color-img-preview img{width:100%;height:100%;object-fit:cover;}
 .color-img-preview .no-img{font-size:11px;color:var(--p5);text-align:center;padding:8px;}
 .color-img-info{padding:10px;}
-.color-img-name{font-size:12px;margin-bottom:4px;}
+.color-img-name{font-size:12px;margin-bottom:2px;}
 .color-img-type{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--p5);margin-bottom:8px;}
-.color-img-upload{width:100%;padding:7px;background:none;border:1px dashed var(--p4);border-radius:4px;color:var(--p5);font-size:10px;letter-spacing:1px;text-transform:uppercase;transition:all .2s;cursor:pointer;}
+.color-img-btns{display:flex;gap:6px;}
+.color-img-upload{flex:1;padding:7px;background:none;border:1px dashed var(--p4);border-radius:4px;color:var(--p5);font-size:10px;letter-spacing:1px;text-transform:uppercase;transition:all .2s;cursor:pointer;}
 .color-img-upload:hover{border-color:var(--red);color:var(--white);}
+.color-img-delete{padding:7px 10px;background:none;border:1px solid var(--p4);border-radius:4px;color:var(--p5);font-size:12px;transition:all .2s;cursor:pointer;}
+.color-img-delete:hover{border-color:var(--red);color:var(--red);}
 .color-img-input{display:none;}
 .color-img-uploading{font-size:10px;color:var(--yellow);text-align:center;margin-top:4px;display:none;}
 .color-img-done{font-size:10px;color:var(--green);text-align:center;margin-top:4px;display:none;}
-
-/* ── USERS ── */
+.add-color-form{background:var(--p2);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:20px;margin-top:16px;display:none;}
+.add-color-form.open{display:block;}
+.add-color-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;}
+.add-color-row .field{margin-bottom:0;flex:1;min-width:120px;}
+/* users */
 .user-row{display:flex;align-items:center;gap:16px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05);}
 .user-row:last-child{border-bottom:none;}
 .user-name{flex:1;}
 .user-role{font-size:11px;color:var(--p5);}
-
-/* ── LOGIN ── */
+/* how it works */
+.how-step{display:flex;gap:20px;padding:24px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+.how-step:last-child{border-bottom:none;}
+.step-num{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--red);line-height:1;flex-shrink:0;width:40px;}
+.step-title{font-size:15px;font-weight:500;margin-bottom:6px;}
+.step-desc{font-size:13px;color:var(--p6);line-height:1.7;}
+.step-tip{margin-top:10px;padding:8px 12px;background:var(--p2);border-left:2px solid var(--red);border-radius:0 4px 4px 0;font-size:12px;color:var(--p5);line-height:1.5;}
+/* login */
 #loginScreen{position:fixed;inset:0;background:var(--p0);display:flex;align-items:center;justify-content:center;z-index:999;}
 .login-box{width:360px;background:var(--p1);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:40px;}
 .login-logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;text-align:center;margin-bottom:6px;}
 .login-logo span{color:var(--red);}
 .login-sub{font-size:12px;color:var(--p5);text-align:center;margin-bottom:32px;}
 .login-error{font-size:12px;color:var(--red);text-align:center;margin-bottom:12px;display:none;}
-
-/* ── TOAST ── */
 #toast{position:fixed;bottom:28px;right:28px;padding:12px 20px;border-radius:8px;font-size:13px;background:var(--p3);color:var(--white);transform:translateY(80px);opacity:0;transition:all .3s;z-index:9999;pointer-events:none;}
 #toast.show{transform:translateY(0);opacity:1;}
 #toast.success{background:#166534;color:#bbf7d0;}
@@ -151,57 +159,86 @@ hr{border:none;border-top:1px solid rgba(255,255,255,.07);margin:24px 0;}
   </div>
 </div>
 
+<!-- EDIT TRIM MODAL -->
+<div class="modal-overlay" id="trimModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">Edit Trim</div>
+      <button class="modal-close" onclick="closeTrimModal()">✕</button>
+    </div>
+    <input type="hidden" id="editTrimId">
+    <div class="grid3">
+      <div class="field"><label>Trim Name</label><input type="text" id="et_name"></div>
+      <div class="field"><label>Level (sort order)</label><input type="number" id="et_level" min="1"></div>
+      <div class="field"><label>Engine</label><input type="text" id="et_engine"></div>
+    </div>
+    <div class="grid3">
+      <div class="field"><label>Transmission</label><input type="text" id="et_transmission"></div>
+      <div class="field"><label>Drivetrain</label><input type="text" id="et_drivetrain"></div>
+      <div class="field"><label>Horsepower</label><input type="number" id="et_horsepower"></div>
+    </div>
+    <div class="grid3">
+      <div class="field"><label>MPG City</label><input type="number" id="et_mpg_city"></div>
+      <div class="field"><label>MPG Highway</label><input type="number" id="et_mpg_hwy"></div>
+      <div class="field"><label>Towing Capacity (lbs)</label><input type="number" id="et_towing"></div>
+    </div>
+    <div class="field"><label>VIN</label><input type="text" id="et_vin"></div>
+    <hr>
+    <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--p5);margin-bottom:12px;">Features</div>
+    <div class="features-editor" id="editFeaturesList"></div>
+    <button class="add-feature-btn" onclick="addEditFeature()">+ Add Feature</button>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeTrimModal()">Cancel</button>
+      <button class="btn btn-red" onclick="saveTrimEdits()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
 <!-- ADMIN SHELL -->
 <div class="admin-wrap" id="adminShell" style="display:none;">
   <nav class="sidebar">
     <div class="sidebar-logo">Mazda <span>Admin</span></div>
-    <div class="nav-item active" onclick="showPage('upload')">Upload Sticker</div>
-    <div class="nav-item" onclick="showPage('vehicles')">Vehicles</div>
-    <div class="nav-item" id="navImages" onclick="showPage('images')" style="display:none;">Manage Images</div>
-    <div class="nav-item" id="navUsers" onclick="showPage('users')">Users</div>
+    <div class="nav-item active" data-page="upload" onclick="showPage('upload',this)">Upload Sticker</div>
+    <div class="nav-item" data-page="vehicles" onclick="showPage('vehicles',this)">Vehicles</div>
+    <div class="nav-item" data-page="images" onclick="showPage('images',this)">Manage Images</div>
+    <div class="nav-item" data-page="users" id="navUsers" onclick="showPage('users',this)" style="display:none;">Users</div>
+    <div class="nav-item" data-page="howto" onclick="showPage('howto',this)">How It Works</div>
     <div class="sidebar-bottom">
+      <div style="font-size:11px;color:var(--p5);margin-bottom:12px;" id="currentUserLabel"></div>
       <button class="logout-btn" onclick="logout()">Sign Out</button>
     </div>
   </nav>
 
   <div class="main">
 
-    <!-- ══ UPLOAD PAGE ══ -->
+    <!-- UPLOAD -->
     <div class="page active" id="page-upload">
       <div class="page-title">Upload Window Sticker</div>
-      <div class="page-sub">Drop a PDF window sticker — Claude will extract all vehicle data automatically.</div>
-
-      <!-- Upload zone -->
+      <div class="page-sub">Drop a Mazda window sticker PDF — Claude extracts all vehicle data automatically.</div>
       <div id="uploadArea">
         <div class="upload-zone card" id="uploadZone" onclick="document.getElementById('fileInput').click()">
           <input type="file" id="fileInput" accept=".pdf" onchange="handlePDF(this.files[0])">
           <div class="upload-icon">📄</div>
           <h3>Drop Window Sticker PDF</h3>
-          <p>Click to browse or drag & drop</p>
+          <p>Click to browse or drag &amp; drop · PDF files only</p>
         </div>
       </div>
-
-      <!-- Status -->
       <div class="status-bar" id="statusBar">
         <div class="status-text" id="statusText">Processing…</div>
         <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
       </div>
-
-      <!-- Review Panel -->
       <div id="reviewPanel">
         <div class="review-header">
           <div>
             <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;">Review Extracted Data</div>
-            <div style="font-size:12px;color:var(--p5);">Edit any field before saving</div>
+            <div style="font-size:12px;color:var(--p5);">Edit any field before saving — Claude isn't always perfect</div>
           </div>
           <div class="review-actions">
             <button class="btn btn-outline" onclick="resetUpload()">Start Over</button>
             <button class="btn btn-outline" onclick="saveVehicle(false)">Save Draft</button>
-            <button class="btn btn-red" onclick="saveVehicle(true)">Publish to Site</button>
+            <button class="btn btn-red" onclick="saveVehicle(true)">Publish to Site ✓</button>
           </div>
         </div>
-
-        <!-- Model Info -->
         <div class="field-group">
           <div class="field-group-title">Model Information</div>
           <div class="grid3">
@@ -210,15 +247,11 @@ hr{border:none;border-top:1px solid rgba(255,255,255,.07);margin:24px 0;}
             <div class="field"><label>Slug (URL key)</label><input type="text" id="r_slug"></div>
           </div>
         </div>
-
-        <!-- Trims -->
         <div class="field-group">
           <div class="field-group-title">Trims</div>
           <div class="trims-list" id="trimsList"></div>
           <button class="add-feature-btn" onclick="addTrim()" style="margin-top:12px;">+ Add Trim</button>
         </div>
-
-        <!-- Colors -->
         <div class="field-group">
           <div class="field-group-title">Colors</div>
           <div class="colors-list" id="colorsList"></div>
@@ -227,42 +260,66 @@ hr{border:none;border-top:1px solid rgba(255,255,255,.07);margin:24px 0;}
       </div>
     </div>
 
-    <!-- ══ VEHICLES PAGE ══ -->
+    <!-- VEHICLES -->
     <div class="page" id="page-vehicles">
       <div class="page-title">Vehicles</div>
-      <div class="page-sub">All models in the database.</div>
+      <div class="page-sub">All models. Use Edit Trims to update specs without re-uploading a sticker.</div>
       <div class="card">
-        <div id="vehiclesList"><div style="color:var(--p5);font-size:13px;">Loading…</div></div>
+        <div id="vehiclesList"><div style="color:var(--p5);">Loading…</div></div>
       </div>
     </div>
 
-    <!-- ══ IMAGES PAGE ══ -->
+    <!-- IMAGES -->
     <div class="page" id="page-images">
       <div class="page-title">Manage Images</div>
-      <div class="page-sub">Upload exterior color PNGs and interior photos for each model.</div>
-
-      <div class="field" style="max-width:320px;margin-bottom:28px;">
+      <div class="page-sub">Upload exterior PNGs (transparent background) and interior cabin photos.</div>
+      <div style="max-width:300px;margin-bottom:28px;">
         <label>Select Model</label>
         <select id="imageModelSelect" onchange="loadModelImages()">
           <option value="">— Choose a model —</option>
         </select>
       </div>
-
       <div id="imageUploadSection">
         <div class="card">
-          <div class="card-title">Exterior Colors</div>
-          <p style="font-size:12px;color:var(--p5);margin-bottom:4px;">Upload a PNG with transparent background for each exterior color.</p>
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+            <div>
+              <div class="card-title" style="margin-bottom:4px;">Exterior Colors</div>
+              <p style="font-size:12px;color:var(--p5);">PNG with transparent background — one per color.</p>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="toggleAddColorForm('exterior')">+ Add Color</button>
+          </div>
+          <div class="add-color-form" id="addColorFormExt">
+            <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--p5);margin-bottom:12px;">New Exterior Color</div>
+            <div class="add-color-row">
+              <div class="field"><label>Color Name</label><input type="text" id="newExtName" placeholder="Soul Red Crystal Metallic"></div>
+              <div class="field" style="flex:0 0 110px;"><label>Hex Code</label><input type="text" id="newExtHex" placeholder="#8B0000" maxlength="7"></div>
+              <button class="btn btn-red btn-sm" style="margin-bottom:0;" onclick="addColorToModel('exterior')">Add</button>
+            </div>
+          </div>
           <div class="color-img-grid" id="extColorGrid"></div>
         </div>
         <div class="card">
-          <div class="card-title">Interior Colors / Photos</div>
-          <p style="font-size:12px;color:var(--p5);margin-bottom:4px;">Upload a cabin photo for each interior option.</p>
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+            <div>
+              <div class="card-title" style="margin-bottom:4px;">Interior Colors / Photos</div>
+              <p style="font-size:12px;color:var(--p5);">Cabin photo for each interior option.</p>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="toggleAddColorForm('interior')">+ Add Color</button>
+          </div>
+          <div class="add-color-form" id="addColorFormInt">
+            <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--p5);margin-bottom:12px;">New Interior Color</div>
+            <div class="add-color-row">
+              <div class="field"><label>Color Name</label><input type="text" id="newIntName" placeholder="Black Leatherette"></div>
+              <div class="field" style="flex:0 0 110px;"><label>Hex Code</label><input type="text" id="newIntHex" placeholder="#222222" maxlength="7"></div>
+              <button class="btn btn-red btn-sm" style="margin-bottom:0;" onclick="addColorToModel('interior')">Add</button>
+            </div>
+          </div>
           <div class="color-img-grid" id="intColorGrid"></div>
         </div>
       </div>
     </div>
 
-    <!-- ══ USERS PAGE ══ -->
+    <!-- USERS -->
     <div class="page" id="page-users">
       <div class="page-title">Users</div>
       <div class="page-sub">Manage admin and manager accounts.</div>
@@ -275,195 +332,180 @@ hr{border:none;border-top:1px solid rgba(255,255,255,.07);margin:24px 0;}
         <div class="grid2">
           <div class="field"><label>Password</label><input type="password" id="newPass" placeholder="••••••••"></div>
           <div class="field"><label>Role</label>
-            <select id="newRole">
-              <option value="manager">Manager</option>
-              <option value="admin">Admin</option>
-            </select>
+            <select id="newRole"><option value="manager">Manager</option><option value="admin">Admin</option></select>
           </div>
         </div>
         <button class="btn btn-red btn-sm" onclick="addUser()">Add User</button>
       </div>
       <div class="card" style="max-width:520px;margin-top:20px;">
         <div class="card-title">All Users</div>
-        <div id="usersList"><div style="color:var(--p5);font-size:13px;">Loading…</div></div>
+        <div id="usersList"><div style="color:var(--p5);">Loading…</div></div>
       </div>
     </div>
 
-  </div><!-- .main -->
-</div><!-- .admin-wrap -->
+    <!-- HOW IT WORKS -->
+    <div class="page" id="page-howto">
+      <div class="page-title">How It Works</div>
+      <div class="page-sub">Everything a new manager needs to know to run this system.</div>
+      <div class="card" style="max-width:700px;">
+        <div class="how-step">
+          <div class="step-num">1</div>
+          <div>
+            <div class="step-title">Upload a Window Sticker PDF</div>
+            <div class="step-desc">Go to <strong>Upload Sticker</strong> in the sidebar. Drop in the PDF window sticker for any Mazda vehicle. Claude AI reads it and automatically extracts the model name, year, all trim levels, MPG figures, horsepower, engine, drivetrain, towing capacity, and available colors.</div>
+            <div class="step-tip">📄 Window stickers come from Mazda's dealer portal or are printed from the vehicle. Any standard Mazda window sticker PDF works.</div>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="step-num">2</div>
+          <div>
+            <div class="step-title">Review and Correct the Extracted Data</div>
+            <div class="step-desc">After extraction a review screen shows everything Claude found. Check each field — Claude is usually accurate but not perfect. You can edit any value, add or remove trims, and adjust colors before saving.</div>
+            <div class="step-tip">💡 The Slug field is a behind-the-scenes URL identifier. Leave it as the auto-generated value unless you have a reason to change it.</div>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="step-num">3</div>
+          <div>
+            <div class="step-title">Publish or Save as Draft</div>
+            <div class="step-desc"><strong>Publish to Site</strong> makes the vehicle immediately visible to customers. <strong>Save Draft</strong> saves it but hides it — useful if you want to add images first. Toggle published/unpublished anytime from the <strong>Vehicles</strong> page.</div>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="step-num">4</div>
+          <div>
+            <div class="step-title">Upload Color Photos</div>
+            <div class="step-desc">Go to <strong>Manage Images</strong>, select the model, and upload a photo for each color card. Exterior colors need a PNG with a transparent background — these display as floating car images on the customer site. Interior colors take any cabin photo.</div>
+            <div class="step-tip">🎨 Use the <strong>+ Add Color</strong> button to add colors that weren't on the window sticker — useful for colors added later or missed during extraction.</div>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="step-num">5</div>
+          <div>
+            <div class="step-title">Editing After Publishing</div>
+            <div class="step-desc">You never need to re-upload a sticker to make corrections. From the <strong>Vehicles</strong> page, click <strong>Edit Trims</strong> to update MPG, horsepower, features, or any other spec. Click <strong>Images</strong> to manage photos. Use <strong>Delete Color</strong> on the Images page to remove incorrect colors.</div>
+            <div class="step-tip">⚠️ Re-uploading a sticker for an existing model will overwrite its data. Always use Edit Trims for corrections instead.</div>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="step-num">6</div>
+          <div>
+            <div class="step-title">What Customers See</div>
+            <div class="step-desc">The customer site at <a href="https://mos-red.vercel.app" target="_blank" style="color:var(--red);">mos-red.vercel.app</a> automatically shows every published vehicle with a tab in the nav bar. Customers can browse trims, see MPG and specs, click color swatches to swap the car image, and view interior photos. No pricing is shown anywhere.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
 
 <div id="toast"></div>
-
-<!-- PDF.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-
 <script>
-// ══════════════════════════════════════════════
-// CONFIG
-// ══════════════════════════════════════════════
 const SUPABASE_URL  = 'https://dvznpeelgyebzdublamt.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2em5wZWVsZ3llYnpkdWJsYW10Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwMjEyMjIsImV4cCI6MjA5MzU5NzIyMn0.x4AXUr4PcGkxZUR19T0FhNth1Lo8PsIaeUJxLQiqK9o';
-const STORAGE_URL   = `${SUPABASE_URL}/storage/v1/object/public/vehicle-images`;
+const sbH = {'apikey':SUPABASE_ANON,'Authorization':'Bearer '+SUPABASE_ANON,'Content-Type':'application/json'};
 
-const sbHeaders = {
-  'apikey': SUPABASE_ANON,
-  'Authorization': `Bearer ${SUPABASE_ANON}`,
-  'Content-Type': 'application/json'
-};
-
-async function sb(path, method = 'GET', body = null) {
-  const opts = { method, headers: sbHeaders };
+async function sb(path, method='GET', body=null) {
+  const opts = {method, headers:sbH};
   if (body) opts.body = JSON.stringify(body);
-  const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, opts);
-  if (!r.ok) {
-    const txt = await r.text();
-    throw new Error(`DB error: ${txt}`);
-  }
-  const txt = await r.text();
-  return txt ? JSON.parse(txt) : null;
+  const r = await fetch(SUPABASE_URL+'/rest/v1/'+path, opts);
+  if (!r.ok) { const t=await r.text(); throw new Error(t); }
+  const t = await r.text();
+  return t ? JSON.parse(t) : null;
 }
 
-// ══════════════════════════════════════════════
-// AUTH
-// ══════════════════════════════════════════════
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── AUTH ──
 let currentUser = null;
+async function hashPass(s){ const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)); return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join(''); }
 
-async function hashPass(str) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+async function doLogin(){
+  const user=document.getElementById('loginUser').value.trim();
+  const pass=document.getElementById('loginPass').value;
+  if(!user||!pass) return;
+  try{
+    const hash=await hashPass(pass);
+    const rows=await sb('admin_users?username=eq.'+encodeURIComponent(user)+'&password_hash=eq.'+hash+'&select=*');
+    if(!rows||!rows.length){document.getElementById('loginError').style.display='block';return;}
+    currentUser=rows[0];
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('adminShell').style.display='flex';
+    document.getElementById('currentUserLabel').textContent=currentUser.display_name||currentUser.username;
+    if(currentUser.role==='admin') document.getElementById('navUsers').style.display='block';
+    loadVehicles(); loadUsers(); loadImageModelSelect();
+  }catch(e){toast('Login failed: '+e.message,'error');}
+}
+document.getElementById('loginPass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+document.getElementById('loginUser').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+function logout(){currentUser=null;document.getElementById('loginScreen').style.display='flex';document.getElementById('adminShell').style.display='none';}
+
+// ── NAV ──
+function showPage(name,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  if(el) el.classList.add('active');
 }
 
-async function doLogin() {
-  const user = document.getElementById('loginUser').value.trim();
-  const pass = document.getElementById('loginPass').value;
-  if (!user || !pass) return;
-  try {
-    const hash = await hashPass(pass);
-    const rows = await sb(`admin_users?username=eq.${encodeURIComponent(user)}&password_hash=eq.${hash}&select=*`);
-    if (!rows || !rows.length) {
-      document.getElementById('loginError').style.display = 'block';
-      return;
-    }
-    currentUser = rows[0];
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('adminShell').style.display = 'flex';
-    if (currentUser.role === 'admin') {
-      document.getElementById('navUsers').style.display = 'block';
-    }
-    document.getElementById('navImages').style.display = 'block';
-    loadVehicles();
-    loadUsers();
-    loadImageModelSelect();
-  } catch(e) {
-    toast('Login failed: ' + e.message, 'error');
-  }
-}
-
-document.getElementById('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-document.getElementById('loginUser').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-
-function logout() {
-  currentUser = null;
-  document.getElementById('loginScreen').style.display = 'flex';
-  document.getElementById('adminShell').style.display = 'none';
-}
-
-// ══════════════════════════════════════════════
-// NAVIGATION
-// ══════════════════════════════════════════════
-function showPage(name) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById(`page-${name}`).classList.add('active');
-  event.currentTarget?.classList.add('active');
-}
-
-// ══════════════════════════════════════════════
-// PDF EXTRACTION
-// ══════════════════════════════════════════════
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
-async function handlePDF(file) {
-  if (!file) return;
-  setStatus('Reading PDF…', 10);
-
-  try {
-    const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-    let fullText = '';
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const content = await page.getTextContent();
-      fullText += content.items.map(it => it.str).join(' ') + '\n';
-    }
-    setStatus('Sending to Claude AI…', 40);
-    const data = await extractWithClaude(fullText);
-    setStatus('Populating review form…', 85);
+// ── PDF ──
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+async function handlePDF(file){
+  if(!file) return;
+  setStatus('Reading PDF…',10);
+  try{
+    const ab=await file.arrayBuffer();
+    const pdf=await pdfjsLib.getDocument({data:ab}).promise;
+    let txt='';
+    for(let i=1;i<=pdf.numPages;i++){const p=await pdf.getPage(i);const c=await p.getTextContent();txt+=c.items.map(x=>x.str).join(' ')+'\n';}
+    setStatus('Sending to Claude AI…',40);
+    const data=await extractWithClaude(txt);
+    setStatus('Populating form…',85);
     populateReview(data);
-    setStatus('Done', 100);
-    document.getElementById('statusBar').style.display = 'none';
-    document.getElementById('reviewPanel').style.display = 'block';
-    document.getElementById('uploadArea').style.display = 'none';
-  } catch(e) {
-    setStatus('Error: ' + e.message, 0);
-    toast('Extraction failed: ' + e.message, 'error');
-  }
+    setStatus('Done',100);
+    document.getElementById('statusBar').style.display='none';
+    document.getElementById('reviewPanel').style.display='block';
+    document.getElementById('uploadArea').style.display='none';
+  }catch(e){setStatus('Error: '+e.message,0);toast('Extraction failed: '+e.message,'error');}
+}
+function setStatus(msg,pct){
+  document.getElementById('statusBar').classList.add('show');
+  document.getElementById('statusText').textContent=msg;
+  document.getElementById('progressFill').style.width=pct+'%';
+}
+async function extractWithClaude(pdfText){
+  const r=await fetch('/api/extract',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pdfText})});
+  if(!r.ok) throw new Error('Extraction error: '+await r.text());
+  return r.json();
 }
 
-function setStatus(msg, pct) {
-  const bar = document.getElementById('statusBar');
-  bar.classList.add('show');
-  document.getElementById('statusText').textContent = msg;
-  document.getElementById('progressFill').style.width = pct + '%';
+// ── REVIEW FORM ──
+function populateReview(data){
+  document.getElementById('r_name').value=data.name||'';
+  document.getElementById('r_year').value=data.year||'';
+  document.getElementById('r_slug').value=(data.name||'').toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+  const tl=document.getElementById('trimsList'); tl.innerHTML='';
+  (data.trims||[]).forEach(t=>addTrim(t));
+  const cl=document.getElementById('colorsList'); cl.innerHTML='';
+  (data.colors||[]).forEach(c=>addColor(c));
 }
-
-async function extractWithClaude(pdfText) {
-  const response = await fetch('/api/extract', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ pdfText })
-  });
-  if (!response.ok) {
-    const err = await response.text();
-    throw new Error('Extraction error: ' + err);
-  }
-  return response.json();
-}
-
-// ══════════════════════════════════════════════
-// REVIEW FORM POPULATION
-// ══════════════════════════════════════════════
-function populateReview(data) {
-  document.getElementById('r_name').value  = data.name  || '';
-  document.getElementById('r_year').value  = data.year  || '';
-  document.getElementById('r_slug').value  = (data.name || '').toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
-
-  // Trims
-  const tl = document.getElementById('trimsList');
-  tl.innerHTML = '';
-  (data.trims || []).forEach((t, i) => addTrim(t));
-
-  // Colors
-  const cl = document.getElementById('colorsList');
-  cl.innerHTML = '';
-  (data.colors || []).forEach(c => addColor(c));
-}
-
-function addTrim(t = {}) {
-  const tl = document.getElementById('trimsList');
-  const idx = tl.children.length;
-  const div = document.createElement('div');
-  div.className = 'trim-card';
-  div.innerHTML = `
-    <div class="trim-card-header">Trim ${idx + 1} <button style="float:right;background:none;border:none;color:var(--p5);cursor:pointer;font-size:12px;" onclick="this.closest('.trim-card').remove()">✕ Remove</button></div>
+function addTrim(t={}){
+  const tl=document.getElementById('trimsList');
+  const idx=tl.children.length;
+  const div=document.createElement('div');
+  div.className='trim-card';
+  div.innerHTML=`
+    <div class="trim-card-header"><span>Trim ${idx+1}</span><button style="background:none;border:none;color:var(--p5);cursor:pointer;font-size:12px;" onclick="this.closest('.trim-card').remove()">✕ Remove</button></div>
     <div class="grid3">
-      <div class="field"><label>Name</label><input class="t_name" value="${t.name||''}" placeholder="e.g. Select"></div>
+      <div class="field"><label>Name</label><input class="t_name" value="${esc(t.name||'')}" placeholder="e.g. Select"></div>
       <div class="field"><label>Level</label><input class="t_level" value="${t.level||idx+1}" type="number" min="1"></div>
-      <div class="field"><label>Engine</label><input class="t_engine" value="${t.engine||''}"></div>
+      <div class="field"><label>Engine</label><input class="t_engine" value="${esc(t.engine||'')}"></div>
     </div>
     <div class="grid3">
-      <div class="field"><label>Transmission</label><input class="t_transmission" value="${t.transmission||''}"></div>
-      <div class="field"><label>Drivetrain</label><input class="t_drivetrain" value="${t.drivetrain||''}"></div>
+      <div class="field"><label>Transmission</label><input class="t_transmission" value="${esc(t.transmission||'')}"></div>
+      <div class="field"><label>Drivetrain</label><input class="t_drivetrain" value="${esc(t.drivetrain||'')}"></div>
       <div class="field"><label>Horsepower</label><input class="t_horsepower" value="${t.horsepower||''}" type="number"></div>
     </div>
     <div class="grid3">
@@ -471,428 +513,302 @@ function addTrim(t = {}) {
       <div class="field"><label>MPG Hwy</label><input class="t_mpg_hwy" value="${t.mpg_hwy||''}" type="number"></div>
       <div class="field"><label>Towing (lbs)</label><input class="t_towing" value="${t.towing_capacity||''}" type="number"></div>
     </div>
-    <div class="field"><label>VIN</label><input class="t_vin" value="${t.vin||''}"></div>
+    <div class="field"><label>VIN</label><input class="t_vin" value="${esc(t.vin||'')}"></div>
     <div style="margin-top:12px;">
       <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--p5);margin-bottom:10px;">Features by Category</div>
       <div class="features-editor" id="feats-${idx}"></div>
-      <button class="add-feature-btn" onclick="addFeature(${idx})">+ Add Feature</button>
+      <button class="add-feature-btn" data-idx="${idx}" onclick="addFeature(this.dataset.idx)">+ Add Feature</button>
     </div>`;
   tl.appendChild(div);
-
-  // Populate features
-  (t.features || []).forEach(f => {
-    if (typeof f === 'string') addFeature(idx, { category: 'General', text: f });
-    else addFeature(idx, f);
-  });
+  (t.features||[]).forEach(f=>{ if(typeof f==='string') addFeature(idx,{category:'General',text:f}); else addFeature(idx,f); });
 }
-
-function addFeature(trimIdx, f = {}) {
-  const container = document.getElementById(`feats-${trimIdx}`);
-  if (!container) return;
-  const row = document.createElement('div');
-  row.className = 'feature-row';
-  row.innerHTML = `
-    <input type="text" placeholder="Category" value="${f.category||'General'}" style="flex:0 0 130px;" class="feat-cat">
-    <input type="text" placeholder="Feature description" value="${f.text||f.feature_text||''}" class="feat-text">
-    <button class="remove-feat" onclick="this.parentElement.remove()">✕</button>`;
-  container.appendChild(row);
+function addFeature(idx,f={}){
+  const c=document.getElementById('feats-'+idx); if(!c) return;
+  const row=document.createElement('div'); row.className='feature-row';
+  row.innerHTML=`<input type="text" placeholder="Category" value="${esc(f.category||'General')}" style="flex:0 0 130px;" class="feat-cat"><input type="text" placeholder="Feature" value="${esc(f.text||f.feature_text||'')}" class="feat-text"><button class="remove-feat" onclick="this.parentElement.remove()">✕</button>`;
+  c.appendChild(row);
 }
-
-function addColor(c = {}) {
-  const cl = document.getElementById('colorsList');
-  const row = document.createElement('div');
-  row.className = 'color-row';
-  row.innerHTML = `
-    <input type="text" placeholder="Color name" value="${c.name||''}">
-    <select>
-      <option value="exterior"${c.type==='exterior'?' selected':''}>Exterior</option>
-      <option value="interior"${c.type==='interior'?' selected':''}>Interior</option>
-    </select>
-    <input class="hex" type="text" placeholder="#hex" value="${c.hex_code||''}" maxlength="7">
-    <button class="remove-color" onclick="this.parentElement.remove()">✕</button>`;
+function addColor(c={}){
+  const cl=document.getElementById('colorsList');
+  const row=document.createElement('div'); row.className='color-row';
+  row.innerHTML=`<input type="text" placeholder="Color name" value="${esc(c.name||'')}"><select><option value="exterior"${c.type==='exterior'?' selected':''}>Exterior</option><option value="interior"${c.type==='interior'?' selected':''}>Interior</option></select><input class="hex" type="text" placeholder="#hex" value="${esc(c.hex_code||'')}" maxlength="7"><button class="remove-color" onclick="this.parentElement.remove()">✕</button>`;
   cl.appendChild(row);
 }
 
-// ══════════════════════════════════════════════
-// SAVE TO SUPABASE
-// ══════════════════════════════════════════════
-async function saveVehicle(publish) {
-  const name = document.getElementById('r_name').value.trim();
-  const year = document.getElementById('r_year').value.trim();
-  const slug = document.getElementById('r_slug').value.trim();
-  if (!name) { toast('Model name is required', 'error'); return; }
-
-  setStatus('Saving model…', 20);
-  document.getElementById('statusBar').classList.add('show');
-
-  try {
-    // Upsert model
-    const modelRows = await sb('models?select=id&name=eq.' + encodeURIComponent(name) + '&year=eq.' + encodeURIComponent(year));
+// ── SAVE VEHICLE ──
+async function saveVehicle(publish){
+  const name=document.getElementById('r_name').value.trim();
+  const year=document.getElementById('r_year').value.trim();
+  const slug=document.getElementById('r_slug').value.trim();
+  if(!name){toast('Model name is required','error');return;}
+  setStatus('Saving model…',20); document.getElementById('statusBar').classList.add('show');
+  try{
+    const existing=await sb('models?select=id&name=eq.'+encodeURIComponent(name)+'&year=eq.'+encodeURIComponent(year));
     let modelId;
-
-    if (modelRows && modelRows.length) {
-      modelId = modelRows[0].id;
-      await sb(`models?id=eq.${modelId}`, 'PATCH', { name, year, slug, published: publish, updated_at: new Date().toISOString() });
-    } else {
-      const created = await sb('models?select=id', 'POST', { name, year, slug, published: publish, sort_order: 99 });
-      // Supabase returns array on insert with Prefer: return=representation
-      // Use PATCH with select workaround
-      const newRows = await sb('models?select=id&name=eq.' + encodeURIComponent(name) + '&year=eq.' + encodeURIComponent(year));
-      modelId = newRows[0].id;
+    if(existing&&existing.length){
+      modelId=existing[0].id;
+      await sb('models?id=eq.'+modelId,'PATCH',{name,year,slug,published:publish,updated_at:new Date().toISOString()});
+    }else{
+      await sb('models','POST',{name,year,slug,published:publish,sort_order:99});
+      const nr=await sb('models?select=id&name=eq.'+encodeURIComponent(name)+'&year=eq.'+encodeURIComponent(year));
+      modelId=nr[0].id;
     }
-
-    setStatus('Saving trims…', 45);
-
-    // Save trims
-    const trimCards = document.querySelectorAll('#trimsList .trim-card');
-    for (const card of trimCards) {
-      const trimName = card.querySelector('.t_name').value.trim();
-      if (!trimName) continue;
-
-      const trimData = {
-        model_id:        modelId,
-        name:            trimName,
-        level:           parseInt(card.querySelector('.t_level').value) || 1,
-        engine:          card.querySelector('.t_engine').value.trim(),
-        transmission:    card.querySelector('.t_transmission').value.trim(),
-        drivetrain:      card.querySelector('.t_drivetrain').value.trim(),
-        horsepower:      parseInt(card.querySelector('.t_horsepower').value) || null,
-        mpg_city:        parseInt(card.querySelector('.t_mpg_city').value) || null,
-        mpg_hwy:         parseInt(card.querySelector('.t_mpg_hwy').value) || null,
-        towing_capacity: parseInt(card.querySelector('.t_towing').value) || null,
-        vin:             card.querySelector('.t_vin').value.trim(),
-      };
-
-      // Check existing trim
-      const existingTrim = await sb(`trims?model_id=eq.${modelId}&name=eq.${encodeURIComponent(trimName)}&select=id`);
+    setStatus('Saving trims…',45);
+    for(const card of document.querySelectorAll('#trimsList .trim-card')){
+      const trimName=card.querySelector('.t_name').value.trim(); if(!trimName) continue;
+      const td={model_id:modelId,name:trimName,level:parseInt(card.querySelector('.t_level').value)||1,engine:card.querySelector('.t_engine').value.trim(),transmission:card.querySelector('.t_transmission').value.trim(),drivetrain:card.querySelector('.t_drivetrain').value.trim(),horsepower:parseInt(card.querySelector('.t_horsepower').value)||null,mpg_city:parseInt(card.querySelector('.t_mpg_city').value)||null,mpg_hwy:parseInt(card.querySelector('.t_mpg_hwy').value)||null,towing_capacity:parseInt(card.querySelector('.t_towing').value)||null,vin:card.querySelector('.t_vin').value.trim()};
+      const et=await sb('trims?model_id=eq.'+modelId+'&name=eq.'+encodeURIComponent(trimName)+'&select=id');
       let trimId;
-
-      if (existingTrim && existingTrim.length) {
-        trimId = existingTrim[0].id;
-        await sb(`trims?id=eq.${trimId}`, 'PATCH', trimData);
-        // Clear old features
-        await sb(`features?trim_id=eq.${trimId}`, 'DELETE');
-      } else {
-        await sb('trims', 'POST', trimData);
-        const newTrim = await sb(`trims?model_id=eq.${modelId}&name=eq.${encodeURIComponent(trimName)}&select=id`);
-        trimId = newTrim[0].id;
-      }
-
-      // Save features
-      const featRows = card.querySelectorAll('.features-editor .feature-row');
-      for (const row of featRows) {
-        const cat  = row.querySelector('.feat-cat').value.trim() || 'General';
-        const text = row.querySelector('.feat-text').value.trim();
-        if (text) {
-          await sb('features', 'POST', { trim_id: trimId, category: cat, feature_text: text, sort_order: 0 });
-        }
+      if(et&&et.length){trimId=et[0].id;await sb('trims?id=eq.'+trimId,'PATCH',td);await sb('features?trim_id=eq.'+trimId,'DELETE');}
+      else{await sb('trims','POST',td);const nt=await sb('trims?model_id=eq.'+modelId+'&name=eq.'+encodeURIComponent(trimName)+'&select=id');trimId=nt[0].id;}
+      for(const row of card.querySelectorAll('.features-editor .feature-row')){
+        const cat=row.querySelector('.feat-cat').value.trim()||'General';
+        const text=row.querySelector('.feat-text').value.trim();
+        if(text) await sb('features','POST',{trim_id:trimId,category:cat,feature_text:text,sort_order:0});
       }
     }
-
-    setStatus('Saving colors…', 70);
-
-    // Save colors (delete old ones first)
-    await sb(`colors?model_id=eq.${modelId}`, 'DELETE');
-    const colorRows = document.querySelectorAll('#colorsList .color-row');
-    for (const row of colorRows) {
-      const inputs  = row.querySelectorAll('input');
-      const selects = row.querySelectorAll('select');
-      const cName   = inputs[0].value.trim();
-      const cType   = selects[0].value;
-      const cHex    = inputs[1].value.trim();
-      if (cName) {
-        await sb('colors', 'POST', { model_id: modelId, name: cName, type: cType, hex_code: cHex || null });
-      }
+    setStatus('Saving colors…',70);
+    await sb('colors?model_id=eq.'+modelId,'DELETE');
+    for(const row of document.querySelectorAll('#colorsList .color-row')){
+      const inputs=row.querySelectorAll('input');
+      const cName=inputs[0].value.trim(); const cType=row.querySelector('select').value; const cHex=inputs[1].value.trim();
+      if(cName) await sb('colors','POST',{model_id:modelId,name:cName,type:cType,hex_code:cHex||null});
     }
-
-    setStatus('Done!', 100);
-    setTimeout(() => document.getElementById('statusBar').classList.remove('show'), 2000);
-    toast(publish ? 'Vehicle published to site!' : 'Draft saved!', 'success');
-
-    // Show image upload CTA
-    showImageUploadPrompt(modelId, name);
-
-  } catch(e) {
-    toast('Save failed: ' + e.message, 'error');
-    setStatus('Error: ' + e.message, 0);
-    console.error(e);
-  }
+    setStatus('Done!',100);
+    setTimeout(()=>document.getElementById('statusBar').classList.remove('show'),2000);
+    showPublishSuccess(modelId,name,publish);
+    loadVehicles(); loadImageModelSelect();
+  }catch(e){toast('Save failed: '+e.message,'error');setStatus('Error: '+e.message,0);console.error(e);}
 }
 
-function showImageUploadPrompt(modelId, modelName) {
-  // Add a prompt below the review panel
-  let existing = document.getElementById('postPublishCTA');
-  if (existing) existing.remove();
-
-  const cta = document.createElement('div');
-  cta.id = 'postPublishCTA';
-  cta.className = 'card';
-  cta.style.marginTop = '24px';
-  cta.style.borderColor = 'rgba(200,16,46,.3)';
-  cta.innerHTML = `
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
-      <div>
-        <div style="font-size:14px;margin-bottom:4px;">${modelName} saved successfully.</div>
-        <div style="font-size:12px;color:var(--p5);">Now upload color photos — exterior PNGs and interior shots.</div>
-      </div>
-      <button class="btn btn-red" onclick="goToImagesFor(${modelId})">Upload Images →</button>
-    </div>`;
-  document.getElementById('reviewPanel').after(cta);
+function showPublishSuccess(modelId,modelName,published){
+  let el=document.getElementById('publishSuccess'); if(el) el.remove();
+  el=document.createElement('div'); el.id='publishSuccess';
+  el.style.cssText='background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);border-radius:10px;padding:24px 28px;margin-top:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;';
+  el.innerHTML=`<div><div style="font-size:16px;font-weight:500;color:var(--green);margin-bottom:4px;">✓ ${esc(modelName)} ${published?'published to site!':'saved as draft.'}</div><div style="font-size:13px;color:var(--p6);">Next: upload color photos so customers can see the vehicle.</div></div><div style="display:flex;gap:10px;flex-wrap:wrap;"><button class="btn btn-outline btn-sm" onclick="resetUpload()">Upload Another</button><button class="btn btn-green btn-sm" onclick="goToImages(${modelId})">Upload Images →</button></div>`;
+  document.getElementById('reviewPanel').after(el);
 }
-
-function goToImagesFor(modelId) {
+function goToImages(modelId){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelector('[data-page="images"]').classList.add('active');
   showPage('images');
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('navImages').classList.add('active');
-  document.getElementById('imageModelSelect').value = modelId;
+  document.getElementById('imageModelSelect').value=modelId;
   loadModelImages();
 }
-
-function resetUpload() {
-  document.getElementById('uploadArea').style.display = 'block';
-  document.getElementById('reviewPanel').style.display = 'none';
+function resetUpload(){
+  document.getElementById('uploadArea').style.display='block';
+  document.getElementById('reviewPanel').style.display='none';
   document.getElementById('statusBar').classList.remove('show');
-  document.getElementById('fileInput').value = '';
-  const cta = document.getElementById('postPublishCTA');
-  if (cta) cta.remove();
+  document.getElementById('fileInput').value='';
+  const el=document.getElementById('publishSuccess'); if(el) el.remove();
 }
 
-// ══════════════════════════════════════════════
-// VEHICLES LIST
-// ══════════════════════════════════════════════
-async function loadVehicles() {
-  try {
-    const models = await sb('models?select=*&order=sort_order.asc');
-    const list   = document.getElementById('vehiclesList');
-    if (!models.length) { list.innerHTML = '<div style="color:var(--p5);font-size:13px;">No vehicles yet.</div>'; return; }
-    list.innerHTML = models.map(m => `
+// ── VEHICLES LIST ──
+async function loadVehicles(){
+  try{
+    const models=await sb('models?select=*&order=sort_order.asc');
+    const list=document.getElementById('vehiclesList');
+    if(!models.length){list.innerHTML='<div style="color:var(--p5);">No vehicles yet.</div>';return;}
+    list.innerHTML=models.map(m=>`
       <div class="vehicle-row">
-        <div>
-          <div class="vehicle-name">${m.name}</div>
-          <div class="vehicle-year">${m.year || ''}</div>
-        </div>
-        <span class="badge ${m.published ? 'badge-green' : 'badge-grey'}">${m.published ? 'Published' : 'Draft'}</span>
+        <div style="flex:1;"><div class="vehicle-name">${esc(m.name)}</div><div class="vehicle-year">${m.year||''}</div></div>
+        <span class="badge ${m.published?'badge-green':'badge-grey'}">${m.published?'Published':'Draft'}</span>
         <div class="vehicle-actions">
-          <button class="btn btn-outline btn-sm" onclick="togglePublish(${m.id}, ${m.published})">${m.published ? 'Unpublish' : 'Publish'}</button>
-          <button class="btn btn-outline btn-sm" onclick="goToImagesFor(${m.id})">Images</button>
-          <button class="btn btn-outline btn-sm" style="color:var(--red);" onclick="deleteVehicle(${m.id}, '${m.name}')">Delete</button>
+          <button class="btn btn-outline btn-sm" data-id="${m.id}" data-pub="${m.published}" onclick="togglePublish(this.dataset.id,this.dataset.pub==='true')">${m.published?'Unpublish':'Publish'}</button>
+          <button class="btn btn-outline btn-sm" data-id="${m.id}" onclick="openEditTrims(this.dataset.id)">Edit Trims</button>
+          <button class="btn btn-outline btn-sm" data-id="${m.id}" onclick="goToImages(this.dataset.id)">Images</button>
+          <button class="btn btn-outline btn-sm" style="color:var(--red);" data-id="${m.id}" data-name="${esc(m.name)}" onclick="deleteVehicle(this.dataset.id,this.dataset.name)">Delete</button>
         </div>
       </div>`).join('');
-  } catch(e) {
-    toast('Failed to load vehicles: ' + e.message, 'error');
-  }
+  }catch(e){toast('Failed to load: '+e.message,'error');}
 }
-
-async function togglePublish(id, current) {
-  await sb(`models?id=eq.${id}`, 'PATCH', { published: !current });
-  toast(current ? 'Unpublished' : 'Published!', 'success');
+async function togglePublish(id,current){
+  await sb('models?id=eq.'+id,'PATCH',{published:!current});
+  toast(current?'Unpublished':'Published to site!','success');
   loadVehicles();
 }
-
-async function deleteVehicle(id, name) {
-  if (!confirm(`Delete ${name} and all its data? This cannot be undone.`)) return;
-  await sb(`colors?model_id=eq.${id}`, 'DELETE');
-  const trims = await sb(`trims?model_id=eq.${id}&select=id`);
-  for (const t of trims) {
-    await sb(`features?trim_id=eq.${t.id}`, 'DELETE');
-    await sb(`packages?trim_id=eq.${t.id}`, 'DELETE');
-  }
-  await sb(`trims?model_id=eq.${id}`, 'DELETE');
-  await sb(`models?id=eq.${id}`, 'DELETE');
-  toast(`${name} deleted`, 'success');
-  loadVehicles();
+async function deleteVehicle(id,name){
+  if(!confirm('Delete '+name+' and all its data? This cannot be undone.')) return;
+  await sb('colors?model_id=eq.'+id,'DELETE');
+  const trims=await sb('trims?model_id=eq.'+id+'&select=id');
+  for(const t of trims){await sb('features?trim_id=eq.'+t.id,'DELETE');await sb('packages?trim_id=eq.'+t.id,'DELETE');}
+  await sb('trims?model_id=eq.'+id,'DELETE');
+  await sb('models?id=eq.'+id,'DELETE');
+  toast(name+' deleted','success'); loadVehicles();
 }
 
-// ══════════════════════════════════════════════
-// IMAGE MANAGEMENT
-// ══════════════════════════════════════════════
-async function loadImageModelSelect() {
-  try {
-    const models = await sb('models?select=id,name,year&order=sort_order.asc');
-    const sel = document.getElementById('imageModelSelect');
-    sel.innerHTML = '<option value="">— Choose a model —</option>' +
-      models.map(m => `<option value="${m.id}">${m.name}${m.year ? ' ' + m.year : ''}</option>`).join('');
-  } catch(e) {}
+// ── EDIT TRIM MODAL ──
+async function openEditTrims(modelId){
+  const trims=await sb('trims?model_id=eq.'+modelId+'&select=*&order=level.asc');
+  if(!trims||!trims.length){toast('No trims found','error');return;}
+  if(trims.length===1){openTrimModal(trims[0]);return;}
+  const names=trims.map((t,i)=>(i+1)+'. '+t.name).join('\n');
+  const choice=prompt('Which trim to edit? Enter number:\n'+names);
+  const idx=parseInt(choice)-1;
+  if(isNaN(idx)||idx<0||idx>=trims.length) return;
+  openTrimModal(trims[idx]);
 }
-
-async function loadModelImages() {
-  const modelId = document.getElementById('imageModelSelect').value;
-  const section = document.getElementById('imageUploadSection');
-  if (!modelId) { section.style.display = 'none'; return; }
-  section.style.display = 'block';
-
-  try {
-    const colors = await sb(`colors?model_id=eq.${modelId}&select=*`);
-    const ext = colors.filter(c => c.type === 'exterior');
-    const int = colors.filter(c => c.type === 'interior');
-    renderColorImageGrid('extColorGrid', ext, modelId);
-    renderColorImageGrid('intColorGrid', int, modelId);
-  } catch(e) {
-    toast('Failed to load colors: ' + e.message, 'error');
-  }
+async function openTrimModal(trim){
+  document.getElementById('editTrimId').value=trim.id;
+  document.getElementById('et_name').value=trim.name||'';
+  document.getElementById('et_level').value=trim.level||1;
+  document.getElementById('et_engine').value=trim.engine||'';
+  document.getElementById('et_transmission').value=trim.transmission||'';
+  document.getElementById('et_drivetrain').value=trim.drivetrain||'';
+  document.getElementById('et_horsepower').value=trim.horsepower||'';
+  document.getElementById('et_mpg_city').value=trim.mpg_city||'';
+  document.getElementById('et_mpg_hwy').value=trim.mpg_hwy||'';
+  document.getElementById('et_towing').value=trim.towing_capacity||'';
+  document.getElementById('et_vin').value=trim.vin||'';
+  const feats=await sb('features?trim_id=eq.'+trim.id+'&select=*&order=sort_order.asc');
+  const list=document.getElementById('editFeaturesList'); list.innerHTML='';
+  feats.forEach(f=>{
+    const row=document.createElement('div'); row.className='feature-row';
+    row.innerHTML=`<input type="text" value="${esc(f.category||'General')}" style="flex:0 0 130px;" class="ef-cat"><input type="text" value="${esc(f.feature_text||'')}" class="ef-text"><button class="remove-feat" onclick="this.parentElement.remove()">✕</button>`;
+    list.appendChild(row);
+  });
+  document.getElementById('trimModal').classList.add('open');
 }
+function addEditFeature(){
+  const list=document.getElementById('editFeaturesList');
+  const row=document.createElement('div'); row.className='feature-row';
+  row.innerHTML=`<input type="text" placeholder="Category" value="General" style="flex:0 0 130px;" class="ef-cat"><input type="text" placeholder="Feature description" class="ef-text"><button class="remove-feat" onclick="this.parentElement.remove()">✕</button>`;
+  list.appendChild(row); row.querySelector('.ef-text').focus();
+}
+function closeTrimModal(){document.getElementById('trimModal').classList.remove('open');}
+async function saveTrimEdits(){
+  const trimId=document.getElementById('editTrimId').value; if(!trimId) return;
+  const data={name:document.getElementById('et_name').value.trim(),level:parseInt(document.getElementById('et_level').value)||1,engine:document.getElementById('et_engine').value.trim(),transmission:document.getElementById('et_transmission').value.trim(),drivetrain:document.getElementById('et_drivetrain').value.trim(),horsepower:parseInt(document.getElementById('et_horsepower').value)||null,mpg_city:parseInt(document.getElementById('et_mpg_city').value)||null,mpg_hwy:parseInt(document.getElementById('et_mpg_hwy').value)||null,towing_capacity:parseInt(document.getElementById('et_towing').value)||null,vin:document.getElementById('et_vin').value.trim()};
+  try{
+    await sb('trims?id=eq.'+trimId,'PATCH',data);
+    await sb('features?trim_id=eq.'+trimId,'DELETE');
+    for(const row of document.querySelectorAll('#editFeaturesList .feature-row')){
+      const cat=row.querySelector('.ef-cat').value.trim()||'General';
+      const text=row.querySelector('.ef-text').value.trim();
+      if(text) await sb('features','POST',{trim_id:trimId,category:cat,feature_text:text,sort_order:0});
+    }
+    closeTrimModal(); toast('Trim updated!','success');
+  }catch(e){toast('Save failed: '+e.message,'error');}
+}
+document.getElementById('trimModal').addEventListener('click',function(e){if(e.target===this)closeTrimModal();});
 
-function renderColorImageGrid(gridId, colors, modelId) {
-  const grid = document.getElementById(gridId);
-  if (!colors.length) {
-    grid.innerHTML = '<p style="font-size:12px;color:var(--p5);">No colors defined for this model yet. Add them via Upload Sticker first.</p>';
-    return;
-  }
-  grid.innerHTML = colors.map(c => {
-    const previewHtml = c.image_url
-      ? `<img src="${c.image_url}" alt="" loading="lazy">`
-      : `<div class="no-img">${c.hex_code ? `<div style="width:32px;height:32px;border-radius:50%;background:${c.hex_code};margin:0 auto 6px;"></div>` : ''}No image</div>`;
-    const btnLabel = c.image_url ? '&#x21BB; Replace' : '&#x2191; Upload';
-    return `
-    <div class="color-img-card" id="colorcard-${c.id}">
-      <div class="color-img-preview">${previewHtml}</div>
-      <div class="color-img-info">
-        <div class="color-img-name">${c.name}</div>
-        <div class="color-img-type">${c.type}</div>
-        <button class="color-img-upload" data-target="ci-${c.id}">${btnLabel}</button>
-        <input type="file" class="color-img-input" id="ci-${c.id}" accept="image/*"
-          data-color-id="${c.id}" data-model-id="${modelId}" data-color-type="${c.type}">
-        <div class="color-img-uploading" id="uploading-${c.id}">Uploading…</div>
-        <div class="color-img-done" id="done-${c.id}">✓ Saved</div>
-      </div>
-    </div>`;
+// ── IMAGES ──
+async function loadImageModelSelect(){
+  try{
+    const models=await sb('models?select=id,name,year&order=sort_order.asc');
+    const sel=document.getElementById('imageModelSelect');
+    sel.innerHTML='<option value="">— Choose a model —</option>'+models.map(m=>`<option value="${m.id}">${esc(m.name)}${m.year?' '+m.year:''}</option>`).join('');
+  }catch(e){}
+}
+async function loadModelImages(){
+  const modelId=document.getElementById('imageModelSelect').value;
+  const section=document.getElementById('imageUploadSection');
+  if(!modelId){section.style.display='none';return;}
+  section.style.display='block';
+  document.getElementById('addColorFormExt').classList.remove('open');
+  document.getElementById('addColorFormInt').classList.remove('open');
+  try{
+    const colors=await sb('colors?model_id=eq.'+modelId+'&select=*');
+    renderColorGrid('extColorGrid',colors.filter(c=>c.type==='exterior'),modelId);
+    renderColorGrid('intColorGrid',colors.filter(c=>c.type==='interior'),modelId);
+  }catch(e){toast('Failed to load colors: '+e.message,'error');}
+}
+function toggleAddColorForm(type){
+  const id=type==='exterior'?'addColorFormExt':'addColorFormInt';
+  document.getElementById(id).classList.toggle('open');
+}
+async function addColorToModel(type){
+  const modelId=document.getElementById('imageModelSelect').value;
+  if(!modelId){toast('Select a model first','error');return;}
+  const nameEl=document.getElementById(type==='exterior'?'newExtName':'newIntName');
+  const hexEl=document.getElementById(type==='exterior'?'newExtHex':'newIntHex');
+  const name=nameEl.value.trim(); const hex=hexEl.value.trim();
+  if(!name){toast('Color name is required','error');return;}
+  try{
+    await sb('colors','POST',{model_id:parseInt(modelId),name,type,hex_code:hex||null});
+    nameEl.value=''; hexEl.value='';
+    toast(name+' added!','success'); loadModelImages();
+  }catch(e){toast('Failed: '+e.message,'error');}
+}
+function renderColorGrid(gridId,colors,modelId){
+  const grid=document.getElementById(gridId);
+  if(!colors.length){grid.innerHTML='<p style="font-size:12px;color:var(--p5);margin-top:12px;">No colors yet — use + Add Color above.</p>';return;}
+  grid.innerHTML=colors.map(c=>{
+    const prev=c.image_url?`<img src="${c.image_url}" alt="" loading="lazy">`:`<div class="no-img">${c.hex_code?`<div style="width:32px;height:32px;border-radius:50%;background:${c.hex_code};margin:0 auto 6px;"></div>`:''}No image</div>`;
+    return `<div class="color-img-card" id="colorcard-${c.id}"><div class="color-img-preview">${prev}</div><div class="color-img-info"><div class="color-img-name">${esc(c.name)}</div><div class="color-img-type">${c.type}</div><div class="color-img-btns"><button class="color-img-upload" data-target="ci-${c.id}">${c.image_url?'↻ Replace':'↑ Upload'}</button><button class="color-img-delete" data-color-id="${c.id}" data-color-name="${esc(c.name)}" title="Delete">🗑</button></div><input type="file" class="color-img-input" id="ci-${c.id}" accept="image/*" data-color-id="${c.id}" data-model-id="${modelId}" data-color-type="${c.type}"><div class="color-img-uploading" id="uploading-${c.id}">Uploading…</div><div class="color-img-done" id="done-${c.id}">✓ Saved</div></div></div>`;
   }).join('');
-
-  // Wire up buttons and inputs via event delegation (avoids all quote issues)
-  grid.querySelectorAll('.color-img-upload').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.getElementById(btn.dataset.target).click();
-    });
-  });
-  grid.querySelectorAll('.color-img-input').forEach(input => {
-    input.addEventListener('change', () => {
-      uploadColorImage(input, input.dataset.colorId, input.dataset.modelId, input.dataset.colorType);
-    });
-  });
+  grid.querySelectorAll('.color-img-upload').forEach(btn=>btn.addEventListener('click',()=>document.getElementById(btn.dataset.target).click()));
+  grid.querySelectorAll('.color-img-input').forEach(inp=>inp.addEventListener('change',()=>uploadColorImage(inp,inp.dataset.colorId,inp.dataset.modelId,inp.dataset.colorType)));
+  grid.querySelectorAll('.color-img-delete').forEach(btn=>btn.addEventListener('click',()=>deleteColor(btn.dataset.colorId,btn.dataset.colorName)));
+}
+async function uploadColorImage(input,colorId,modelId,colorType){
+  const file=input.files[0]; if(!file) return;
+  const uEl=document.getElementById('uploading-'+colorId);
+  const dEl=document.getElementById('done-'+colorId);
+  uEl.style.display='block'; dEl.style.display='none';
+  try{
+    const ext=file.name.split('.').pop().toLowerCase();
+    const path=modelId+'/'+colorType+'/'+colorId+'.'+ext;
+    const res=await fetch(SUPABASE_URL+'/storage/v1/object/vehicle-images/'+path,{method:'POST',headers:{'apikey':SUPABASE_ANON,'Authorization':'Bearer '+SUPABASE_ANON,'Content-Type':file.type,'x-upsert':'true'},body:file});
+    if(!res.ok) throw new Error('Storage error: '+await res.text());
+    const url=SUPABASE_URL+'/storage/v1/object/public/vehicle-images/'+path;
+    await sb('colors?id=eq.'+colorId,'PATCH',{image_url:url});
+    const card=document.getElementById('colorcard-'+colorId);
+    const prev=card.querySelector('.color-img-preview');
+    const img=prev.querySelector('img');
+    if(img){img.src=url+'?t='+Date.now();}else{prev.innerHTML=`<img src="${url}" alt="" style="width:100%;height:100%;object-fit:cover;">`;}
+    card.querySelector('.color-img-upload').textContent='↻ Replace';
+    uEl.style.display='none'; dEl.style.display='block';
+    setTimeout(()=>dEl.style.display='none',3000);
+    toast('Image uploaded!','success');
+  }catch(e){uEl.style.display='none';toast('Upload failed: '+e.message,'error');}
+}
+async function deleteColor(colorId,colorName){
+  if(!confirm('Delete color "'+colorName+'"? This removes it and its uploaded image.')) return;
+  try{await sb('colors?id=eq.'+colorId,'DELETE');toast(colorName+' deleted','success');loadModelImages();}
+  catch(e){toast('Delete failed: '+e.message,'error');}
 }
 
-async function uploadColorImage(input, colorId, modelId, colorType) {
-  const file = input.files[0];
-  if (!file) return;
-
-  const uploadingEl = document.getElementById(`uploading-${colorId}`);
-  const doneEl      = document.getElementById(`done-${colorId}`);
-  uploadingEl.style.display = 'block';
-  doneEl.style.display = 'none';
-
-  try {
-    // Build storage path: vehicle-images/{modelId}/{colorType}/{colorId}.{ext}
-    const ext  = file.name.split('.').pop().toLowerCase();
-    const path = `${modelId}/${colorType}/${colorId}.${ext}`;
-
-    // Upload to Supabase Storage
-    const storageRes = await fetch(
-      `${SUPABASE_URL}/storage/v1/object/vehicle-images/${path}`,
-      {
-        method: 'POST',
-        headers: {
-          'apikey': SUPABASE_ANON,
-          'Authorization': `Bearer ${SUPABASE_ANON}`,
-          'Content-Type': file.type,
-          'x-upsert': 'true',
-        },
-        body: file,
-      }
-    );
-
-    if (!storageRes.ok) {
-      const err = await storageRes.text();
-      throw new Error('Storage upload failed: ' + err);
-    }
-
-    // Build public URL
-    const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/vehicle-images/${path}`;
-
-    // Save URL back to colors row
-    await sb(`colors?id=eq.${colorId}`, 'PATCH', { image_url: publicUrl });
-
-    // Update preview
-    const card = document.getElementById(`colorcard-${colorId}`);
-    const preview = card.querySelector('.color-img-preview');
-    const existImg = preview.querySelector('img');
-    if (existImg) {
-      existImg.src = publicUrl + '?t=' + Date.now();
-    } else {
-      preview.innerHTML = `<img src="${publicUrl}" alt="color" style="width:100%;height:100%;object-fit:cover;">`;
-    }
-
-    uploadingEl.style.display = 'none';
-    doneEl.style.display = 'block';
-    setTimeout(() => doneEl.style.display = 'none', 3000);
-    toast('Image uploaded!', 'success');
-  } catch(e) {
-    uploadingEl.style.display = 'none';
-    toast('Upload failed: ' + e.message, 'error');
-  }
+// ── USERS ──
+async function loadUsers(){
+  try{
+    const users=await sb('admin_users?select=id,username,display_name,role');
+    const list=document.getElementById('usersList');
+    list.innerHTML=users.map(u=>`<div class="user-row"><div class="user-name">${esc(u.display_name||u.username)}</div><div class="user-role">@${esc(u.username)} · ${u.role}</div>${currentUser?.role==='admin'&&u.id!==currentUser?.id?`<button class="btn btn-outline btn-sm" style="color:var(--red);" data-uid="${u.id}" data-uname="${esc(u.username)}">Remove</button>`:'<span style="font-size:11px;color:var(--p5);">You</span>'}</div>`).join('');
+    list.querySelectorAll('[data-uid]').forEach(btn=>btn.addEventListener('click',()=>removeUser(btn.dataset.uid,btn.dataset.uname)));
+  }catch(e){}
 }
-
-// ══════════════════════════════════════════════
-// USERS
-// ══════════════════════════════════════════════
-async function loadUsers() {
-  try {
-    const users = await sb('admin_users?select=id,username,display_name,role');
-    const list  = document.getElementById('usersList');
-    list.innerHTML = users.map(u => `
-      <div class="user-row">
-        <div class="user-name">${u.display_name || u.username}</div>
-        <div class="user-role">@${u.username} · ${u.role}</div>
-        ${currentUser?.role === 'admin' && u.id !== currentUser?.id
-          ? `<button class="btn btn-outline btn-sm" style="color:var(--red);" onclick="removeUser(${u.id},'${u.username}')">Remove</button>`
-          : '<span style="font-size:11px;color:var(--p5);">You</span>'}
-      </div>`).join('');
-  } catch(e) {}
-}
-
-async function addUser() {
-  const username = document.getElementById('newUsername').value.trim();
-  const display  = document.getElementById('newDisplay').value.trim();
-  const pass     = document.getElementById('newPass').value;
-  const role     = document.getElementById('newRole').value;
-  if (!username || !pass) { toast('Username and password required', 'error'); return; }
-  const hash = await hashPass(pass);
-  await sb('admin_users', 'POST', { username, display_name: display, password_hash: hash, role });
-  toast(`@${username} added`, 'success');
-  document.getElementById('newUsername').value = '';
-  document.getElementById('newDisplay').value  = '';
-  document.getElementById('newPass').value     = '';
+async function addUser(){
+  const username=document.getElementById('newUsername').value.trim();
+  const display=document.getElementById('newDisplay').value.trim();
+  const pass=document.getElementById('newPass').value;
+  const role=document.getElementById('newRole').value;
+  if(!username||!pass){toast('Username and password required','error');return;}
+  const hash=await hashPass(pass);
+  await sb('admin_users','POST',{username,display_name:display,password_hash:hash,role});
+  toast('@'+username+' added','success');
+  document.getElementById('newUsername').value='';document.getElementById('newDisplay').value='';document.getElementById('newPass').value='';
   loadUsers();
 }
-
-async function removeUser(id, username) {
-  if (!confirm(`Remove @${username}? They will no longer be able to log in.`)) return;
-  await sb(`admin_users?id=eq.${id}`, 'DELETE');
-  toast('Removed @' + username, 'success');
-  loadUsers();
+async function removeUser(id,username){
+  if(!confirm('Remove @'+username+'? They will no longer be able to log in.')) return;
+  await sb('admin_users?id=eq.'+id,'DELETE');
+  toast('Removed @'+username,'success'); loadUsers();
 }
 
-// ══════════════════════════════════════════════
-// TOAST
-// ══════════════════════════════════════════════
+// ── TOAST ──
 let toastTimer;
-function toast(msg, type = 'info') {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className = 'show ' + type;
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.className = '', 3500);
+function toast(msg,type='info'){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.className='show '+type;
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.className='',3500);
 }
 
-// ══════════════════════════════════════════════
-// DRAG & DROP
-// ══════════════════════════════════════════════
-const zone = document.getElementById('uploadZone');
-zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
-zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
-zone.addEventListener('drop', e => {
-  e.preventDefault(); zone.classList.remove('drag');
-  if (e.dataTransfer.files[0]) handlePDF(e.dataTransfer.files[0]);
-});
+// ── DRAG DROP ──
+const zone=document.getElementById('uploadZone');
+zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag');});
+zone.addEventListener('dragleave',()=>zone.classList.remove('drag'));
+zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag');if(e.dataTransfer.files[0])handlePDF(e.dataTransfer.files[0]);});
 </script>
 </body>
 </html>
