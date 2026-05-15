@@ -58,6 +58,7 @@ Rules:
 - "mpg_city" and "mpg_hwy" are integers
 - "year" is a string
 - Extract ALL standard features listed on the sticker. Do not omit any.
+- Extract ALL packages listed on the sticker under "Packages:" section. Each package should have a name and its listed features. There may be multiple packages on one sticker — extract all of them.
 - If a field is unknown, use null for numbers and empty string for text`
         }]
       })
