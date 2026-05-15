@@ -738,24 +738,37 @@ function renderColorImageGrid(gridId, colors, modelId) {
     grid.innerHTML = '<p style="font-size:12px;color:var(--p5);">No colors defined for this model yet. Add them via Upload Sticker first.</p>';
     return;
   }
-  grid.innerHTML = colors.map(c => `
+  grid.innerHTML = colors.map(c => {
+    const previewHtml = c.image_url
+      ? `<img src="${c.image_url}" alt="" loading="lazy">`
+      : `<div class="no-img">${c.hex_code ? `<div style="width:32px;height:32px;border-radius:50%;background:${c.hex_code};margin:0 auto 6px;"></div>` : ''}No image</div>`;
+    const btnLabel = c.image_url ? '&#x21BB; Replace' : '&#x2191; Upload';
+    return `
     <div class="color-img-card" id="colorcard-${c.id}">
-      <div class="color-img-preview">
-        ${c.image_url
-          ? `<img src="${c.image_url}" alt="${c.name}" loading="lazy">`
-          : `<div class="no-img">${c.hex_code ? `<div style="width:32px;height:32px;border-radius:50%;background:${c.hex_code};margin:0 auto 6px;"></div>` : ''}No image</div>`}
-      </div>
+      <div class="color-img-preview">${previewHtml}</div>
       <div class="color-img-info">
         <div class="color-img-name">${c.name}</div>
         <div class="color-img-type">${c.type}</div>
-        <button class="color-img-upload" onclick="document.getElementById('ci-${c.id}').click()">
-          ${c.image_url ? '↻ Replace' : '↑ Upload'}
-        </button>
-        <input type="file" class="color-img-input" id="ci-${c.id}" accept="image/*" onchange="uploadColorImage(this, ${c.id}, '${modelId}', '${c.type}')">
+        <button class="color-img-upload" data-target="ci-${c.id}">${btnLabel}</button>
+        <input type="file" class="color-img-input" id="ci-${c.id}" accept="image/*"
+          data-color-id="${c.id}" data-model-id="${modelId}" data-color-type="${c.type}">
         <div class="color-img-uploading" id="uploading-${c.id}">Uploading…</div>
         <div class="color-img-done" id="done-${c.id}">✓ Saved</div>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
+
+  // Wire up buttons and inputs via event delegation (avoids all quote issues)
+  grid.querySelectorAll('.color-img-upload').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.getElementById(btn.dataset.target).click();
+    });
+  });
+  grid.querySelectorAll('.color-img-input').forEach(input => {
+    input.addEventListener('change', () => {
+      uploadColorImage(input, input.dataset.colorId, input.dataset.modelId, input.dataset.colorType);
+    });
+  });
 }
 
 async function uploadColorImage(input, colorId, modelId, colorType) {
