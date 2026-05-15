@@ -33,6 +33,11 @@ body {
   font-weight: 300;
   line-height: 1.6;
   overflow-x: hidden;
+  background-image:
+    radial-gradient(ellipse 80% 40% at 50% 0%, rgba(200,16,46,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 30% at 80% 60%, rgba(200,16,46,0.04) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 40% at 20% 100%, rgba(200,16,46,0.03) 0%, transparent 50%);
+  background-attachment: fixed;
 }
 
 /* ── HEADER ── */
@@ -618,40 +623,56 @@ body {
 /* ── PACKAGES ── */
 .packages-row {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
   margin-bottom: 48px;
+}
+
+.packages-centered {
+  justify-content: center;
 }
 
 .package-card {
   background: var(--p2);
   border: 1px solid rgba(255,255,255,0.06);
-  border-top: 2px solid var(--red);
-  border-radius: 8px;
-  padding: 20px;
+  border-top: 3px solid var(--red);
+  border-radius: 10px;
+  padding: 24px;
+}
+
+.package-card-large {
+  padding: 28px;
 }
 
 .package-name {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 20px;
-  letter-spacing: 1.5px;
+  font-size: 24px;
+  letter-spacing: 2px;
   color: var(--white);
-  margin-bottom: 14px;
+  margin-bottom: 4px;
+}
+
+.package-feature-count {
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 16px;
 }
 
 .package-feature {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--p6);
-  padding: 6px 0;
+  padding: 7px 0 7px 14px;
   border-bottom: 1px solid rgba(255,255,255,0.04);
-  padding-left: 10px;
   position: relative;
+  line-height: 1.4;
 }
 
 .package-feature::before {
   content: '';
   position: absolute;
-  left: 0; top: 12px;
+  left: 0; top: 14px;
   width: 3px; height: 3px;
   border-radius: 50%;
   background: var(--red);
@@ -1103,10 +1124,22 @@ function buildTrimSection(model, trims, activeTrim, features, packages) {
     </div>`;
 }
 
+// Fixed category display order
+const CAT_ORDER = ['Safety & Security', 'Interior', 'Exterior', 'Engine & Mechanical'];
+
+function normalizeCat(cat) {
+  const c = (cat||'').toLowerCase();
+  if (c.includes('safety') || c.includes('security')) return 'Safety & Security';
+  if (c.includes('interior')) return 'Interior';
+  if (c.includes('exterior')) return 'Exterior';
+  if (c.includes('engine') || c.includes('mechanical') || c.includes('powertrain')) return 'Engine & Mechanical';
+  return cat;
+}
+
 function buildTrimDetails(trim, features, packages) {
   const cats = {};
   features.forEach(f => {
-    const cat = f.category || 'General';
+    const cat = normalizeCat(f.category || 'General');
     (cats[cat] = cats[cat] || []).push(f);
   });
 
@@ -1140,11 +1173,16 @@ function buildTrimDetails(trim, features, packages) {
       ${trim.drivetrain ? `<div class="trim-meta-item"><span class="trim-meta-label">Drivetrain</span><span class="trim-meta-val">${toTitleCase(trim.drivetrain)}</span></div>` : ''}
     </div>`;
 
-  const featCats = Object.keys(cats);
-  const featHtml = featCats.length ? `
+  // Ordered categories — always same order regardless of which trim
+  const orderedCats = [
+    ...CAT_ORDER.filter(c => cats[c]),
+    ...Object.keys(cats).filter(c => !CAT_ORDER.includes(c))
+  ];
+
+  const featHtml = orderedCats.length ? `
     <p class="section-label" style="margin-bottom:20px;">Standard Features</p>
     <div class="features-grid">
-      ${featCats.map(cat => `
+      ${orderedCats.map(cat => `
         <div class="feature-category-card">
           <div class="category-title">${toTitleCase(cat)}</div>
           <ul class="feature-list">
@@ -1155,36 +1193,48 @@ function buildTrimDetails(trim, features, packages) {
     </div>` : '';
 
   const pkgHtml = packages.length ? `
-    <p class="section-label" style="margin-bottom:16px;">Available Packages</p>
-    <div class="packages-row">
+    <p class="section-label" style="margin-bottom:20px;">Available Packages</p>
+    <div class="packages-row packages-centered">
       ${packages.map(pkg => {
         const items = Array.isArray(pkg.package_features) ? pkg.package_features : [];
         return `
-          <div class="package-card">
+          <div class="package-card package-card-large">
             <div class="package-name">${toTitleCase(pkg.name)}</div>
+            <div class="package-feature-count">${items.length} included features</div>
             ${items.map(f => `<div class="package-feature">${toTitleCase(f)}</div>`).join('')}
           </div>`;
       }).join('')}
     </div>` : '';
 
-  return statsHtml + metaHtml + featHtml + pkgHtml;
+  // Packages shown BEFORE features
+  return statsHtml + metaHtml + pkgHtml + featHtml;
 }
 
 // ── Trim Compare ──
+function fuzzyKey(str) {
+  // Normalize feature text for fuzzy grouping — strips punctuation, numbers, extra words
+  return str.toLowerCase()
+    .replace(/[^a-z ]/g, '')
+    .replace(/\b(with|and|or|the|a|an|w|s)\b/g, '')
+    .replace(/\s+/g, ' ').trim()
+    .split(' ').sort().join(' ');
+}
+
 function buildCompare(trims, featuresByTrim) {
-  // Find features that differ between trims — much more useful than repeating same specs
-  const allFeatureTexts = {};
+  // Group features by fuzzy key so "Blind Spot Monitoring" and "Blind Spot Monitoring System" match
+  const groups = {}; // fuzzyKey -> { canonical text, trimSet }
   trims.forEach(t => {
     (featuresByTrim[t.id] || []).forEach(f => {
-      allFeatureTexts[f.feature_text] = allFeatureTexts[f.feature_text] || new Set();
-      allFeatureTexts[f.feature_text].add(t.id);
+      const key = fuzzyKey(f.feature_text);
+      if (!groups[key]) groups[key] = { text: f.feature_text, trimSet: new Set() };
+      groups[key].trimSet.add(t.id);
     });
   });
-  // Features present in some but not all trims = differentiators
-  const differentiators = Object.entries(allFeatureTexts)
-    .filter(([text, trimSet]) => trimSet.size < trims.length)
-    .sort((a, b) => b[1].size - a[1].size)
-    .slice(0, 12);
+  // Differentiators: present in some but not all trims
+  const differentiators = Object.values(groups)
+    .filter(g => g.trimSet.size < trims.length)
+    .sort((a, b) => b.trimSet.size - a.trimSet.size)
+    .slice(0, 16);
 
   const specsHtml = `
     <div class="compare-specs-row">
@@ -1209,10 +1259,10 @@ function buildCompare(trims, featuresByTrim) {
         <div class="compare-spec-label">What You Get</div>
         ${trims.map(t => `<div class="compare-trim-name">${toTitleCase(t.name)}</div>`).join('')}
       </div>
-      ${differentiators.map(([text, trimSet]) => `
+      ${differentiators.map(g => `
         <div class="compare-specs-row">
-          <div class="compare-spec-label">${toTitleCase(text)}</div>
-          ${trims.map(t => `<div class="compare-spec-val">${trimSet.has(t.id) ? '<span class="check">✓</span>' : '<span class="dash">—</span>'}</div>`).join('')}
+          <div class="compare-spec-label">${toTitleCase(g.text)}</div>
+          ${trims.map(t => `<div class="compare-spec-val">${g.trimSet.has(t.id) ? '<span class="check">✓</span>' : '<span class="dash">—</span>'}</div>`).join('')}
         </div>`).join('')}
     </div>` : '';
 
