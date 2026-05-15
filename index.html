@@ -934,7 +934,7 @@ async function sbFetch(path) {
 async function loadAll() {
   const [models, trims, colors, features, packages] = await Promise.all([
     sbFetch('models?select=*&published=eq.true&order=sort_order.asc'),
-    sbFetch('trims?select=*'),
+    sbFetch('trims?select=*&order=level.asc'),
     sbFetch('colors?select=*'),
     sbFetch('features?select=*&order=sort_order.asc'),
     sbFetch('packages?select=*'),
