@@ -1,5 +1,6 @@
+export const config = { api: { bodyParser: { sizeLimit: '10mb' } } };
+
 export default async function handler(req, res) {
-  // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -24,13 +25,8 @@ export default async function handler(req, res) {
         messages: [{
           role: 'user',
           content: [
-            {
-              type: 'document',
-              source: { type: 'base64', media_type: 'application/pdf', data: pdfBase64 }
-            },
-            {
-              type: 'text',
-              text: `You are extracting data from a Mazda window sticker PDF. Return ONLY a valid JSON object with NO markdown, NO backticks, NO explanation. Extract exactly these fields:
+            { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: pdfBase64 } },
+            { type: 'text', text: `You are extracting data from a Mazda window sticker PDF. Return ONLY a valid JSON object with NO markdown, NO backticks, NO explanation. Extract exactly these fields:
 
 {
   "year": number,
@@ -58,8 +54,7 @@ export default async function handler(req, res) {
 }
 
 For "level": entry=base/preferred/sport, mid=premium/select/touring, top=premium plus/signature/carbon edition/grand touring.
-Extract ALL standard features listed under each category. Do not omit any.`
-            }
+Extract ALL standard features listed. Do not omit any.` }
           ]
         }]
       })
@@ -73,8 +68,7 @@ Extract ALL standard features listed under each category. Do not omit any.`
     const data = await response.json();
     const text = data.content.find(b => b.type === 'text')?.text || '';
     const clean = text.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(clean);
-    return res.status(200).json(parsed);
+    return res.status(200).json(JSON.parse(clean));
 
   } catch (err) {
     return res.status(500).json({ error: err.message });
