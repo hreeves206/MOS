@@ -883,7 +883,7 @@ async function addColorToModel(type){
   const name=nameEl.value.trim();
   if(!name){toast('Color name is required','error');return;}
   try{
-    await sb('colors','POST',{model_id:parseInt(modelId),name,type});
+    await sb('colors','POST',{model_id:modelId,name,type});
     nameEl.value='';
     toast(name+' added!','success');
     const colors=await sb('colors?model_id=eq.'+modelId+'&select=*');
