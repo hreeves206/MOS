@@ -46,6 +46,12 @@ export default async function handler(req, res) {
         { "category": "Interior", "text": "feature name" },
         { "category": "Exterior", "text": "feature name" },
         { "category": "Engine & Mechanical", "text": "feature name" }
+      ],
+      "packages": [
+        {
+          "name": "e.g. Preferred Package",
+          "features": ["Feature 1", "Feature 2", "Feature 3"]
+        }
       ]
     }
   ],
@@ -58,6 +64,8 @@ Rules:
 - "mpg_city" and "mpg_hwy" are integers
 - "year" is a string
 - Extract ALL standard features listed on the sticker. Do not omit any.
+- Extract ALL packages listed under the "Packages:" section of the sticker. Each package has a name and a list of features beneath it. There may be one or several 
+— extract all of them.
 - Extract ALL packages listed on the sticker under "Packages:" section. Each package should have a name and its listed features. There may be multiple packages on one sticker — extract all of them.
 - If a field is unknown, use null for numbers and empty string for text`
         }]
