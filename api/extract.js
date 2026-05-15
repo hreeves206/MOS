@@ -1,12 +1,11 @@
-export const config = { 
-  api: { bodyParser: { sizeLimit: '4mb' } } 
+export const config = {
+  api: { bodyParser: { sizeLimit: '4mb' } }
 };
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
@@ -26,35 +25,45 @@ export default async function handler(req, res) {
         max_tokens: 4000,
         messages: [{
           role: 'user',
-          content: `You are extracting data from a Mazda window sticker. Here is the text content:\n\n${pdfText}\n\nReturn ONLY a valid JSON object with NO markdown, NO backticks, NO explanation. Extract exactly these fields:
+          content: `You are extracting data from a Mazda window sticker. Here is the text:\n\n${pdfText}\n\nReturn ONLY a valid JSON object with NO markdown, NO backticks, NO explanation. Use exactly this structure:
 
 {
-  "year": number,
-  "model": "e.g. CX-50 Hybrid",
-  "trim": "e.g. 2.5 Hybrid Preferred",
-  "level": "entry OR mid OR top OR other",
-  "vin": "VIN number",
-  "engine": "engine description",
-  "horsepower": "e.g. 219 Combined Net HP",
-  "transmission": "e.g. e-CVT",
-  "drivetrain": "e.g. Electric AWD",
-  "mpg_city": number,
-  "mpg_hwy": number,
-  "towing": "e.g. 1,500 lbs",
-  "exterior_color": "color name",
-  "interior_color": "color and material",
-  "package_name": "package name or empty string",
-  "package_features": ["feature1", "feature2"],
-  "features": {
-    "Safety & Security": ["feature1", "feature2"],
-    "Interior": ["feature1", "feature2"],
-    "Exterior": ["feature1", "feature2"],
-    "Engine & Mechanical": ["feature1", "feature2"]
-  }
+  "name": "e.g. CX-50 Hybrid",
+  "year": "e.g. 2025",
+  "trims": [
+    {
+      "name": "e.g. 2.5 Hybrid Preferred",
+      "level": 1,
+      "engine": "e.g. 2.5L 4-cylinder Hybrid",
+      "horsepower": 219,
+      "transmission": "e.g. e-CVT",
+      "drivetrain": "e.g. i-ACTIV AWD",
+      "mpg_city": 43,
+      "mpg_hwy": 41,
+      "towing_capacity": 1500,
+      "features": [
+        { "category": "Safety & Security", "text": "feature name" },
+        { "category": "Interior", "text": "feature name" },
+        { "category": "Exterior", "text": "feature name" },
+        { "category": "Engine & Mechanical", "text": "feature name" }
+      ]
+    }
+  ],
+  "colors": [
+    { "name": "e.g. Soul Red Crystal Metallic", "type": "exterior", "hex_code": "#8B1A1A" },
+    { "name": "e.g. Black Leatherette", "type": "interior", "hex_code": "#111111" }
+  ]
 }
 
-For "level": entry=base/preferred/sport, mid=premium/select/touring, top=premium plus/signature/carbon edition/grand touring.
-Extract ALL standard features listed. Do not omit any.`
+Rules:
+- "level" is an integer: 1 for base/sport/preferred, 2 for select/touring/premium, 3 for premium plus/signature/grand touring/carbon edition
+- "horsepower" and "towing_capacity" are integers, not strings. towing_capacity in lbs as integer (e.g. 1500 not "1,500 lbs")
+- "mpg_city" and "mpg_hwy" are integers
+- "year" is a string
+- Extract ALL standard features listed on the sticker. Do not omit any.
+- Include both exterior and interior colors found on the sticker
+- hex_code is your best approximation for the color — it does not need to be exact
+- If a field is unknown, use null for numbers and empty string for text`
         }]
       })
     });
