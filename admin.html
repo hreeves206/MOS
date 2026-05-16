@@ -696,13 +696,15 @@ async function saveVehicle(publish){
     // Only save colors for new vehicles
     if(target === 'new'){
       setStatus('Saving colors…',70);
-      await sb('colors?model_id=eq.'+modelId,'DELETE');
+      const existingColors=await sb('colors?model_id=eq.'+modelId+'&select=name');
+      const existingNames=new Set((existingColors||[]).map(c=>c.name.toLowerCase().trim()));
       for(const row of document.querySelectorAll('#colorsList .color-row')){
         const inputs=row.querySelectorAll('input');
         const cName=inputs[0].value.trim(); const cType=row.querySelector('select').value; const cHex=inputs[1].value.trim();
-        if(cName) await sb('colors','POST',{model_id:modelId,name:cName,type:cType,hex_code:cHex||null});
+        if(cName&&!existingNames.has(cName.toLowerCase().trim())){
+          await sb('colors','POST',{model_id:modelId,name:cName,type:cType,hex_code:cHex||null});
+        }
       }
-    }
 
     setStatus('Done!',100);
     setTimeout(()=>document.getElementById('statusBar').classList.remove('show'),2000);
