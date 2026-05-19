@@ -522,7 +522,7 @@ body {
 
 .stat-value {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 48px;
+  font-size: 36px;
   letter-spacing: 1px;
   color: var(--white);
   line-height: 1;
@@ -602,11 +602,11 @@ body {
 }
 
 .feature-item {
-  font-size: 13px;
-  color: var(--p6);
+  font-size: 14px;
+  color: var(--white);
   padding-left: 12px;
   position: relative;
-  line-height: 1.4;
+  line-height: 1.5;
 }
 
 .feature-item::before {
@@ -623,11 +623,9 @@ body {
 /* ── PACKAGES ── */
 .packages-row {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 320px));
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 20px;
   margin-bottom: 48px;
-  width: 100%;
-  justify-content: center;
 }
 
 .packages-centered {
@@ -664,9 +662,9 @@ body {
 
 .package-feature {
   font-size: 13px;
-  color: var(--p6);
+  color: var(--white);
   padding: 7px 0 7px 14px;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
   position: relative;
   line-height: 1.4;
 }
@@ -690,9 +688,6 @@ body {
   border-top: 1px solid rgba(255,255,255,0.05);
   border-bottom: 1px solid rgba(255,255,255,0.05);
   text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
 /* ── TRIM COMPARE ── */
@@ -718,7 +713,7 @@ body {
   font-size: 11px;
   letter-spacing: 1px;
   text-transform: uppercase;
-  color: var(--p5);
+  color: var(--white);
   background: rgba(255,255,255,0.02);
   border-right: 1px solid rgba(255,255,255,0.05);
   display: flex;
@@ -1014,8 +1009,7 @@ function render(data) {
 
     // Default first trim
     const firstTrim = trims[0] || {};
-    const firstFeatures = firstTrim.id ? featuresByTrim[firstTrim.id] || [] : [];
-    const firstPackages = firstTrim.id ? packagesByTrim[firstTrim.id] || [] : [];
+    const firstFeatures = firstTrim.id ? getCumulativeFeatures(trims, featuresByTrim, firstTrim.level) : [];
 
     // Collect ALL packages across all trims for this model
     const allModelPackages = trims.flatMap(t => packagesByTrim[t.id] || []);
@@ -1035,12 +1029,12 @@ function render(data) {
         const trimId = btn.dataset.trim;
         const trim   = trims.find(t => t.id == trimId);
         if (!trim) return;
-        // Update active tab
         section.querySelectorAll('.trim-tab').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        // Re-render stats + features + packages
+        // Build cumulative features up to this trim's level
+        const cumulativeFeatures = getCumulativeFeatures(trims, featuresByTrim, trim.level);
         section.querySelector('.trim-details').innerHTML =
-          buildTrimDetails(trim, featuresByTrim[trim.id] || []);
+          buildTrimDetails(trim, cumulativeFeatures);
       });
     });
 
@@ -1122,6 +1116,27 @@ function cleanTowing(val) {
   if (!val) return null;
   const n = parseInt(String(val).replace(/[^0-9]/g, ''));
   return isNaN(n) ? null : n;
+}
+
+// ── Cumulative features: merge all features from level 1 up to this trim's level ──
+function getCumulativeFeatures(trims, featuresByTrim, upToLevel) {
+  const seen = new Set();
+  const result = [];
+  // Get all trims at or below this level, sorted ascending
+  const relevantTrims = trims
+    .filter(t => (parseInt(t.level) || 1) <= (parseInt(upToLevel) || 1))
+    .sort((a, b) => (parseInt(a.level)||1) - (parseInt(b.level)||1));
+  relevantTrims.forEach(t => {
+    (featuresByTrim[t.id] || []).forEach(f => {
+      // Deduplicate by normalized text
+      const key = f.feature_text.toLowerCase().trim();
+      if (!seen.has(key)) {
+        seen.add(key);
+        result.push(f);
+      }
+    });
+  });
+  return result;
 }
 
 // ── Packages Section (shown above trims, all packages for the model) ──

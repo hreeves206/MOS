@@ -85,6 +85,11 @@ hr{border:none;border-top:1px solid rgba(255,255,255,.07);margin:24px 0;}
 .vehicle-row:last-child{border-bottom:none;}
 .vehicle-name{font-size:14px;}
 .vehicle-year{font-size:12px;color:var(--p5);}
+.trim-sort-row{padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+.trim-sort-row:last-child{border-bottom:none;}
+.trim-order-btn{background:none;border:1px solid var(--p4);border-radius:3px;color:var(--p5);font-size:10px;padding:2px 5px;cursor:pointer;transition:all .2s;line-height:1;}
+.trim-order-btn:hover:not(:disabled){color:var(--white);border-color:var(--p6);}
+.trim-order-btn:disabled{opacity:.2;cursor:not-allowed;}
 .badge{font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:12px;}
 .badge-green{background:rgba(34,197,94,.15);color:var(--green);}
 .badge-grey{background:var(--p3);color:var(--p5);}
@@ -262,6 +267,19 @@ hr{border:none;border-top:1px solid rgba(255,255,255,.07);margin:24px 0;}
       </div>
 
       <div id="reviewPanel">
+        <div id="publishBanner" style="display:none;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.4);border-radius:8px;padding:16px 24px;margin-bottom:20px;display:none;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <span style="font-size:20px;">✓</span>
+            <div>
+              <div style="font-size:15px;font-weight:500;color:var(--green);" id="publishBannerText">Published to site!</div>
+              <div style="font-size:12px;color:var(--p5);">Changes are live on the customer site.</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button class="btn btn-outline btn-sm" onclick="resetUpload()">Upload Another</button>
+            <button class="btn btn-green btn-sm" id="publishBannerImgBtn">Upload Images →</button>
+          </div>
+        </div>
         <div class="review-header">
           <div>
             <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;">Review Extracted Data</div>
@@ -432,8 +450,8 @@ hr{border:none;border-top:1px solid rgba(255,255,255,.07);margin:24px 0;}
           <div class="step-num">5</div>
           <div>
             <div class="step-title">Editing After Publishing</div>
-            <div class="step-desc">You never need to re-upload a sticker to make corrections. From the <strong>Vehicles</strong> page, click <strong>Edit Trims</strong> to update MPG, horsepower, features, or any other spec. Click <strong>Images</strong> to manage photos. Use <strong>Delete Color</strong> on the Images page to remove incorrect colors.</div>
-            <div class="step-tip">⚠️ Re-uploading a sticker for an existing model will overwrite its data. Always use Edit Trims for corrections instead.</div>
+            <div class="step-desc">You never need to re-upload a sticker to make corrections. From the <strong>Vehicles</strong> page, click <strong>Trims ▾</strong> next to any model to expand the trim list. From there you can edit any trim's specs, delete a trim, or reorder trims using the up/down arrows.</div>
+            <div class="step-tip">⚠️ Trim order matters — the customer site merges features from lower level trims into higher ones. Level 1 is the base trim, level 2 is the next step up, and so on. Use the arrows to fix the order if extraction got it wrong. Always verify level order before publishing a new model.</div>
           </div>
         </div>
         <div class="how-step">
@@ -712,11 +730,11 @@ async function saveVehicle(publish){
 }
 
 function showPublishSuccess(modelId,modelName,published){
-  let el=document.getElementById('publishSuccess'); if(el) el.remove();
-  el=document.createElement('div'); el.id='publishSuccess';
-  el.style.cssText='background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);border-radius:10px;padding:24px 28px;margin-top:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;';
-  el.innerHTML=`<div><div style="font-size:16px;font-weight:500;color:var(--green);margin-bottom:4px;">✓ ${esc(modelName)} ${published?'published to site!':'saved as draft.'}</div><div style="font-size:13px;color:var(--p6);">Next: upload color photos so customers can see the vehicle.</div></div><div style="display:flex;gap:10px;flex-wrap:wrap;"><button class="btn btn-outline btn-sm" onclick="resetUpload()">Upload Another</button><button class="btn btn-green btn-sm" onclick="goToImages(${modelId})">Upload Images →</button></div>`;
-  document.getElementById('reviewPanel').after(el);
+  const banner = document.getElementById('publishBanner');
+  document.getElementById('publishBannerText').textContent = published ? esc(modelName)+' published to site!' : esc(modelName)+' saved as draft.';
+  document.getElementById('publishBannerImgBtn').onclick = () => goToImages(modelId);
+  banner.style.display = 'flex';
+  banner.scrollIntoView({behavior:'smooth', block:'start'});
 }
 function goToImages(modelId){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -729,31 +747,95 @@ function resetUpload(){
   document.getElementById('uploadArea').style.display='block';
   document.getElementById('reviewPanel').style.display='none';
   document.getElementById('statusBar').classList.remove('show');
-  // Replace the file input entirely so browser allows re-selecting the same file
+  document.getElementById('publishBanner').style.display='none';
   const oldInput = document.getElementById('fileInput');
   const newInput = document.createElement('input');
   newInput.type='file'; newInput.id='fileInput'; newInput.accept='.pdf';
   newInput.onchange = function(){ handlePDF(this.files[0]); };
   newInput.style.display='none';
   oldInput.parentNode.replaceChild(newInput, oldInput);
-  const el=document.getElementById('publishSuccess'); if(el) el.remove();
 }
 
 // ── VEHICLES LIST ──
+async function toggleTrimList(modelId){
+  const panel = document.getElementById('trims-'+modelId);
+  if(panel.style.display==='none'){
+    panel.style.display='block';
+    await loadTrimList(modelId);
+  } else {
+    panel.style.display='none';
+  }
+}
+
+async function loadTrimList(modelId){
+  const container = document.getElementById('trim-sort-'+modelId);
+  container.innerHTML = '<div style="color:var(--p5);font-size:12px;">Loading…</div>';
+  const trims = await sb('trims?model_id=eq.'+modelId+'&select=*&order=level.asc');
+  container.innerHTML = trims.map((t,i)=>`
+    <div class="trim-sort-row" data-trim-id="${t.id}" data-level="${t.level}">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="display:flex;flex-direction:column;gap:2px;">
+          <button class="trim-order-btn" onclick="moveTrim('${modelId}','${t.id}','up')" ${i===0?'disabled':''}>▲</button>
+          <button class="trim-order-btn" onclick="moveTrim('${modelId}','${t.id}','down')" ${i===trims.length-1?'disabled':''}>▼</button>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:13px;color:var(--white);">${esc(t.name)}</div>
+          <div style="font-size:11px;color:var(--p5);">Level ${t.level} · ${t.mpg_city||'—'} city / ${t.mpg_hwy||'—'} hwy · ${t.horsepower||'—'} HP</div>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-outline btn-sm" onclick="openTrimModal(${JSON.stringify(t).replace(/"/g,'&quot;')})">Edit</button>
+          <button class="btn btn-outline btn-sm" style="color:var(--red);" onclick="deleteTrim('${t.id}','${esc(t.name)}','${modelId}')">Delete</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+async function moveTrim(modelId, trimId, direction){
+  const trims = await sb('trims?model_id=eq.'+modelId+'&select=id,level&order=level.asc');
+  const idx = trims.findIndex(t=>t.id===trimId);
+  if(idx===-1) return;
+  const swapIdx = direction==='up' ? idx-1 : idx+1;
+  if(swapIdx<0||swapIdx>=trims.length) return;
+  // Swap levels
+  const levelA = trims[idx].level;
+  const levelB = trims[swapIdx].level;
+  await sb('trims?id=eq.'+trims[idx].id,'PATCH',{level:levelB});
+  await sb('trims?id=eq.'+trims[swapIdx].id,'PATCH',{level:levelA});
+  toast('Order updated','success');
+  loadTrimList(modelId);
+}
+
+async function deleteTrim(trimId, trimName, modelId){
+  if(!confirm('Delete trim "'+trimName+'"? This also removes its features and packages.')) return;
+  await sb('features?trim_id=eq.'+trimId,'DELETE');
+  await sb('packages?trim_id=eq.'+trimId,'DELETE');
+  await sb('trims?id=eq.'+trimId,'DELETE');
+  toast(trimName+' deleted','success');
+  loadTrimList(modelId);
+  loadVehicles();
+}
+
 async function loadVehicles(){
   try{
     const models=await sb('models?select=*&order=sort_order.asc');
     const list=document.getElementById('vehiclesList');
     if(!models.length){list.innerHTML='<div style="color:var(--p5);">No vehicles yet.</div>';return;}
-    list.innerHTML=models.map(m=>`
-      <div class="vehicle-row">
-        <div style="flex:1;"><div class="vehicle-name">${esc(m.name)}</div><div class="vehicle-year">${m.year||''}</div></div>
-        <span class="badge ${m.published?'badge-green':'badge-grey'}">${m.published?'Published':'Draft'}</span>
-        <div class="vehicle-actions">
-          <button class="btn btn-outline btn-sm" data-id="${m.id}" data-pub="${m.published}" onclick="togglePublish(this.dataset.id,this.dataset.pub==='true')">${m.published?'Unpublish':'Publish'}</button>
-          <button class="btn btn-outline btn-sm" data-id="${m.id}" onclick="openEditTrims(this.dataset.id)">Edit Trims</button>
-          <button class="btn btn-outline btn-sm" data-id="${m.id}" onclick="goToImages(this.dataset.id)">Images</button>
-          <button class="btn btn-outline btn-sm" style="color:var(--red);" data-id="${m.id}" data-name="${esc(m.name)}" onclick="deleteVehicle(this.dataset.id,this.dataset.name)">Delete</button>
+    // Render models with expandable trim list
+    list.innerHTML = models.map(m=>`
+      <div class="vehicle-row" style="flex-direction:column;align-items:stretch;">
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+          <div style="flex:1;"><div class="vehicle-name">${esc(m.name)}</div><div class="vehicle-year">${m.year||''}</div></div>
+          <span class="badge ${m.published?'badge-green':'badge-grey'}">${m.published?'Published':'Draft'}</span>
+          <div class="vehicle-actions">
+            <button class="btn btn-outline btn-sm" data-id="${m.id}" data-pub="${m.published}" onclick="togglePublish(this.dataset.id,this.dataset.pub==='true')">${m.published?'Unpublish':'Publish'}</button>
+            <button class="btn btn-outline btn-sm" data-id="${m.id}" onclick="toggleTrimList(this.dataset.id)">Trims ▾</button>
+            <button class="btn btn-outline btn-sm" data-id="${m.id}" onclick="goToImages(this.dataset.id)">Images</button>
+            <button class="btn btn-outline btn-sm" style="color:var(--red);" data-id="${m.id}" data-name="${esc(m.name)}" onclick="deleteVehicle(this.dataset.id,this.dataset.name)">Delete</button>
+          </div>
+        </div>
+        <div class="trim-list-panel" id="trims-${m.id}" style="display:none;margin-top:12px;padding:12px;background:var(--p2);border-radius:8px;">
+          <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--p5);margin-bottom:10px;">Trims — drag to reorder, or use arrows</div>
+          <div class="trim-sort-list" id="trim-sort-${m.id}"></div>
         </div>
       </div>`).join('');
   }catch(e){toast('Failed to load: '+e.message,'error');}
