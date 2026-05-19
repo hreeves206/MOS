@@ -29,17 +29,17 @@ export default async function handler(req, res) {
 
 {
   "name": "e.g. CX-50 Hybrid",
-  "year": "e.g. 2025",
+  "year": "e.g. 2026",
   "trims": [
     {
       "name": "e.g. 2.5 Hybrid Preferred",
       "level": 1,
-      "engine": "e.g. 2.5L 4-cylinder Hybrid",
+      "engine": "e.g. 2.5L 4-Cylinder Hybrid Engine",
       "horsepower": 219,
       "transmission": "e.g. e-CVT",
-      "drivetrain": "e.g. i-ACTIV AWD",
-      "mpg_city": 43,
-      "mpg_hwy": 41,
+      "drivetrain": "e.g. Electric All-Wheel Drive",
+      "mpg_city": 39,
+      "mpg_hwy": 37,
       "towing_capacity": 1500,
       "features": [
         { "category": "Safety & Security", "text": "feature name" },
@@ -59,15 +59,15 @@ export default async function handler(req, res) {
 }
 
 Rules:
-- "level" is an integer: 1 for base/sport/preferred, 2 for select/touring/premium, 3 for premium plus/signature/grand touring/carbon edition
-- "horsepower" and "towing_capacity" are integers, not strings. towing_capacity in lbs as integer (e.g. 1500 not "1,500 lbs")
-- "mpg_city" and "mpg_hwy" are integers
-- "year" is a string
-- Extract ALL standard features listed on the sticker. Do not omit any.
-- Extract ALL packages listed under the "Packages:" section of the sticker. Each package has a name and a list of features beneath it. There may be one or several 
-— extract all of them.
-- Extract ALL packages listed on the sticker under "Packages:" section. Each package should have a name and its listed features. There may be multiple packages on one sticker — extract all of them.
-- If a field is unknown, use null for numbers and empty string for text`
+- "level" is an integer representing this trim's position in the lineup for THIS model only. Use 1 for the base/entry trim, 2 for the next step up, 3 for the next, and so on. Do not assume level based on name alone — read the sticker carefully to determine where this trim sits.
+- "horsepower" and "towing_capacity" are integers only. towing_capacity in lbs (e.g. 1500 not "1,500 lbs").
+- "mpg_city" and "mpg_hwy" are integers.
+- "year" is a string.
+- "features" must contain ONLY the standard features listed on THIS sticker for THIS specific trim. Do NOT add features from other trim levels. Do NOT add features you assume the vehicle has. Only what is explicitly listed on this sticker.
+- Extract ALL features listed. Do not omit any. Categorize each as: Safety & Security, Interior, Exterior, or Engine & Mechanical.
+- "packages" must contain ALL optional packages listed under the "Packages:" section of the sticker. Each package has a name and its listed features. Extract all of them exactly as listed.
+- "colors" should always be an empty array — colors are managed separately.
+- If a field is unknown, use null for numbers and empty string for text.`
         }]
       })
     });
