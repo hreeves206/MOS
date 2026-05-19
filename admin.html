@@ -44,6 +44,10 @@ hr{border:none;border-top:1px solid rgba(255,255,255,.07);margin:24px 0;}
 .btn-red{background:var(--red);color:#fff;} .btn-red:hover{background:#a50d25;}
 .btn-outline{background:none;border:1px solid var(--p4);color:var(--p6);} .btn-outline:hover{color:var(--white);border-color:var(--p6);}
 .btn-green{background:var(--green);color:#000;} .btn-green:hover{opacity:.85;}
+.btn-orange{background:#f59e0b;color:#000;} .btn-orange:hover{opacity:.85;}
+.comparison-warning{background:rgba(245,158,11,.1);border:2px solid rgba(245,158,11,.5);border-radius:10px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:8px;}
+.comparison-warning-text{font-size:14px;font-weight:500;color:#f59e0b;}
+.comparison-warning-sub{font-size:12px;color:var(--p5);margin-top:3px;}
 .btn-sm{padding:7px 14px;font-size:11px;}
 .btn:disabled{opacity:.4;cursor:not-allowed;}
 .upload-zone{border:2px dashed var(--p4);border-radius:10px;padding:60px 24px;text-align:center;cursor:pointer;transition:all .2s;}
@@ -457,8 +461,16 @@ hr{border:none;border-top:1px solid rgba(255,255,255,.07);margin:24px 0;}
         <div class="how-step">
           <div class="step-num">6</div>
           <div>
+            <div class="step-title">Generate the Comparison Table — Required Final Step</div>
+            <div class="step-desc">After all trims are uploaded and in the correct level order, go to the <strong>Vehicles</strong> page. You will see an orange warning banner on any published vehicle that says <em>"Comparison table needs to be generated."</em> Click <strong>Generate Comparison Now →</strong> and Claude will analyze all trim levels and produce a clean, accurate comparison table for customers. This is the most important step — customers cannot see a trim comparison until it is generated.</div>
+            <div class="step-tip">⚠️ Always generate the comparison AFTER all trims are uploaded and ordered correctly. If you add or edit a trim later, the orange banner will reappear reminding you to regenerate.</div>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="step-num">7</div>
+          <div>
             <div class="step-title">What Customers See</div>
-            <div class="step-desc">The customer site at <a href="https://mos-red.vercel.app" target="_blank" style="color:var(--red);">mos-red.vercel.app</a> automatically shows every published vehicle with a tab in the nav bar. Customers can browse trims, see MPG and specs, click color swatches to swap the car image, and view interior photos. No pricing is shown anywhere.</div>
+            <div class="step-desc">The customer site at <a href="https://mos-red.vercel.app" target="_blank" style="color:var(--red);">mos-red.vercel.app</a> automatically shows every published vehicle. Customers can browse trims, click color swatches, view interior photos, see standard features per trim, and compare trims side by side using the generated comparison table. No pricing is shown anywhere.</div>
           </div>
         </div>
       </div>
@@ -701,7 +713,8 @@ async function saveVehicle(publish){
         const text=row.querySelector('.feat-text').value.trim();
         if(text) await sb('features','POST',{trim_id:trimId,category:cat,feature_text:text,sort_order:0});
       }
-      // Save packages for this trim
+      // Save packages — delete existing first to avoid duplicates
+      await sb('packages?trim_id=eq.'+trimId,'DELETE');
       const pkgCards = card.querySelectorAll('.pkg-card');
       for(const pkg of pkgCards){
         const pkgName = pkg.querySelector('.pkg-name').value.trim();
@@ -724,6 +737,15 @@ async function saveVehicle(publish){
 
     setStatus('Done!',100);
     setTimeout(()=>document.getElementById('statusBar').classList.remove('show'),2000);
+    // Mark comparison as needing update
+    await sb('models?id=eq.'+modelId,'PATCH',{needs_comparison:true});
+    // Update or insert comparison record
+    const existComp = await sb('model_comparisons?model_id=eq.'+modelId+'&select=id');
+    if(existComp&&existComp.length){
+      await sb('model_comparisons?model_id=eq.'+modelId,'PATCH',{needs_update:true});
+    }else{
+      await sb('model_comparisons','POST',{model_id:modelId,comparison_data:[],needs_update:true});
+    }
     showPublishSuccess(modelId,modelName,publish);
     loadVehicles(); loadImageModelSelect();
   }catch(e){toast('Save failed: '+e.message,'error');setStatus('Error: '+e.message,0);console.error(e);}
@@ -754,6 +776,56 @@ function resetUpload(){
   newInput.onchange = function(){ handlePDF(this.files[0]); };
   newInput.style.display='none';
   oldInput.parentNode.replaceChild(newInput, oldInput);
+}
+
+// ── GENERATE COMPARISON ──
+async function generateComparison(modelId, modelName, btn){
+  const origText = btn.textContent;
+  btn.textContent = 'Generating…';
+  btn.disabled = true;
+
+  try {
+    // Load all trims and their features
+    const trims = await sb('trims?model_id=eq.'+modelId+'&select=*&order=level.asc');
+    if(!trims||trims.length<2){toast('Need at least 2 trims to generate comparison','error');btn.textContent=origText;btn.disabled=false;return;}
+
+    const allFeatures = await sb('features?select=*');
+    const featuresByTrim = {};
+    (allFeatures||[]).forEach(f=>{
+      (featuresByTrim[f.trim_id]=featuresByTrim[f.trim_id]||[]).push(f.feature_text);
+    });
+
+    const trimSummaries = trims.map(t=>({
+      name: t.name,
+      level: t.level,
+      features: featuresByTrim[t.id]||[]
+    }));
+
+    // Call via Vercel function
+    const response = await fetch('/api/compare',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({modelName, trims: trimSummaries})
+    });
+    if(!response.ok) throw new Error('API error: '+await response.text());
+    const compData = await response.json();
+
+    // Save to database
+    const existComp = await sb('model_comparisons?model_id=eq.'+modelId+'&select=id');
+    if(existComp&&existComp.length){
+      await sb('model_comparisons?model_id=eq.'+modelId,'PATCH',{comparison_data:compData,needs_update:false,generated_at:new Date().toISOString()});
+    }else{
+      await sb('model_comparisons','POST',{model_id:modelId,comparison_data:compData,needs_update:false});
+    }
+    await sb('models?id=eq.'+modelId,'PATCH',{needs_comparison:false});
+
+    toast('Comparison generated for '+modelName+'!','success');
+    loadVehicles();
+  }catch(e){
+    toast('Failed to generate: '+e.message,'error');
+    btn.textContent=origText;
+    btn.disabled=false;
+  }
 }
 
 // ── VEHICLES LIST ──
@@ -820,9 +892,30 @@ async function loadVehicles(){
     const models=await sb('models?select=*&order=sort_order.asc');
     const list=document.getElementById('vehiclesList');
     if(!models.length){list.innerHTML='<div style="color:var(--p5);">No vehicles yet.</div>';return;}
-    // Render models with expandable trim list
-    list.innerHTML = models.map(m=>`
+    // Check which models need comparison update
+    const compRows = await sb('model_comparisons?select=model_id,needs_update');
+    const compMap = {};
+    (compRows||[]).forEach(r=>compMap[r.model_id]=r.needs_update);
+
+    list.innerHTML = models.map(m=>{
+      const needsComp = compMap[m.id] !== false; // true if no row or needs_update=true
+      const trimCount = 0; // will be checked when trims expand
+      return `
       <div class="vehicle-row" style="flex-direction:column;align-items:stretch;">
+        ${needsComp && m.published ? `
+        <div class="comparison-warning" id="comp-warning-${m.id}">
+          <div>
+            <div class="comparison-warning-text">⚠ Comparison table needs to be generated</div>
+            <div class="comparison-warning-sub">Customers cannot see a trim comparison until you generate it. Do this after all trims are uploaded and in the correct order.</div>
+          </div>
+          <button class="btn btn-orange" data-model-id="${m.id}" data-model-name="${esc(m.name)}" onclick="generateComparison(this.dataset.modelId, this.dataset.modelName, this)">
+            Generate Comparison Now →
+          </button>
+        </div>` : m.published ? `
+        <div style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:10px 16px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:12px;color:var(--green);">✓ Comparison table is up to date</span>
+          <button class="btn btn-outline btn-sm" data-model-id="${m.id}" data-model-name="${esc(m.name)}" onclick="generateComparison(this.dataset.modelId, this.dataset.modelName, this)">Regenerate</button>
+        </div>` : ''}
         <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
           <div style="flex:1;"><div class="vehicle-name">${esc(m.name)}</div><div class="vehicle-year">${m.year||''}</div></div>
           <span class="badge ${m.published?'badge-green':'badge-grey'}">${m.published?'Published':'Draft'}</span>
@@ -834,10 +927,11 @@ async function loadVehicles(){
           </div>
         </div>
         <div class="trim-list-panel" id="trims-${m.id}" style="display:none;margin-top:12px;padding:12px;background:var(--p2);border-radius:8px;">
-          <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--p5);margin-bottom:10px;">Trims — drag to reorder, or use arrows</div>
+          <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--p5);margin-bottom:10px;">Trims — use arrows to reorder. Order matters for the comparison table.</div>
           <div class="trim-sort-list" id="trim-sort-${m.id}"></div>
         </div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
   }catch(e){toast('Failed to load: '+e.message,'error');}
 }
 async function togglePublish(id,current){
