@@ -257,8 +257,8 @@ hr{border:none;border-top:1px solid rgba(255,255,255,.07);margin:24px 0;}
       <div class="page-sub">Upload a PDF window sticker — Claude extracts the data automatically.</div>
 
       <div id="uploadArea">
-        <div class="upload-zone card" id="uploadZone" onclick="document.getElementById('fileInput').click()">
-          <input type="file" id="fileInput" accept=".pdf" onchange="handlePDF(this.files[0])">
+        <div class="upload-zone card" id="uploadZone">
+          <input type="file" id="fileInput" accept=".pdf" style="display:none;">
           <div class="upload-icon">📄</div>
           <h3>Drop Window Sticker PDF</h3>
           <p>Click to browse or drag &amp; drop · PDF files only</p>
@@ -790,18 +790,30 @@ function goToImages(modelId){
   loadModelImages();
 }
 function resetUpload(){
-  document.getElementById('uploadArea').style.display='block';
   document.getElementById('reviewPanel').style.display='none';
   document.getElementById('statusBar').classList.remove('show');
   document.getElementById('publishBanner').style.display='none';
-  // Reset file input by wrapping in a form and resetting it
+  // Rebuild the entire upload zone from scratch — most reliable cross-browser reset
+  const area = document.getElementById('uploadArea');
+  area.innerHTML = `
+    <div class="upload-zone card" id="uploadZone">
+      <input type="file" id="fileInput" accept=".pdf" style="display:none;">
+      <div class="upload-icon">📄</div>
+      <h3>Drop Window Sticker PDF</h3>
+      <p>Click to browse or drag &amp; drop · PDF files only</p>
+    </div>`;
+  area.style.display = 'block';
+  // Rewire click and change events
+  const zone = document.getElementById('uploadZone');
   const input = document.getElementById('fileInput');
-  const form = document.createElement('form');
-  input.parentNode.insertBefore(form, input);
-  form.appendChild(input);
-  form.reset();
-  form.parentNode.insertBefore(input, form);
-  form.remove();
+  zone.onclick = () => input.click();
+  input.onchange = () => { if(input.files[0]) handlePDF(input.files[0]); };
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault(); zone.classList.remove('drag');
+    if(e.dataTransfer.files[0]) handlePDF(e.dataTransfer.files[0]);
+  });
 }
 
 // ── GENERATE COMPARISON ──
@@ -1169,11 +1181,21 @@ function toast(msg,type='info'){
   clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.className='',3500);
 }
 
-// ── DRAG DROP ──
-const zone=document.getElementById('uploadZone');
-zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag');});
-zone.addEventListener('dragleave',()=>zone.classList.remove('drag'));
-zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag');if(e.dataTransfer.files[0])handlePDF(e.dataTransfer.files[0]);});
+// ── DRAG DROP — wired via resetUpload on init ──
+// Wire initial upload zone (same logic as resetUpload)
+(function initUploadZone(){
+  const zone = document.getElementById('uploadZone');
+  const input = document.getElementById('fileInput');
+  if(!zone||!input) return;
+  zone.onclick = () => input.click();
+  input.onchange = () => { if(input.files[0]) handlePDF(input.files[0]); };
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault(); zone.classList.remove('drag');
+    if(e.dataTransfer.files[0]) handlePDF(e.dataTransfer.files[0]);
+  });
+})();
 </script>
 </body>
 </html>
