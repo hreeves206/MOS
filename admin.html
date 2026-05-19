@@ -499,6 +499,27 @@ function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;
 
 // ── AUTH ──
 let currentUser = null;
+
+function showAdminShell(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('adminShell').style.display='flex';
+  document.getElementById('currentUserLabel').textContent=currentUser.display_name||currentUser.username;
+  if(currentUser.role==='admin') document.getElementById('navUsers').style.display='block';
+}
+
+// Auto-restore session on page load
+(function(){
+  const saved = sessionStorage.getItem('mosAdmin');
+  if(saved){
+    try{
+      currentUser = JSON.parse(saved);
+      showAdminShell();
+      // Load data after DOM is ready
+      setTimeout(()=>{ loadVehicles(); loadUsers(); loadImageModelSelect(); }, 0);
+    }catch(e){ sessionStorage.removeItem('mosAdmin'); }
+  }
+})();
+
 async function hashPass(s){ const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)); return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join(''); }
 
 async function doLogin(){
@@ -510,16 +531,19 @@ async function doLogin(){
     const rows=await sb('admin_users?username=eq.'+encodeURIComponent(user)+'&password_hash=eq.'+hash+'&select=*');
     if(!rows||!rows.length){document.getElementById('loginError').style.display='block';return;}
     currentUser=rows[0];
-    document.getElementById('loginScreen').style.display='none';
-    document.getElementById('adminShell').style.display='flex';
-    document.getElementById('currentUserLabel').textContent=currentUser.display_name||currentUser.username;
-    if(currentUser.role==='admin') document.getElementById('navUsers').style.display='block';
+    sessionStorage.setItem('mosAdmin', JSON.stringify(currentUser));
+    showAdminShell();
     loadVehicles(); loadUsers(); loadImageModelSelect();
   }catch(e){toast('Login failed: '+e.message,'error');}
 }
 document.getElementById('loginPass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 document.getElementById('loginUser').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
-function logout(){currentUser=null;document.getElementById('loginScreen').style.display='flex';document.getElementById('adminShell').style.display='none';}
+function logout(){
+  currentUser=null;
+  sessionStorage.removeItem('mosAdmin');
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('adminShell').style.display='none';
+}
 
 // ── NAV ──
 function showPage(name,el){
@@ -770,12 +794,14 @@ function resetUpload(){
   document.getElementById('reviewPanel').style.display='none';
   document.getElementById('statusBar').classList.remove('show');
   document.getElementById('publishBanner').style.display='none';
-  const oldInput = document.getElementById('fileInput');
-  const newInput = document.createElement('input');
-  newInput.type='file'; newInput.id='fileInput'; newInput.accept='.pdf';
-  newInput.onchange = function(){ handlePDF(this.files[0]); };
-  newInput.style.display='none';
-  oldInput.parentNode.replaceChild(newInput, oldInput);
+  // Reset file input by wrapping in a form and resetting it
+  const input = document.getElementById('fileInput');
+  const form = document.createElement('form');
+  input.parentNode.insertBefore(form, input);
+  form.appendChild(input);
+  form.reset();
+  form.parentNode.insertBefore(input, form);
+  form.remove();
 }
 
 // ── GENERATE COMPARISON ──
