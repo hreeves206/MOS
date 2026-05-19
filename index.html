@@ -34,9 +34,9 @@ body {
   line-height: 1.6;
   overflow-x: hidden;
   background-image:
-    radial-gradient(ellipse 80% 40% at 50% 0%, rgba(200,16,46,0.07) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 30% at 80% 60%, rgba(200,16,46,0.04) 0%, transparent 50%),
-    radial-gradient(ellipse 50% 40% at 20% 100%, rgba(200,16,46,0.03) 0%, transparent 50%);
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(200,16,46,0.18) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 40% at 85% 55%, rgba(200,16,46,0.10) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 15% 95%, rgba(200,16,46,0.08) 0%, transparent 55%);
   background-attachment: fixed;
 }
 
@@ -1009,7 +1009,7 @@ function render(data) {
 
     // Default first trim
     const firstTrim = trims[0] || {};
-    const firstFeatures = firstTrim.id ? getCumulativeFeatures(trims, featuresByTrim, firstTrim.level) : [];
+    const firstFeatures = firstTrim.id ? featuresByTrim[firstTrim.id] || [] : [];
 
     // Collect ALL packages across all trims for this model
     const allModelPackages = trims.flatMap(t => packagesByTrim[t.id] || []);
@@ -1018,7 +1018,7 @@ function render(data) {
       ${buildStage(model, extColors, intColors)}
       ${allModelPackages.length ? buildPackagesSection(allModelPackages) : ''}
       ${buildTrimSection(model, trims, firstTrim, firstFeatures)}
-      ${trims.length > 1 ? buildCompare(trims, featuresByTrim) : ''}
+      ${trims.length > 1 ? buildCompareSection(model.id, trims) : ''}
     `;
 
     container.appendChild(section);
@@ -1031,10 +1031,9 @@ function render(data) {
         if (!trim) return;
         section.querySelectorAll('.trim-tab').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        // Build cumulative features up to this trim's level
-        const cumulativeFeatures = getCumulativeFeatures(trims, featuresByTrim, trim.level);
+        // Show only this trim's specific features
         section.querySelector('.trim-details').innerHTML =
-          buildTrimDetails(trim, cumulativeFeatures);
+          buildTrimDetails(trim, featuresByTrim[trim.id] || []);
       });
     });
 
@@ -1043,6 +1042,12 @@ function render(data) {
   });
 
   root.style.display = 'block';
+
+  // Load comparisons for all models with multiple trims
+  data.models.forEach(model => {
+    const trims = data.trimsByModel[model.id] || [];
+    if (trims.length > 1) loadComparison(model.id, trims);
+  });
 }
 
 // ── Vehicle Stage (image + color switcher) ──
@@ -1200,25 +1205,7 @@ function buildTrimDetails(trim, features) {
   const hp = cleanHp(trim.horsepower);
   const tow = cleanTowing(trim.towing_capacity);
 
-  const statsHtml = `
-    <div class="trim-stats">
-      <div class="stat-cell">
-        <div class="stat-value">${trim.mpg_city || '—'}</div>
-        <div class="stat-unit">MPG City</div>
-      </div>
-      <div class="stat-cell">
-        <div class="stat-value">${trim.mpg_hwy || '—'}</div>
-        <div class="stat-unit">MPG Hwy</div>
-      </div>
-      <div class="stat-cell">
-        <div class="stat-value">${hp || '—'}</div>
-        <div class="stat-unit">Horsepower</div>
-      </div>
-      <div class="stat-cell">
-        <div class="stat-value">${tow ? tow.toLocaleString() : '—'}</div>
-        <div class="stat-unit">Lbs Towing</div>
-      </div>
-    </div>`;
+  const statsHtml = ''; // Stats shown in comparison table only
 
   const metaHtml = `
     <div class="trim-meta">
@@ -1249,7 +1236,68 @@ function buildTrimDetails(trim, features) {
   return statsHtml + metaHtml + featHtml;
 }
 
-// ── Trim Compare ──
+// ── Trim Compare — loads Claude-generated comparison from DB ──
+function buildCompareSection(modelId, trims) {
+  return `<div class="compare-section" id="compare-${modelId}">
+    <p class="section-label" style="margin-bottom:20px;">Trim Comparison</p>
+    <div id="compare-inner-${modelId}">
+      <div style="color:var(--p5);font-size:13px;padding:20px 0;">Loading comparison…</div>
+    </div>
+  </div>`;
+}
+
+async function loadComparison(modelId, trims) {
+  const inner = document.getElementById('compare-inner-'+modelId);
+  if (!inner) return;
+  try {
+    const rows = await sbFetch('model_comparisons?model_id=eq.'+modelId+'&select=*&order=generated_at.desc&limit=1');
+    if (!rows || !rows.length || !rows[0].comparison_data?.length) {
+      inner.innerHTML = '<div style="color:var(--p5);font-size:13px;padding:20px 0;">Comparison not yet generated. Check back soon.</div>';
+      return;
+    }
+    const data = rows[0].comparison_data;
+    renderComparison(inner, trims, data);
+  } catch(e) {
+    inner.innerHTML = '<div style="color:var(--p5);font-size:13px;padding:20px 0;">Comparison unavailable.</div>';
+  }
+}
+
+function renderComparison(container, trims, compData) {
+  // compData: array of { feature, trims: [trimName, ...] }
+  const specsHtml = `
+    <div class="compare-wrap">
+      <div class="compare-specs-row">
+        <div class="compare-spec-label"></div>
+        ${trims.map(t=>`<div class="compare-trim-name">${toTitleCase(t.name)}</div>`).join('')}
+      </div>
+      ${[
+        {label:'MPG City', vals:trims.map(t=>t.mpg_city||'—')},
+        {label:'MPG Hwy', vals:trims.map(t=>t.mpg_hwy||'—')},
+        {label:'Horsepower', vals:trims.map(t=>cleanHp(t.horsepower)||'—')},
+        {label:'Towing', vals:trims.map(t=>{const v=cleanTowing(t.towing_capacity);return v?v.toLocaleString()+' lbs':'—';})},
+        {label:'Drivetrain', vals:trims.map(t=>toTitleCase(t.drivetrain||'—'))},
+      ].map(row=>`
+        <div class="compare-specs-row">
+          <div class="compare-spec-label">${row.label}</div>
+          ${row.vals.map(v=>`<div class="compare-spec-val">${v}</div>`).join('')}
+        </div>`).join('')}
+      <div class="compare-specs-row compare-diff-header">
+        <div class="compare-spec-label">What You Get</div>
+        ${trims.map(t=>`<div class="compare-trim-name">${toTitleCase(t.name)}</div>`).join('')}
+      </div>
+      ${compData.map(row=>`
+        <div class="compare-specs-row">
+          <div class="compare-spec-label">${toTitleCase(row.feature)}</div>
+          ${trims.map(t=>{
+            const has = (row.trims||[]).some(n=>n.toLowerCase().includes(t.name.toLowerCase().split(' ').pop()) || t.name.toLowerCase().includes(n.toLowerCase().split(' ').pop()));
+            return `<div class="compare-spec-val">${has?'<span class="check">✓</span>':'<span class="dash">—</span>'}</div>`;
+          }).join('')}
+        </div>`).join('')}
+    </div>`;
+  container.innerHTML = specsHtml;
+}
+
+// ── Old compare kept for fallback ──
 function fuzzyKey(str) {
   // Normalize feature text for fuzzy grouping — strips punctuation, numbers, extra words
   return str.toLowerCase()
