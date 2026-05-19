@@ -328,17 +328,22 @@ body {
 .color-swatch.active { opacity: 1; }
 
 .swatch-circle {
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   border: 2px solid transparent;
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.1);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.15);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.color-swatch:hover .swatch-circle {
+  transform: scale(1.1);
 }
 
 .color-swatch.active .swatch-circle {
   border-color: var(--white);
-  box-shadow: 0 0 0 3px rgba(255,255,255,0.15);
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.2);
+  transform: scale(1.1);
 }
 
 .swatch-label {
@@ -466,15 +471,23 @@ body {
   display: block;
 }
 
-.trim-tabs {
+.trim-layout {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 12px;
-  margin-bottom: 40px;
+  grid-template-columns: 240px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.trim-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: sticky;
+  top: 100px;
 }
 
 .trim-tab {
-  padding: 20px 16px;
+  padding: 18px 16px;
   background: var(--p2);
   border: 1px solid rgba(255,255,255,0.07);
   border-radius: 8px;
@@ -482,6 +495,7 @@ body {
   cursor: pointer;
   transition: all 0.2s;
   text-align: left;
+  width: 100%;
 }
 
 .trim-tab:hover {
@@ -500,8 +514,23 @@ body {
 .trim-tab-name {
   display: block;
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 18px;
+  font-size: 17px;
   letter-spacing: 1.5px;
+}
+
+@media (max-width: 768px) {
+  .trim-layout {
+    grid-template-columns: 1fr;
+  }
+  .trim-tabs {
+    flex-direction: row;
+    flex-wrap: wrap;
+    position: static;
+  }
+  .trim-tab {
+    flex: 1;
+    min-width: 140px;
+  }
 }
 
 /* ── TRIM STATS ── */
@@ -1071,12 +1100,16 @@ function buildStage(model, extColors, intColors) {
 
           <div class="exterior-panel" id="ext-panel-${model.id}">
             <div class="color-swatches">
-              ${extColors.map((c, i) => `
+              ${extColors.map((c, i) => {
+                const hex = c.hex_code || getMazdaColorHex(c.name);
+                const swatchId = `swatch-circle-${c.id}`;
+                // If image exists, we'll sample color from it via canvas after render
+                return `
                 <div class="color-swatch${i===0?' active':''}" data-color-id="${c.id}" data-img="${c.image_url||''}" data-model="${model.id}" onclick="switchColor(this,'${model.id}')">
-                  <div class="swatch-circle" style="background:${c.hex_code || getMazdaColorHex(c.name)};"></div>
+                  <div class="swatch-circle" id="${swatchId}" style="background:${hex};"></div>
                   <span class="swatch-label">${c.name}</span>
-                </div>
-              `).join('')}
+                </div>`;
+              }).join('')}
               ${extColors.length === 0 ? '<p style="font-size:12px;color:var(--p5);padding:8px;">No colors uploaded yet.</p>' : ''}
             </div>
           </div>
@@ -1170,15 +1203,17 @@ function buildTrimSection(model, trims, activeTrim, features) {
   return `
     <div class="trim-section">
       <p class="section-label">Select Trim</p>
-      <div class="trim-tabs">
-        ${trims.map((t, i) => `
-          <button class="trim-tab${i===0?' active':''}" data-trim="${t.id}">
-            <span class="trim-tab-name">${toTitleCase(t.name)}</span>
-          </button>`
-        ).join('')}
-      </div>
-      <div class="trim-details">
-        ${buildTrimDetails(activeTrim, features)}
+      <div class="trim-layout">
+        <div class="trim-tabs">
+          ${trims.map((t, i) => `
+            <button class="trim-tab${i===0?' active':''}" data-trim="${t.id}">
+              <span class="trim-tab-name">${toTitleCase(t.name)}</span>
+            </button>`
+          ).join('')}
+        </div>
+        <div class="trim-details">
+          ${buildTrimDetails(activeTrim, features)}
+        </div>
       </div>
     </div>`;
 }
@@ -1207,12 +1242,7 @@ function buildTrimDetails(trim, features) {
 
   const statsHtml = ''; // Stats shown in comparison table only
 
-  const metaHtml = `
-    <div class="trim-meta">
-      ${trim.engine ? `<div class="trim-meta-item"><span class="trim-meta-label">Engine</span><span class="trim-meta-val">${toTitleCase(trim.engine)}</span></div>` : ''}
-      ${trim.transmission ? `<div class="trim-meta-item"><span class="trim-meta-label">Transmission</span><span class="trim-meta-val">${trim.transmission}</span></div>` : ''}
-      ${trim.drivetrain ? `<div class="trim-meta-item"><span class="trim-meta-label">Drivetrain</span><span class="trim-meta-val">${toTitleCase(trim.drivetrain)}</span></div>` : ''}
-    </div>`;
+  const metaHtml = ''; // Engine/transmission/drivetrain shown in comparison table
 
   // Ordered categories — always same order regardless of which trim
   const orderedCats = [
@@ -1435,8 +1465,29 @@ function switchInteriorThumb(thumb, modelId) {
 }
 
 function wireColorSwitcher(section, modelId, extColors, intColors) {
-  // Nothing extra needed — onclick handlers embedded in HTML
-  // This is a hook for future enhancements
+  // Sample colors from uploaded PNGs using canvas
+  extColors.forEach(c => {
+    if (!c.image_url) return;
+    const circleEl = document.getElementById('swatch-circle-'+c.id);
+    if (!circleEl) return;
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = 1; canvas.height = 1;
+        const ctx = canvas.getContext('2d');
+        // Sample from center of image
+        ctx.drawImage(img, Math.floor(img.width*0.5), Math.floor(img.height*0.6), 1, 1, 0, 0, 1, 1);
+        const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data;
+        // Only use sampled color if pixel is not transparent
+        if (a > 30) {
+          circleEl.style.background = `rgb(${r},${g},${b})`;
+        }
+      } catch(e) { /* cross-origin or canvas blocked, keep hex fallback */ }
+    };
+    img.src = c.image_url;
+  });
 }
 
 // ─────────────────────────────────────────────
