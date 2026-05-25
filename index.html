@@ -236,9 +236,9 @@ body {
 
 /* ── MODEL SECTION ── */
 .models-container {
-  max-width: 1400px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 0 48px;
+  padding: 0 40px;
 }
 
 .model-section {
@@ -253,9 +253,9 @@ body {
 .vehicle-stage {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 80px;
+  gap: 48px;
   align-items: center;
-  margin-bottom: 80px;
+  margin-bottom: 60px;
 }
 
 .stage-left {}
@@ -483,8 +483,8 @@ body {
   flex-direction: column;
   gap: 8px;
   position: sticky;
-  top: 96px;
-  max-height: calc(100vh - 120px);
+  top: 140px;
+  max-height: calc(100vh - 160px);
   overflow-y: auto;
   scrollbar-width: none;
 }
@@ -653,6 +653,20 @@ body {
   background: var(--red);
 }
 
+.feat-expand-btn {
+  background: none;
+  border: none;
+  color: var(--red);
+  font-size: 11px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  padding: 8px 0 2px 12px;
+  text-transform: uppercase;
+  transition: opacity 0.2s;
+}
+.feat-expand-btn:hover { opacity: 0.7; }
+.feat-expanded .feature-item { display: list-item; }
+
 /* ── PACKAGES ── */
 .packages-row {
   display: grid;
@@ -671,6 +685,7 @@ body {
   border-top: 3px solid var(--red);
   border-radius: 10px;
   padding: 24px;
+  flex: 0 1 300px;
 }
 
 .package-card-large {
@@ -1249,17 +1264,30 @@ function buildTrimDetails(trim, features) {
     ...Object.keys(cats).filter(c => !CAT_ORDER.includes(c))
   ];
 
+  const PREVIEW_COUNT = 4;
   const featHtml = orderedCats.length ? `
     <p class="section-label" style="margin-bottom:20px;">Standard Features</p>
     <div class="features-grid">
-      ${orderedCats.map(cat => `
+      ${orderedCats.map(cat => {
+        const items = cats[cat];
+        const preview = items.slice(0, PREVIEW_COUNT);
+        const rest = items.slice(PREVIEW_COUNT);
+        const catId = 'feat-'+Math.random().toString(36).slice(2,8);
+        return `
         <div class="feature-category-card">
           <div class="category-title">${toTitleCase(cat)}</div>
           <ul class="feature-list">
-            ${cats[cat].map(f => `<li class="feature-item">${toTitleCase(f.feature_text)}</li>`).join('')}
+            ${preview.map(f => `<li class="feature-item">${toTitleCase(f.feature_text)}</li>`).join('')}
+            ${rest.length ? `
+              <div class="feat-expanded" id="${catId}" style="display:none;">
+                ${rest.map(f => `<li class="feature-item">${toTitleCase(f.feature_text)}</li>`).join('')}
+              </div>
+              <button class="feat-expand-btn" onclick="toggleFeats('${catId}',this)">
+                Show ${rest.length} more ▾
+              </button>` : ''}
           </ul>
-        </div>
-      `).join('')}
+        </div>`;
+      }).join('')}
     </div>` : '';
 
   return statsHtml + metaHtml + featHtml;
@@ -1395,6 +1423,15 @@ function buildCompare(trims, featuresByTrim) {
 // ─────────────────────────────────────────────
 // INTERACTION HANDLERS
 // ─────────────────────────────────────────────
+function toggleFeats(id, btn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const expanded = el.style.display !== 'none';
+  el.style.display = expanded ? 'none' : 'block';
+  const count = el.querySelectorAll('.feature-item').length;
+  btn.textContent = expanded ? `Show ${count} more ▾` : 'Show less ▴';
+}
+
 function switchModel(modelId) {
   document.querySelectorAll('.model-tab').forEach(t => t.classList.toggle('active', t.dataset.model == modelId));
   document.querySelectorAll('.model-section').forEach(s => s.classList.toggle('active', s.id === `model-${modelId}`));
