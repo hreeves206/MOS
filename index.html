@@ -670,11 +670,13 @@ body {
 /* ── PACKAGES ── */
 .packages-row {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: row;
+  flex-wrap: nowrap;
   gap: 20px;
   justify-content: center;
   align-items: flex-start;
   margin-bottom: 0;
+  overflow-x: auto;
 }
 
 .packages-centered { justify-content: center; }
@@ -685,8 +687,9 @@ body {
   border-top: 3px solid var(--red);
   border-radius: 10px;
   padding: 24px;
-  flex: 0 1 300px;
-  min-width: 220px;
+  flex: 1 1 0;
+  min-width: 200px;
+  max-width: 340px;
 }
 
 .package-card-large {
