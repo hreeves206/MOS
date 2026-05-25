@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mazda of Seattle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --p0:#0a0a0a; --p1:#111111; --p2:#1a1a1a; --p3:#252525; --p4:#333333;
+  --p5:#666666; --p6:#999999; --p7:#cccccc; --red:#c8102e; --white:#ffffff; --gold:#b8955a;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--p0);color:var(--white);font-family:'Inter',sans-serif;font-weight:300;line-height:1.6;overflow-x:hidden;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% 0%,rgba(200,16,46,0.18) 0%,transparent 65%),
+    radial-gradient(ellipse 60% 40% at 85% 55%,rgba(200,16,46,0.10) 0%,transparent 55%),
+    radial-gradient(ellipse 50% 40% at 15% 95%,rgba(200,16,46,0.08) 0%,transparent 55%);
+  background-attachment:fixed;
+}
+
+/* HEADER */
+.site-header{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:72px;background:rgba(10,10,10,0.92);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.06);}
+.site-logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--white);text-decoration:none;}
+.site-logo span{color:var(--red);}
+.back-btn{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--p5);text-decoration:none;display:flex;align-items:center;gap:6px;transition:color .2s;}
+.back-btn:hover{color:var(--white);}
+
+/* MODEL NAV */
+.model-nav-wrap{position:sticky;top:72px;z-index:90;background:rgba(10,10,10,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.05);}
+.model-nav{display:flex;gap:0;overflow-x:auto;scrollbar-width:none;max-width:1280px;margin:0 auto;padding:0 40px;}
+.model-nav::-webkit-scrollbar{display:none;}
+.model-tab{flex-shrink:0;padding:18px 28px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;color:var(--p5);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;}
+.model-tab:hover{color:var(--p7);}
+.model-tab.active{color:var(--white);border-bottom-color:var(--red);}
+
+/* CONTENT */
+.models-container{max-width:1280px;margin:0 auto;padding:0 40px;}
+.model-section{padding:80px 0;border-bottom:1px solid rgba(255,255,255,0.04);display:none;}
+.model-section.active{display:block;}
+
+/* LOADING */
+.loading-screen{min-height:60vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:80px 24px;}
+.loader{width:36px;height:36px;border:2px solid var(--p3);border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-text{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--p5);}
+
+/* VEHICLE STAGE */
+.vehicle-stage{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;margin-bottom:60px;}
+.model-year-badge{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--red);margin-bottom:12px;}
+.model-name-large{font-family:'Bebas Neue',sans-serif;font-size:clamp(42px,6vw,72px);letter-spacing:3px;line-height:0.95;margin-bottom:32px;}
+
+/* COLOR SWITCHER */
+.color-switcher{background:var(--p2);border:1px solid rgba(255,255,255,0.06);border-radius:12px;overflow:hidden;}
+.color-tabs{display:flex;border-bottom:1px solid rgba(255,255,255,0.06);}
+.color-tab-btn{flex:1;padding:12px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--p5);background:none;border:none;cursor:pointer;transition:all .2s;}
+.color-tab-btn.active{color:var(--white);background:rgba(255,255,255,0.04);}
+.color-swatches{display:flex;flex-wrap:wrap;gap:10px;padding:16px;}
+.color-swatch{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;opacity:.5;transition:opacity .2s;}
+.color-swatch:hover,.color-swatch.active{opacity:1;}
+.swatch-circle{width:36px;height:36px;border-radius:50%;border:2px solid transparent;box-shadow:0 0 0 1px rgba(255,255,255,.15);transition:border-color .2s,box-shadow .2s,transform .2s;}
+.color-swatch:hover .swatch-circle{transform:scale(1.1);}
+.color-swatch.active .swatch-circle{border-color:var(--white);box-shadow:0 0 0 3px rgba(255,255,255,.2);transform:scale(1.1);}
+.swatch-label{font-size:9px;letter-spacing:.5px;color:var(--p6);text-align:center;max-width:60px;line-height:1.2;}
+.interior-panel{display:none;padding:16px;}
+.interior-panel.active{display:block;}
+.interior-thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.interior-thumb{aspect-ratio:4/3;border-radius:6px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:border-color .2s;}
+.interior-thumb.active{border-color:var(--red);}
+.interior-thumb img{width:100%;height:100%;object-fit:cover;filter:brightness(.85);transition:filter .2s;}
+.interior-thumb:hover img,.interior-thumb.active img{filter:brightness(1);}
+
+/* CAR IMAGE */
+.stage-right{position:relative;display:flex;align-items:center;justify-content:center;min-height:340px;}
+.car-glow{position:absolute;width:70%;height:60%;background:radial-gradient(ellipse,rgba(200,16,46,0.12) 0%,transparent 70%);bottom:0;left:50%;transform:translateX(-50%);filter:blur(40px);}
+.car-image-wrap{position:relative;width:100%;text-align:center;transition:opacity .35s ease;}
+.car-image-wrap.fading{opacity:0;}
+.car-img{max-width:100%;max-height:320px;object-fit:contain;filter:drop-shadow(0 20px 60px rgba(0,0,0,.8));transition:transform .6s ease;}
+.car-img:hover{transform:scale(1.02) translateY(-4px);}
+.no-image-placeholder{width:100%;height:280px;display:flex;align-items:center;justify-content:center;border:1px dashed var(--p4);border-radius:8px;color:var(--p5);font-size:12px;letter-spacing:1px;}
+.interior-main-image{width:100%;border-radius:8px;overflow:hidden;display:none;}
+.interior-main-image.active{display:block;}
+.interior-main-image img{width:100%;height:100%;object-fit:cover;}
+
+/* PACKAGES */
+.packages-section{margin-bottom:60px;padding:48px;background:rgba(255,255,255,.02);border-top:1px solid rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.05);display:flex;flex-direction:column;align-items:center;gap:20px;text-align:center;}
+.packages-row{display:flex;flex-wrap:nowrap;flex-direction:row;gap:20px;justify-content:center;align-items:flex-start;margin-bottom:0;overflow-x:auto;}
+.package-card{background:var(--p2);border:1px solid rgba(255,255,255,.06);border-top:3px solid var(--red);border-radius:10px;padding:24px;flex:1 1 0;min-width:200px;max-width:340px;}
+.package-card-large{padding:28px;}
+.package-name{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:var(--white);margin-bottom:4px;}
+.package-feature-count{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--red);margin-bottom:16px;}
+.package-feature{font-size:13px;color:var(--white);padding:7px 0 7px 14px;border-bottom:1px solid rgba(255,255,255,.07);position:relative;line-height:1.4;text-align:left;}
+.package-feature::before{content:'';position:absolute;left:0;top:14px;width:3px;height:3px;border-radius:50%;background:var(--red);}
+.package-feature:last-child{border-bottom:none;}
+
+/* TRIM SECTION */
+.trim-section{margin-bottom:60px;}
+.section-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--red);margin-bottom:20px;display:block;}
+.trim-layout{display:grid;grid-template-columns:240px 1fr;gap:24px;align-items:start;}
+.trim-tabs{display:flex;flex-direction:column;gap:8px;position:sticky;top:140px;max-height:calc(100vh - 160px);overflow-y:auto;scrollbar-width:none;}
+.trim-tab{padding:18px 16px;background:var(--p2);border:1px solid rgba(255,255,255,.07);border-radius:8px;color:var(--p5);cursor:pointer;transition:all .2s;text-align:left;width:100%;}
+.trim-tab:hover{color:var(--white);border-color:rgba(255,255,255,.2);background:var(--p3);}
+.trim-tab.active{color:var(--white);background:var(--p3);border-color:var(--red);border-left-width:3px;}
+.trim-tab-name{display:block;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:1.5px;}
+
+/* FEATURES */
+.features-grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:16px;margin-bottom:48px;}
+.feature-category-card{background:var(--p2);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:20px;}
+.category-title{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.07);}
+.feature-list{list-style:none;display:flex;flex-direction:column;gap:7px;}
+.feature-item{font-size:14px;color:var(--white);padding-left:12px;position:relative;line-height:1.5;}
+.feature-item::before{content:'';position:absolute;left:0;top:7px;width:3px;height:3px;border-radius:50%;background:var(--red);}
+.feat-expand-btn{background:none;border:none;color:var(--red);font-size:11px;letter-spacing:1px;cursor:pointer;padding:8px 0 2px 12px;text-transform:uppercase;transition:opacity .2s;}
+.feat-expand-btn:hover{opacity:.7;}
+.feat-expanded .feature-item{display:list-item;}
+
+/* COMPARE */
+.compare-section{margin-top:60px;}
+.compare-wrap{background:var(--p2);border:1px solid rgba(255,255,255,.06);border-radius:10px;overflow:hidden;overflow-x:auto;}
+.compare-specs-row{display:flex;border-bottom:1px solid rgba(255,255,255,.05);min-width:fit-content;}
+.compare-specs-row:last-child{border-bottom:none;}
+.compare-spec-label{flex:0 0 180px;padding:14px 20px;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--white);background:rgba(255,255,255,.02);border-right:1px solid rgba(255,255,255,.05);display:flex;align-items:center;}
+.compare-trim-name{flex:1;min-width:120px;padding:14px 20px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1.5px;color:var(--white);border-right:1px solid rgba(255,255,255,.05);}
+.compare-trim-name:last-child{border-right:none;}
+.compare-spec-val{flex:1;min-width:120px;padding:13px 20px;font-size:13px;color:var(--p7);border-right:1px solid rgba(255,255,255,.05);display:flex;align-items:center;}
+.compare-spec-val:last-child{border-right:none;}
+.compare-diff-header .compare-spec-label{background:var(--p3);color:var(--gold);font-size:10px;}
+.compare-diff-header .compare-trim-name{background:var(--p3);font-size:13px;font-family:'Inter',sans-serif;color:var(--p6);}
+.check{color:#4ade80;font-size:16px;}
+.dash{color:var(--p4);}
+
+/* FOOTER */
+.site-footer{border-top:1px solid rgba(255,255,255,.05);padding:48px;text-align:center;color:var(--p5);font-size:12px;}
+.footer-logo{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:var(--p4);margin-bottom:8px;}
+
+@media(max-width:900px){
+  .site-header{padding:0 24px;}
+  .models-container{padding:0 24px;}
+  .model-nav{padding:0 24px;}
+  .vehicle-stage{grid-template-columns:1fr;gap:40px;}
+  .stage-right{order:-1;}
+  .trim-layout{grid-template-columns:1fr;}
+  .trim-tabs{flex-direction:row;flex-wrap:wrap;position:static;}
+  .trim-tab{flex:1;min-width:140px;}
+  .features-grid{grid-template-columns:1fr;}
+  .compare-spec-label{flex:0 0 120px;}
+}
+@media(max-width:600px){
+  .packages-row{flex-wrap:wrap;}
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <a class="site-logo" href="/">Mazda <span>Seattle</span></a>
+  <a class="back-btn" href="/">← All Models</a>
+</header>
+
+<main id="main-content">
+  <div class="loading-screen" id="loading">
+    <div class="loader"></div>
+    <p class="loading-text">Loading vehicle</p>
+  </div>
+  <div id="vehicles-root" style="display:none;"></div>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-logo">Mazda of Seattle</div>
+  <p>Vehicle information subject to change. Contact us for current availability and details.</p>
+</footer>
+
+<script>
+const SUPABASE_URL  = 'https://dvznpeelgyebzdublamt.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2em5wZWVsZ3llYnpkdWJsYW10Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwMjEyMjIsImV4cCI6MjA5MzU5NzIyMn0.x4AXUr4PcGkxZUR19T0FhNth1Lo8PsIaeUJxLQiqK9o';
+const headers = {'apikey':SUPABASE_ANON,'Authorization':'Bearer '+SUPABASE_ANON,'Content-Type':'application/json'};
+
+async function sbFetch(path){
+  const r = await fetch(SUPABASE_URL+'/rest/v1/'+path,{headers});
+  if(!r.ok) throw new Error('DB error: '+r.status);
+  return r.json();
+}
+
+// ── MAZDA COLOR LOOKUP ──
+const MAZDA_COLORS = {
+  'soul red crystal metallic':'#9B1B1E','soul red metallic':'#9B1B1E',
+  'zeal red metallic':'#B01C20','artisan red premium metallic':'#6B1518','red':'#9B1B1E',
+  'deep crystal blue mica':'#1B3D6B','eternal blue mica':'#1B2E50','aurora blue':'#2B4F7A','blue':'#1B3D6B',
+  'snowflake white pearl mica':'#F0EEE8','crystal white pearl mica':'#EDEAE2',
+  'rhodium white premium metallic':'#D4D0C8','platinum quartz metallic':'#E0DDD5','white':'#F0EEE8',
+  'jet black mica':'#18181A','black':'#18181A',
+  'sonic silver metallic':'#8C8E90','machine gray metallic':'#565A5E',
+  'polymetal gray metallic':'#686E74','polymetal gray':'#686E74',
+  'titanium flash mica':'#4E5256','gray':'#686E74','grey':'#686E74','silver':'#8C8E90',
+  'racing green':'#1A3828',
+  'black leatherette':'#18181A','black leather':'#18181A',
+  'red leatherette':'#7A1518','greige leatherette':'#8A7B6A','greige':'#8A7B6A',
+  'tan leatherette':'#8A7060','tan':'#8A7060','parchment':'#C8B89A','beige':'#C8B89A',
+};
+function getMazdaColorHex(n){
+  if(!n) return '#4A4A4A';
+  const k=n.toLowerCase().trim();
+  if(MAZDA_COLORS[k]) return MAZDA_COLORS[k];
+  for(const [key,v] of Object.entries(MAZDA_COLORS)) if(k.includes(key)) return v;
+  for(const w of k.split(/\s+/)) if(w.length>3&&MAZDA_COLORS[w]) return MAZDA_COLORS[w];
+  return '#4A4A4A';
+}
+
+// ── HELPERS ──
+function toTitleCase(s){return String(s||'').toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());}
+function cleanHp(v){if(!v) return null;const n=parseInt(String(v).replace(/[^0-9]/g,''));return isNaN(n)?null:n;}
+function cleanTowing(v){if(!v) return null;const n=parseInt(String(v).replace(/[^0-9]/g,''));return isNaN(n)?null:n;}
+function normFeat(s){return String(s||'').toLowerCase().replace(/[^a-z0-9]/g,' ').replace(/\s+/g,' ').trim();}
+
+// ── NOISE BLOCKLIST for comparison ──
+const COMPARE_BLOCKLIST = [
+  'airbag','air bag','safety belt','abs ','ebd','brake assist','stability control',
+  'traction control','tire pressure','tpms','immobilizer','anti theft','child safety',
+  'usb','bluetooth','apple carplay','android auto','am/fm','am fm',
+  'push button','keyless entry','power window','power lock','cruise control',
+  'rearview camera','backup camera','rear view camera','roadside assistance',
+  'warranty','passenger seating','seat belt','horn','daytime running',
+];
+function isNoise(feat){const f=normFeat(feat);return COMPARE_BLOCKLIST.some(b=>f.includes(b));}
+
+// ── LOAD ──
+async function loadModel(){
+  const params = new URLSearchParams(window.location.search);
+  const slug = params.get('slug');
+  if(!slug){window.location.href='/';return;}
+
+  const [models,trims,colors,features,packages] = await Promise.all([
+    sbFetch('models?select=*&published=eq.true&order=sort_order.asc'),
+    sbFetch('trims?select=*&order=level.asc'),
+    sbFetch('colors?select=*'),
+    sbFetch('features?select=*&order=sort_order.asc'),
+    sbFetch('packages?select=*'),
+  ]);
+
+  // Find this model
+  const model = models.find(m=>m.slug===slug||m.id===slug);
+  if(!model){window.location.href='/';return;}
+
+  // Update page title
+  document.title = 'Mazda of Seattle — '+model.name;
+
+  // Index data
+  const modelTrims = trims.filter(t=>t.model_id===model.id).sort((a,b)=>(parseInt(a.level)||1)-(parseInt(b.level)||1));
+  const modelColors = colors.filter(c=>c.model_id===model.id);
+  const extColors = modelColors.filter(c=>c.type==='exterior');
+  const intColors = modelColors.filter(c=>c.type==='interior');
+  const featuresByTrim = {};
+  features.forEach(f=>{(featuresByTrim[f.trim_id]=featuresByTrim[f.trim_id]||[]).push(f);});
+  const packagesByTrim = {};
+  packages.forEach(p=>{(packagesByTrim[p.trim_id]=packagesByTrim[p.trim_id]||[]).push(p);});
+
+  // Build other models for nav
+  const otherModels = models.filter(m=>m.id!==model.id);
+
+  render(model, modelTrims, extColors, intColors, featuresByTrim, packagesByTrim, otherModels);
+}
+
+function render(model, trims, extColors, intColors, featuresByTrim, packagesByTrim, otherModels){
+  const root = document.getElementById('vehicles-root');
+
+  // Model nav (all models)
+  const allModels = [model,...otherModels];
+  const navHtml = `
+    <div class="model-nav-wrap">
+      <div class="model-nav">
+        ${allModels.map(m=>`
+          <button class="model-tab${m.id===model.id?' active':''}" onclick="window.location.href='model.html?slug=${encodeURIComponent(m.slug||m.id)}'">${m.name}</button>
+        `).join('')}
+      </div>
+    </div>
+    <div class="models-container">`;
+
+  const firstTrim = trims[0]||{};
+  const firstFeatures = featuresByTrim[firstTrim.id]||[];
+  const allPackages = trims.flatMap(t=>packagesByTrim[t.id]||[]);
+
+  root.innerHTML = navHtml
+    + buildStage(model, extColors, intColors)
+    + (allPackages.length ? buildPackagesSection(allPackages) : '')
+    + buildTrimSection(model, trims, firstTrim, firstFeatures)
+    + (trims.length>1 ? buildCompare(trims, featuresByTrim) : '')
+    + '</div>';
+
+  root.style.display='block';
+  wireColorSwitcher(model.id, extColors, intColors);
+
+  // Wire trim tabs
+  root.querySelectorAll('.trim-tab').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const trimId=btn.dataset.trim;
+      const trim=trims.find(t=>t.id==trimId);
+      if(!trim) return;
+      root.querySelectorAll('.trim-tab').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      root.querySelector('.trim-details').innerHTML=buildTrimDetails(trim,featuresByTrim[trim.id]||[]);
+    });
+  });
+}
+
+// ── STAGE ──
+function buildStage(model, extColors, intColors){
+  const firstExt = extColors[0];
+  const firstImg = firstExt?.image_url||'';
+  return `
+    <div class="vehicle-stage">
+      <div>
+        <p class="model-year-badge">${model.year||''}</p>
+        <h2 class="model-name-large">${model.name}</h2>
+        <div class="color-switcher" id="switcher-${model.id}">
+          <div class="color-tabs">
+            <button class="color-tab-btn active" data-tab="exterior" onclick="switchColorTab(this,'${model.id}')">Exterior</button>
+            <button class="color-tab-btn" data-tab="interior" onclick="switchColorTab(this,'${model.id}')">Interior</button>
+          </div>
+          <div id="ext-panel-${model.id}">
+            <div class="color-swatches">
+              ${extColors.map((c,i)=>{
+                const hex=c.hex_code||getMazdaColorHex(c.name);
+                return `<div class="color-swatch${i===0?' active':''}" data-color-id="${c.id}" data-img="${c.image_url||''}" data-model="${model.id}" onclick="switchColor(this,'${model.id}')">
+                  <div class="swatch-circle" style="background:${hex};"></div>
+                  <span class="swatch-label">${c.name}</span>
+                </div>`;
+              }).join('')}
+              ${extColors.length===0?'<p style="font-size:12px;color:var(--p5);padding:8px;">No colors uploaded yet.</p>':''} 
+            </div>
+          </div>
+          <div class="interior-panel" id="int-panel-${model.id}" style="display:none;">
+            <div class="interior-thumbs">
+              ${intColors.map((c,i)=>`
+                <div class="interior-thumb${i===0?' active':''}" data-img="${c.image_url||''}" data-model="${model.id}" onclick="switchInteriorThumb(this,'${model.id}')">
+                  ${c.image_url?`<img src="${c.image_url}" alt="${c.name}" loading="lazy">`:`<div style="background:var(--p3);width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--p5);">${c.name}</div>`}
+                </div>`).join('')}
+              ${intColors.length===0?'<p style="font-size:12px;color:var(--p5);padding:8px;">No interior photos uploaded yet.</p>':''} 
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="stage-right">
+        <div class="car-glow"></div>
+        <div class="car-image-wrap" id="car-img-${model.id}">
+          ${firstImg?`<img class="car-img" src="${firstImg}" alt="${model.name}" id="car-img-el-${model.id}" loading="lazy">`:`<div class="no-image-placeholder">Image Coming Soon</div>`}
+        </div>
+        <div class="interior-main-image" id="int-main-${model.id}"></div>
+      </div>
+    </div>`;
+}
+
+// ── PACKAGES ──
+function buildPackagesSection(packages){
+  return `<div class="packages-section">
+    <p class="section-label">Available Packages</p>
+    <div class="packages-row">
+      ${packages.map(pkg=>{
+        const items=Array.isArray(pkg.package_features)?pkg.package_features:[];
+        return `<div class="package-card package-card-large">
+          <div class="package-name">${toTitleCase(pkg.name)}</div>
+          <div class="package-feature-count">${items.length} included features</div>
+          ${items.map(f=>`<div class="package-feature">${toTitleCase(f)}</div>`).join('')}
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+// ── TRIM SECTION ──
+const CAT_ORDER=['Safety & Security','Interior','Exterior','Engine & Mechanical'];
+function normalizeCat(c){
+  const s=(c||'').toLowerCase();
+  if(s.includes('safety')||s.includes('security')) return 'Safety & Security';
+  if(s.includes('interior')) return 'Interior';
+  if(s.includes('exterior')) return 'Exterior';
+  if(s.includes('engine')||s.includes('mechanical')||s.includes('powertrain')) return 'Engine & Mechanical';
+  return c;
+}
+
+function buildTrimSection(model, trims, activeTrim, features){
+  if(!trims.length) return '<p style="color:var(--p5);font-size:13px;">No trims available yet.</p>';
+  return `<div class="trim-section">
+    <p class="section-label">Select Trim</p>
+    <div class="trim-layout">
+      <div class="trim-tabs">
+        ${trims.map((t,i)=>`
+          <button class="trim-tab${i===0?' active':''}" data-trim="${t.id}">
+            <span class="trim-tab-name">${toTitleCase(t.name)}</span>
+          </button>`).join('')}
+      </div>
+      <div class="trim-details">${buildTrimDetails(activeTrim,features)}</div>
+    </div>
+  </div>`;
+}
+
+function buildTrimDetails(trim, features){
+  const cats={};
+  features.forEach(f=>{const c=normalizeCat(f.category||'General');(cats[c]=cats[c]||[]).push(f);});
+  const ordered=[...CAT_ORDER.filter(c=>cats[c]),...Object.keys(cats).filter(c=>!CAT_ORDER.includes(c))];
+  const PREVIEW=4;
+  const featHtml=ordered.length?`
+    <p class="section-label" style="margin-bottom:20px;">Standard Features</p>
+    <div class="features-grid">
+      ${ordered.map(cat=>{
+        const items=cats[cat];
+        const preview=items.slice(0,PREVIEW);
+        const rest=items.slice(PREVIEW);
+        const uid='feat-'+Math.random().toString(36).slice(2,8);
+        return `<div class="feature-category-card">
+          <div class="category-title">${toTitleCase(cat)}</div>
+          <ul class="feature-list">
+            ${preview.map(f=>`<li class="feature-item">${toTitleCase(f.feature_text)}</li>`).join('')}
+            ${rest.length?`<div class="feat-expanded" id="${uid}" style="display:none;">${rest.map(f=>`<li class="feature-item">${toTitleCase(f.feature_text)}</li>`).join('')}</div><button class="feat-expand-btn" onclick="toggleFeats('${uid}',this)">Show ${rest.length} more ▾</button>`:''}
+          </ul>
+        </div>`;
+      }).join('')}
+    </div>`:''
+  return featHtml;
+}
+
+function toggleFeats(id,btn){
+  const el=document.getElementById(id);if(!el)return;
+  const expanded=el.style.display!=='none';
+  el.style.display=expanded?'none':'block';
+  const count=el.querySelectorAll('.feature-item').length;
+  btn.textContent=expanded?`Show ${count} more ▾`:'Show less ▴';
+}
+
+// ── COMPARISON — built from database, no Claude needed ──
+function buildCompare(trims, featuresByTrim){
+  // Gather all unique normalized features and which trims have them
+  const featMap={}; // normKey -> {text, trimIds: Set}
+  trims.forEach(t=>{
+    (featuresByTrim[t.id]||[]).forEach(f=>{
+      const key=normFeat(f.feature_text);
+      if(!featMap[key]) featMap[key]={text:f.feature_text,trimIds:new Set()};
+      featMap[key].trimIds.add(t.id);
+    });
+  });
+
+  // Keep only features that: differ between trims AND are not noise
+  const differentiators=Object.values(featMap)
+    .filter(f=>f.trimIds.size<trims.length && !isNoise(f.text))
+    .sort((a,b)=>b.trimIds.size-a.trimIds.size)
+    .slice(0,16);
+
+  if(!differentiators.length) return '';
+
+  return `<div class="compare-section">
+    <p class="section-label" style="margin-bottom:20px;">Trim Comparison</p>
+    <div class="compare-wrap">
+      <div class="compare-specs-row">
+        <div class="compare-spec-label"></div>
+        ${trims.map(t=>`<div class="compare-trim-name">${toTitleCase(t.name)}</div>`).join('')}
+      </div>
+      ${[
+        {label:'MPG City',vals:trims.map(t=>t.mpg_city||'—')},
+        {label:'MPG Hwy',vals:trims.map(t=>t.mpg_hwy||'—')},
+        {label:'Horsepower',vals:trims.map(t=>cleanHp(t.horsepower)||'—')},
+        {label:'Towing',vals:trims.map(t=>{const v=cleanTowing(t.towing_capacity);return v?v.toLocaleString()+' lbs':'—';})},
+        {label:'Drivetrain',vals:trims.map(t=>toTitleCase(t.drivetrain||'—'))},
+      ].map(row=>`
+        <div class="compare-specs-row">
+          <div class="compare-spec-label">${row.label}</div>
+          ${row.vals.map(v=>`<div class="compare-spec-val">${v}</div>`).join('')}
+        </div>`).join('')}
+      <div class="compare-specs-row compare-diff-header">
+        <div class="compare-spec-label">What You Get</div>
+        ${trims.map(t=>`<div class="compare-trim-name">${toTitleCase(t.name)}</div>`).join('')}
+      </div>
+      ${differentiators.map(f=>`
+        <div class="compare-specs-row">
+          <div class="compare-spec-label">${toTitleCase(f.text)}</div>
+          ${trims.map(t=>`<div class="compare-spec-val">${f.trimIds.has(t.id)?'<span class="check">✓</span>':'<span class="dash">—</span>'}</div>`).join('')}
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+// ── COLOR INTERACTIONS ──
+function switchColorTab(btn,modelId){
+  const tab=btn.dataset.tab;
+  btn.closest('.color-tabs').querySelectorAll('.color-tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const extP=document.getElementById('ext-panel-'+modelId);
+  const intP=document.getElementById('int-panel-'+modelId);
+  const carImg=document.getElementById('car-img-'+modelId);
+  const intMain=document.getElementById('int-main-'+modelId);
+  if(tab==='exterior'){extP.style.display='block';intP.style.display='none';carImg.style.display='block';intMain.classList.remove('active');}
+  else{extP.style.display='none';intP.style.display='block';carImg.style.display='none';intMain.classList.add('active');
+    const first=document.querySelector('#int-panel-'+modelId+' .interior-thumb');
+    if(first) switchInteriorThumb(first,modelId);}
+}
+
+function switchColor(swatch,modelId){
+  document.querySelectorAll(`[data-model="${modelId}"].color-swatch`).forEach(s=>s.classList.remove('active'));
+  swatch.classList.add('active');
+  const imgUrl=swatch.dataset.img;
+  const wrap=document.getElementById('car-img-'+modelId);
+  const imgEl=document.getElementById('car-img-el-'+modelId);
+  if(!imgUrl) return;
+  if(imgEl){wrap.classList.add('fading');setTimeout(()=>{imgEl.src=imgUrl;imgEl.onload=()=>wrap.classList.remove('fading');},175);}
+  else{wrap.innerHTML=`<img class="car-img" src="${imgUrl}" alt="Vehicle" id="car-img-el-${modelId}" loading="lazy">`;}
+}
+
+function switchInteriorThumb(thumb,modelId){
+  document.querySelectorAll('#int-panel-'+modelId+' .interior-thumb').forEach(t=>t.classList.remove('active'));
+  thumb.classList.add('active');
+  const imgUrl=thumb.dataset.img;
+  const mainEl=document.getElementById('int-main-'+modelId);
+  if(!imgUrl||!mainEl) return;
+  mainEl.innerHTML=`<img src="${imgUrl}" alt="Interior" style="width:100%;border-radius:8px;" loading="lazy">`;
+}
+
+function wireColorSwitcher(modelId,extColors,intColors){}
+
+// ── BOOT ──
+(async()=>{
+  try{
+    await loadModel();
+    document.getElementById('loading').style.display='none';
+  }catch(e){
+    console.error(e);
+    document.getElementById('loading').innerHTML='<p style="color:var(--p5);">Failed to load vehicle data.</p>';
+  }
+})();
+</script>
+</body>
+</html>
