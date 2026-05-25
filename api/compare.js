@@ -29,39 +29,38 @@ export default async function handler(req, res) {
           role: 'user',
           content: `You are analyzing Mazda ${modelName} trim levels to create a customer-facing comparison table for a dealership website.
 
-Here are the trim levels and their standard features:
-${JSON.stringify(trims, null, 2)}
+Here are the trim levels sorted from lowest to highest, each assigned a level number:
+${trims.map((t, i) => `Level ${i + 1}: ${t.name}\nFeatures: ${t.features.join(', ')}`).join('\n\n')}
 
 Return ONLY a valid JSON array with NO markdown, NO backticks, NO explanation.
 
-The array should contain 10-16 rows showing the most meaningful differences that car buyers actually care about when choosing a trim level.
+The array should contain 10-16 rows showing the most meaningful differences between trim levels that car buyers actually care about.
 
-EXCLUDE these types of features — they are standard on all Mazdas and customers don't use them to make decisions:
-- Basic safety: airbags, safety belts, ABS, stability control, traction control
-- Standard connectivity: Bluetooth, USB ports, AM/FM radio
-- Basic convenience: push button start, keyless entry, power windows
-- Legal/regulatory items: tire pressure monitoring
-- Warranty items
+EXCLUDE these — they are standard on all Mazdas and not useful for comparison:
+- Basic safety: airbags, safety belts, ABS, stability control, traction control, tire pressure monitoring
+- Standard connectivity: Bluetooth, USB ports, AM/FM radio, Apple CarPlay, Android Auto
+- Basic convenience: push button start, keyless entry, power windows, power locks
+- Warranty items and legal disclosures
 
-INCLUDE features that genuinely differ between trims and that buyers use to make upgrade decisions:
-- Seat materials and heating/cooling/memory (leather, ventilated, heated, memory)
-- Audio upgrades (Bose, premium speakers, SiriusXM)
-- Sunroof/moonroof
-- Advanced safety tech (adaptive lighting, parking sensors, traffic sign recognition)
-- Wheel/tire upgrades (size, alloy type)
-- Driver assistance upgrades (adaptive cruise, lane centering)
-- Power/convenience upgrades (power liftgate, folding mirrors, rear wiper)
-- Display/tech upgrades (larger screens, heads-up display, navigation)
+INCLUDE features that genuinely differ and help buyers decide which trim to choose:
+- Seat materials and comfort (cloth vs leatherette vs leather, heated, ventilated, memory, power adjustment)
+- Audio system upgrades (Bose, premium speakers, SiriusXM)
+- Sunroof / moonroof
+- Wheel size and type upgrades
+- Advanced driver assistance (parking sensors, adaptive cruise, traffic sign recognition, blind spot, rear cross traffic)
+- Power liftgate, heated steering wheel, heated rear seats
+- Display size upgrades, heads-up display
+- Special exterior features (roof rails, exhaust finish, lighting upgrades)
 
-Return format:
+Return format — use level NUMBERS not trim names to avoid matching errors:
 [
   {
     "feature": "Feature name in plain customer-friendly language",
-    "trims": ["exact trim name from input that HAS this feature"]
+    "levels": [1, 2, 3]
   }
 ]
 
-"trims" must use the EXACT trim names from the input. Only list trims that actually have the feature based on the feature lists provided. Be accurate — do not assume a higher trim has a feature unless it appears in its feature list.`
+"levels" is an array of level numbers (1, 2, 3, etc.) that HAVE this feature. Only include levels that actually have the feature based on the feature lists provided. Be accurate.`
         }]
       })
     });
