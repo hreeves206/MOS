@@ -790,22 +790,32 @@ function goToImages(modelId){
   loadModelImages();
 }
 function resetUpload(){
+  // Hide review panel and status
   document.getElementById('reviewPanel').style.display='none';
   document.getElementById('statusBar').classList.remove('show');
   document.getElementById('publishBanner').style.display='none';
-  // Rebuild the entire upload zone from scratch — most reliable cross-browser reset
+  // Reset radio to "new vehicle"
+  const newRadio = document.querySelector('input[name="modelTarget"][value="new"]');
+  if(newRadio){ newRadio.checked=true; toggleModelTarget('new'); }
+  // Clear trim and color lists
+  document.getElementById('trimsList').innerHTML='';
+  document.getElementById('colorsList').innerHTML='';
+  document.getElementById('r_name').value='';
+  document.getElementById('r_year').value='';
+  document.getElementById('r_slug').value='';
+  // Rebuild upload zone completely — new DOM element means no browser file state
   const area = document.getElementById('uploadArea');
-  area.innerHTML = `
-    <div class="upload-zone card" id="uploadZone">
-      <input type="file" id="fileInput" accept=".pdf" style="display:none;">
-      <div class="upload-icon">📄</div>
-      <h3>Drop Window Sticker PDF</h3>
-      <p>Click to browse or drag &amp; drop · PDF files only</p>
-    </div>`;
-  area.style.display = 'block';
-  // Rewire click and change events
-  const zone = document.getElementById('uploadZone');
-  const input = document.getElementById('fileInput');
+  area.style.display='block';
+  area.innerHTML='';
+  const zone = document.createElement('div');
+  zone.className='upload-zone card';
+  zone.id='uploadZone';
+  zone.innerHTML='<div class="upload-icon">📄</div><h3>Drop Window Sticker PDF</h3><p>Click to browse or drag &amp; drop · PDF files only</p>';
+  const input = document.createElement('input');
+  input.type='file'; input.id='fileInput'; input.accept='.pdf'; input.style.display='none';
+  zone.appendChild(input);
+  area.appendChild(zone);
+  // Wire events
   zone.onclick = () => input.click();
   input.onchange = () => { if(input.files[0]) handlePDF(input.files[0]); };
   zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
