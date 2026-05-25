@@ -669,15 +669,15 @@ body {
 
 /* ── PACKAGES ── */
 .packages-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 20px;
-  margin-bottom: 48px;
+  justify-content: center;
+  align-items: flex-start;
+  margin-bottom: 0;
 }
 
-.packages-centered {
-  justify-content: center;
-}
+.packages-centered { justify-content: center; }
 
 .package-card {
   background: var(--p2);
@@ -686,6 +686,7 @@ body {
   border-radius: 10px;
   padding: 24px;
   flex: 0 1 300px;
+  min-width: 220px;
 }
 
 .package-card-large {
@@ -735,6 +736,10 @@ body {
   background: rgba(255,255,255,0.02);
   border-top: 1px solid rgba(255,255,255,0.05);
   border-bottom: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
   text-align: center;
 }
 
