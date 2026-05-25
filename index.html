@@ -1328,7 +1328,9 @@ async function loadComparison(modelId, trims) {
 }
 
 function renderComparison(container, trims, compData) {
-  // compData: array of { feature, trims: [trimName, ...] }
+  // Normalize trim name for matching
+  function normTrim(s){ return (s||'').toLowerCase().trim(); }
+
   const specsHtml = `
     <div class="compare-wrap">
       <div class="compare-specs-row">
@@ -1350,14 +1352,21 @@ function renderComparison(container, trims, compData) {
         <div class="compare-spec-label">What You Get</div>
         ${trims.map(t=>`<div class="compare-trim-name">${toTitleCase(t.name)}</div>`).join('')}
       </div>
-      ${compData.map(row=>`
+      ${compData.map(row=>{
+        const rowTrims = (row.trims||[]).map(normTrim);
+        return `
         <div class="compare-specs-row">
           <div class="compare-spec-label">${toTitleCase(row.feature)}</div>
           ${trims.map(t=>{
-            const has = (row.trims||[]).some(n=>n.toLowerCase().includes(t.name.toLowerCase().split(' ').pop()) || t.name.toLowerCase().includes(n.toLowerCase().split(' ').pop()));
+            const tNorm = normTrim(t.name);
+            // Exact match first, then check if the stored trim name is fully contained
+            const has = rowTrims.some(n => n === tNorm || tNorm === n || 
+              (n.length > 4 && tNorm.includes(n)) || 
+              (tNorm.length > 4 && n.includes(tNorm)));
             return `<div class="compare-spec-val">${has?'<span class="check">✓</span>':'<span class="dash">—</span>'}</div>`;
           }).join('')}
-        </div>`).join('')}
+        </div>`;
+      }).join('')}
     </div>`;
   container.innerHTML = specsHtml;
 }
