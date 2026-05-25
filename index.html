@@ -483,7 +483,10 @@ body {
   flex-direction: column;
   gap: 8px;
   position: sticky;
-  top: 100px;
+  top: 96px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  scrollbar-width: none;
 }
 
 .trim-tab {
@@ -601,7 +604,8 @@ body {
 /* ── FEATURES ── */
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
   gap: 16px;
   margin-bottom: 48px;
 }
@@ -889,54 +893,49 @@ body {
 // ─────────────────────────────────────────────
 const MAZDA_COLORS = {
   // Reds
-  'soul red crystal metallic':       '#8B1A1A',
-  'soul red metallic':               '#8B1A1A',
-  'zeal red metallic':               '#9B1B1B',
+  'soul red crystal metallic': '#9B1B1E', 'soul red metallic': '#9B1B1E',
+  'zeal red metallic': '#B01C20', 'artisan red premium metallic': '#6B1518',
+  'red': '#9B1B1E',
   // Blues
-  'deep crystal blue mica':          '#1B3A5C',
-  'polymetal gray metallic':         '#6B7280',
-  'eternal blue mica':               '#1A2E4A',
-  'sonic silver metallic':           '#8A8D8F',
-  'aurora blue':                     '#2B4F7A',
+  'deep crystal blue mica': '#1B3D6B', 'eternal blue mica': '#1B2E50',
+  'aurora blue': '#2B4F7A', 'blue': '#1B3D6B',
   // Whites
-  'snowflake white pearl mica':      '#F5F5F0',
-  'white':                           '#F5F5F0',
-  'crystal white pearl mica':        '#F0EFE8',
-  'platinum quartz metallic':        '#E8E4DC',
+  'snowflake white pearl mica': '#F0EEE8', 'crystal white pearl mica': '#EDEAE2',
+  'rhodium white premium metallic': '#D4D0C8', 'platinum quartz metallic': '#E0DDD5',
+  'white': '#F0EEE8',
   // Blacks
-  'jet black mica':                  '#1A1A1A',
-  'black':                           '#1A1A1A',
-  // Grays
-  'polymetal gray':                  '#6B7280',
-  'machine gray metallic':           '#5A5F63',
-  'titanium flash mica':             '#4A4E52',
-  'rhodium white premium metallic':  '#D8D4CC',
-  // Browns / Tans
-  'artisan red premium metallic':    '#6B2020',
-  'burgundy':                        '#6B1A2A',
+  'jet black mica': '#18181A', 'black': '#18181A',
+  // Silvers & Grays
+  'sonic silver metallic': '#8C8E90', 'machine gray metallic': '#565A5E',
+  'polymetal gray metallic': '#686E74', 'polymetal gray': '#686E74',
+  'titanium flash mica': '#4E5256', 'gray': '#686E74', 'grey': '#686E74',
+  'silver': '#8C8E90',
   // Greens
-  'racing green':                    '#1A3A2A',
+  'racing green': '#1A3828',
   // Interiors
-  'black leatherette':               '#1A1A1A',
-  'black':                           '#1A1A1A',
-  'red leatherette':                 '#7A1A1A',
-  'white leatherette':               '#E8E4DC',
-  'greige leatherette':              '#8A7A6A',
-  'tan leatherette':                 '#8A7060',
-  'brown leatherette':               '#5A3A2A',
-  'parchment':                       '#C8B89A',
+  'black leatherette': '#18181A', 'black leather': '#18181A',
+  'red leatherette': '#7A1518', 'red leather': '#7A1518',
+  'white leatherette': '#E8E4DC', 'white leather': '#E8E4DC',
+  'greige leatherette': '#8A7B6A', 'greige': '#8A7B6A',
+  'tan leatherette': '#8A7060', 'tan': '#8A7060',
+  'brown leatherette': '#5A3828', 'auburn': '#5A3828',
+  'parchment': '#C8B89A', 'beige': '#C8B89A',
 };
 
 function getMazdaColorHex(colorName) {
-  if (!colorName) return '#555555';
+  if (!colorName) return '#4A4A4A';
   const key = colorName.toLowerCase().trim();
-  // Exact match first
   if (MAZDA_COLORS[key]) return MAZDA_COLORS[key];
-  // Partial match — find first key that the color name contains or vice versa
+  // Check if any known key appears anywhere in the color name
   for (const [k, v] of Object.entries(MAZDA_COLORS)) {
-    if (key.includes(k) || k.includes(key)) return v;
+    if (key.includes(k)) return v;
   }
-  return '#555555';
+  // Check individual meaningful words
+  const words = key.split(/\s+/);
+  for (const word of words) {
+    if (word.length > 3 && MAZDA_COLORS[word]) return MAZDA_COLORS[word];
+  }
+  return '#4A4A4A';
 }
 
 // ─────────────────────────────────────────────
@@ -1465,29 +1464,8 @@ function switchInteriorThumb(thumb, modelId) {
 }
 
 function wireColorSwitcher(section, modelId, extColors, intColors) {
-  // Sample colors from uploaded PNGs using canvas
-  extColors.forEach(c => {
-    if (!c.image_url) return;
-    const circleEl = document.getElementById('swatch-circle-'+c.id);
-    if (!circleEl) return;
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      try {
-        const canvas = document.createElement('canvas');
-        canvas.width = 1; canvas.height = 1;
-        const ctx = canvas.getContext('2d');
-        // Sample from center of image
-        ctx.drawImage(img, Math.floor(img.width*0.5), Math.floor(img.height*0.6), 1, 1, 0, 0, 1, 1);
-        const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data;
-        // Only use sampled color if pixel is not transparent
-        if (a > 30) {
-          circleEl.style.background = `rgb(${r},${g},${b})`;
-        }
-      } catch(e) { /* cross-origin or canvas blocked, keep hex fallback */ }
-    };
-    img.src = c.image_url;
-  });
+  // Colors are set via getMazdaColorHex lookup in the swatch HTML
+  // Nothing extra needed here
 }
 
 // ─────────────────────────────────────────────
