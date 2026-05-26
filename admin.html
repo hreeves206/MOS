@@ -89,6 +89,13 @@ hr{border:none;border-top:1px solid rgba(255,255,255,.07);margin:24px 0;}
 .vehicle-row:last-child{border-bottom:none;}
 .vehicle-name{font-size:14px;}
 .vehicle-year{font-size:12px;color:var(--p5);}
+.year-group{margin-bottom:8px;}
+.year-group-header{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--p2);border-radius:8px;cursor:pointer;user-select:none;transition:background .2s;}
+.year-group-header:hover{background:var(--p3);}
+.year-group-label{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--white);}
+.year-group-count{font-size:11px;color:var(--p5);letter-spacing:1px;text-transform:uppercase;flex:1;}
+.year-group-arrow{color:var(--p5);font-size:12px;}
+.year-group-body{padding:0 8px;}
 .trim-sort-row{padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05);}
 .trim-sort-row:last-child{border-bottom:none;}
 .trim-order-btn{background:none;border:1px solid var(--p4);border-radius:3px;color:var(--p5);font-size:10px;padding:2px 5px;cursor:pointer;transition:all .2s;line-height:1;}
@@ -257,12 +264,7 @@ hr{border:none;border-top:1px solid rgba(255,255,255,.07);margin:24px 0;}
       <div class="page-sub">Upload a PDF window sticker — Claude extracts the data automatically.</div>
 
       <div id="uploadArea">
-        <div class="upload-zone card" id="uploadZone">
-          <input type="file" id="fileInput" accept=".pdf" style="display:none;">
-          <div class="upload-icon">📄</div>
-          <h3>Drop Window Sticker PDF</h3>
-          <p>Click to browse or drag &amp; drop · PDF files only</p>
-        </div>
+<!-- upload zone built dynamically by buildUploadZone() -->
       </div>
 
       <div class="status-bar" id="statusBar">
@@ -774,37 +776,40 @@ function goToImages(modelId){
   loadModelImages();
 }
 function resetUpload(){
-  // Hide review panel and status
   document.getElementById('reviewPanel').style.display='none';
   document.getElementById('statusBar').classList.remove('show');
   document.getElementById('publishBanner').style.display='none';
-  // Reset radio to "new vehicle"
   const newRadio = document.querySelector('input[name="modelTarget"][value="new"]');
   if(newRadio){ newRadio.checked=true; toggleModelTarget('new'); }
-  // Clear trim and color lists
   document.getElementById('trimsList').innerHTML='';
   document.getElementById('colorsList').innerHTML='';
   document.getElementById('r_name').value='';
   document.getElementById('r_year').value='';
   document.getElementById('r_slug').value='';
-  // Rebuild upload zone completely — new DOM element means no browser file state
+  buildUploadZone();
+}
+
+function buildUploadZone(){
   const area = document.getElementById('uploadArea');
   area.style.display='block';
   area.innerHTML='';
+  // Use a hidden form so reset() fully clears browser file state
+  const form = document.createElement('form');
+  form.style.cssText='display:contents;';
   const zone = document.createElement('div');
   zone.className='upload-zone card';
   zone.id='uploadZone';
   zone.innerHTML='<div class="upload-icon">📄</div><h3>Drop Window Sticker PDF</h3><p>Click to browse or drag &amp; drop · PDF files only</p>';
   const input = document.createElement('input');
   input.type='file'; input.id='fileInput'; input.accept='.pdf'; input.style.display='none';
-  zone.appendChild(input);
+  form.appendChild(input);
+  zone.appendChild(form);
   area.appendChild(zone);
-  // Wire events
-  zone.onclick = () => input.click();
-  input.onchange = () => { if(input.files[0]) handlePDF(input.files[0]); };
-  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
-  zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
-  zone.addEventListener('drop', e => {
+  zone.onclick = (e) => { if(e.target===zone||zone.contains(e.target)) input.click(); };
+  input.addEventListener('change', function(){ if(this.files&&this.files[0]) handlePDF(this.files[0]); });
+  zone.addEventListener('dragover', e=>{e.preventDefault();zone.classList.add('drag');});
+  zone.addEventListener('dragleave', ()=>zone.classList.remove('drag'));
+  zone.addEventListener('drop', e=>{
     e.preventDefault(); zone.classList.remove('drag');
     if(e.dataTransfer.files[0]) handlePDF(e.dataTransfer.files[0]);
   });
@@ -833,9 +838,13 @@ async function loadTrimList(modelId){
           <button class="trim-order-btn" onclick="moveTrim('${modelId}','${t.id}','up')" ${i===0?'disabled':''}>▲</button>
           <button class="trim-order-btn" onclick="moveTrim('${modelId}','${t.id}','down')" ${i===trims.length-1?'disabled':''}>▼</button>
         </div>
+        <div style="flex:0 0 56px;text-align:center;background:var(--p3);border-radius:6px;padding:6px 4px;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;line-height:1;color:var(--white);">${t.level}</div>
+          <div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--p5);">Level</div>
+        </div>
         <div style="flex:1;">
-          <div style="font-size:13px;color:var(--white);">${esc(t.name)}</div>
-          <div style="font-size:11px;color:var(--p5);">Level ${t.level} · ${t.mpg_city||'—'} city / ${t.mpg_hwy||'—'} hwy · ${t.horsepower||'—'} HP</div>
+          <div style="font-size:14px;font-weight:500;color:var(--white);">${esc(t.name)}</div>
+          <div style="font-size:11px;color:var(--p5);margin-top:2px;">${t.mpg_city||'—'} city / ${t.mpg_hwy||'—'} hwy MPG · ${t.horsepower||'—'} HP</div>
         </div>
         <div style="display:flex;gap:6px;">
           <button class="btn btn-outline btn-sm" onclick="openTrimModal(${JSON.stringify(t).replace(/"/g,'&quot;')})">Edit</button>
@@ -870,31 +879,60 @@ async function deleteTrim(trimId, trimName, modelId){
   loadVehicles();
 }
 
+function modelRowHtml(m){
+  return `
+  <div class="vehicle-row" style="flex-direction:column;align-items:stretch;">
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+      <div style="flex:1;"><div class="vehicle-name">${esc(m.name)}</div></div>
+      <span class="badge ${m.published?'badge-green':'badge-grey'}">${m.published?'Published':'Draft'}</span>
+      <div class="vehicle-actions">
+        <button class="btn btn-outline btn-sm" data-id="${m.id}" data-pub="${m.published}" onclick="togglePublish(this.dataset.id,this.dataset.pub==='true')">${m.published?'Unpublish':'Publish'}</button>
+        <button class="btn btn-outline btn-sm" data-id="${m.id}" onclick="toggleTrimList(this.dataset.id)">Trims ▾</button>
+        <button class="btn btn-outline btn-sm" data-id="${m.id}" onclick="goToImages(this.dataset.id)">Images</button>
+        <button class="btn btn-outline btn-sm" style="color:var(--red);" data-id="${m.id}" data-name="${esc(m.name)}" onclick="deleteVehicle(this.dataset.id,this.dataset.name)">Delete</button>
+      </div>
+    </div>
+    <div class="trim-list-panel" id="trims-${m.id}" style="display:none;margin-top:12px;padding:12px;background:var(--p2);border-radius:8px;">
+      <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--p5);margin-bottom:10px;">Trims — use arrows to reorder. Level order matters for the customer site.</div>
+      <div class="trim-sort-list" id="trim-sort-${m.id}"></div>
+    </div>
+  </div>`;
+}
+
 async function loadVehicles(){
   try{
     const models=await sb('models?select=*&order=sort_order.asc');
     const list=document.getElementById('vehiclesList');
     if(!models.length){list.innerHTML='<div style="color:var(--p5);">No vehicles yet.</div>';return;}
-    list.innerHTML = models.map(m=>{
-      return `
-      <div class="vehicle-row" style="flex-direction:column;align-items:stretch;">
-        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
-          <div style="flex:1;"><div class="vehicle-name">${esc(m.name)}</div><div class="vehicle-year">${m.year||''}</div></div>
-          <span class="badge ${m.published?'badge-green':'badge-grey'}">${m.published?'Published':'Draft'}</span>
-          <div class="vehicle-actions">
-            <button class="btn btn-outline btn-sm" data-id="${m.id}" data-pub="${m.published}" onclick="togglePublish(this.dataset.id,this.dataset.pub==='true')">${m.published?'Unpublish':'Publish'}</button>
-            <button class="btn btn-outline btn-sm" data-id="${m.id}" onclick="toggleTrimList(this.dataset.id)">Trims ▾</button>
-            <button class="btn btn-outline btn-sm" data-id="${m.id}" onclick="goToImages(this.dataset.id)">Images</button>
-            <button class="btn btn-outline btn-sm" style="color:var(--red);" data-id="${m.id}" data-name="${esc(m.name)}" onclick="deleteVehicle(this.dataset.id,this.dataset.name)">Delete</button>
-          </div>
+
+    // Group by year
+    const byYear={};
+    models.forEach(m=>{
+      const y=m.year||'Unknown Year';
+      (byYear[y]=byYear[y]||[]).push(m);
+    });
+    const years=Object.keys(byYear).sort((a,b)=>b.localeCompare(a));
+
+    list.innerHTML=years.map(year=>`
+      <div class="year-group">
+        <div class="year-group-header" onclick="toggleYearGroup('yg-${year}',this)">
+          <span class="year-group-label">${year}</span>
+          <span class="year-group-count">${byYear[year].length} model${byYear[year].length!==1?'s':''}</span>
+          <span class="year-group-arrow">▾</span>
         </div>
-        <div class="trim-list-panel" id="trims-${m.id}" style="display:none;margin-top:12px;padding:12px;background:var(--p2);border-radius:8px;">
-          <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--p5);margin-bottom:10px;">Trims — use arrows to reorder. Order matters for the comparison table.</div>
-          <div class="trim-sort-list" id="trim-sort-${m.id}"></div>
+        <div class="year-group-body" id="yg-${year}">
+          ${byYear[year].map(m=>modelRowHtml(m)).join('')}
         </div>
-      </div>`;
-    }).join('');
+      </div>`).join('');
   }catch(e){toast('Failed to load: '+e.message,'error');}
+}
+
+function toggleYearGroup(id, header){
+  const body=document.getElementById(id);
+  const arrow=header.querySelector('.year-group-arrow');
+  const open=body.style.display!=='none';
+  body.style.display=open?'none':'block';
+  arrow.textContent=open?'▸':'▾';
 }
 async function togglePublish(id,current){
   await sb('models?id=eq.'+id,'PATCH',{published:!current});
@@ -1105,21 +1143,8 @@ function toast(msg,type='info'){
   clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.className='',3500);
 }
 
-// ── DRAG DROP — wired via resetUpload on init ──
-// Wire initial upload zone (same logic as resetUpload)
-(function initUploadZone(){
-  const zone = document.getElementById('uploadZone');
-  const input = document.getElementById('fileInput');
-  if(!zone||!input) return;
-  zone.onclick = () => input.click();
-  input.onchange = () => { if(input.files[0]) handlePDF(input.files[0]); };
-  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
-  zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
-  zone.addEventListener('drop', e => {
-    e.preventDefault(); zone.classList.remove('drag');
-    if(e.dataTransfer.files[0]) handlePDF(e.dataTransfer.files[0]);
-  });
-})();
+// ── INIT UPLOAD ZONE ──
+buildUploadZone();
 </script>
 </body>
 </html>
