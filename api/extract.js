@@ -58,16 +58,33 @@ export default async function handler(req, res) {
   "colors": []
 }
 
-Rules:
-- "level" is an integer representing this trim's position in the lineup for THIS model only. Use 1 for the base/entry trim, 2 for the next step up, 3 for the next, and so on. Do not assume level based on name alone — read the sticker carefully to determine where this trim sits.
-- "horsepower" and "towing_capacity" are integers only. towing_capacity in lbs (e.g. 1500 not "1,500 lbs").
-- "mpg_city" and "mpg_hwy" are integers.
-- "year" is a string.
-- "features" must contain ONLY the standard features listed on THIS sticker for THIS specific trim. Do NOT add features from other trim levels. Do NOT add features you assume the vehicle has. Only what is explicitly listed on this sticker.
-- Extract ALL features listed. Do not omit any. Categorize each as: Safety & Security, Interior, Exterior, or Engine & Mechanical.
-- "packages" must contain ALL optional packages listed under the "Packages:" section of the sticker. Each package has a name and its listed features. Extract all of them exactly as listed.
-- "colors" should always be an empty array — colors are managed separately.
-- If a field is unknown, use null for numbers and empty string for text.`
+RULES:
+
+1. LEVEL: Integer representing this trim's position in the lineup for THIS model only. 1 = base/entry trim, 2 = next step up, etc. Read the sticker carefully.
+
+2. NUMBERS: horsepower and towing_capacity are integers only. towing_capacity in lbs as integer (e.g. 1500). mpg_city and mpg_hwy are integers. year is a string.
+
+3. FEATURES: Extract ONLY the standard features listed on THIS sticker for THIS specific trim. Do NOT add features from other trim levels. Categorize each as: Safety & Security, Interior, Exterior, or Engine & Mechanical.
+
+4. NORMALIZE FEATURE WORDING — always use these exact standard terms regardless of how the sticker words it:
+   - Seat materials: use exactly "Cloth Seats", "Leatherette Seats", "Leather-Trimmed Seats", or "Full Leather Seats"
+   - Heated seats: use exactly "Heated Front Seats", "Heated Rear Seats"
+   - Ventilated seats: use exactly "Ventilated Front Seats"
+   - Memory seat: use exactly "Driver Seat Memory"
+   - Power seats: use exactly "Power Driver Seat" or "Power Passenger Seat"
+   - Wheels: use exactly "17-Inch Alloy Wheels", "18-Inch Alloy Wheels", or "19-Inch Alloy Wheels"
+   - Audio: use exactly "Bose Audio System" if Bose is mentioned
+   - Moonroof: use exactly "Power Panoramic Moonroof" or "Power Moonroof"
+   - Liftgate: use exactly "Power Rear Liftgate"
+   - Wireless charging: use exactly "Wireless Phone Charger"
+   - Heated steering: use exactly "Heated Steering Wheel"
+   - All other features: use clean plain English, title case
+
+5. PACKAGES: Extract ALL optional packages listed under a "Packages:" section. Each has a name and listed features. If NO packages section exists on this sticker, create one package called "[Trim Name] Highlights" and populate it with the 6 most impressive customer-facing standard features from this trim — things that would make a customer say "wow, this comes standard." Choose features like wireless Apple CarPlay, Bose audio, heated seats, moonroof, parking sensors, advanced safety tech — not basic things like power windows or seatbelts.
+
+6. colors should always be an empty array.
+
+7. If a field is unknown use null for numbers and empty string for text.`
         }]
       })
     });
