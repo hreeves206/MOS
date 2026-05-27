@@ -570,6 +570,7 @@ function showPage(name,el){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
   if(el) el.classList.add('active');
+  if(name==='template') loadTemplateRows();
 }
 
 // ── PDF ──
@@ -1227,13 +1228,6 @@ async function moveTemplateRow(id, direction){
   await sb('comparison_template?id=eq.'+rows[idx].id,'PATCH',{sort_order:b});
   await sb('comparison_template?id=eq.'+rows[swapIdx].id,'PATCH',{sort_order:a});
   loadTemplateRows();
-}
-
-// Load template when page shown
-const origShowPage = showPage;
-function showPage(name, el){
-  origShowPage(name, el);
-  if(name==='template') loadTemplateRows();
 }
 
 // ── TOAST ──
