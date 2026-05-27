@@ -215,16 +215,7 @@ function cleanHp(v){if(!v) return null;const n=parseInt(String(v).replace(/[^0-9
 function cleanTowing(v){if(!v) return null;const n=parseInt(String(v).replace(/[^0-9]/g,''));return isNaN(n)?null:n;}
 function normFeat(s){return String(s||'').toLowerCase().replace(/[^a-z0-9]/g,' ').replace(/\s+/g,' ').trim();}
 
-// ── NOISE BLOCKLIST for comparison ──
-const COMPARE_BLOCKLIST = [
-  'airbag','air bag','safety belt','abs ','ebd','brake assist','stability control',
-  'traction control','tire pressure','tpms','immobilizer','anti theft','child safety',
-  'usb','bluetooth','apple carplay','android auto','am/fm','am fm',
-  'push button','keyless entry','power window','power lock','cruise control',
-  'rearview camera','backup camera','rear view camera','roadside assistance',
-  'warranty','passenger seating','seat belt','horn','daytime running',
-];
-function isNoise(feat){const f=normFeat(feat);return COMPARE_BLOCKLIST.some(b=>f.includes(b));}
+
 
 // ── LOAD ──
 async function loadModel(){
@@ -429,55 +420,73 @@ function toggleFeats(id,btn){
   btn.textContent=expanded?`Show ${count} more ▾`:'Show less ▴';
 }
 
-// ── COMPARISON — built from database, no Claude needed ──
+// ── COMPARISON — rendered async using template + Claude API ──
 function buildCompare(trims, featuresByTrim){
-  // Gather all unique normalized features and which trims have them
-  const featMap={}; // normKey -> {text, trimIds: Set}
-  trims.forEach(t=>{
-    (featuresByTrim[t.id]||[]).forEach(f=>{
-      const key=normFeat(f.feature_text);
-      if(!featMap[key]) featMap[key]={text:f.feature_text,trimIds:new Set()};
-      featMap[key].trimIds.add(t.id);
-    });
-  });
-
-  // Keep only features that: differ between trims AND are not noise
-  const differentiators=Object.values(featMap)
-    .filter(f=>f.trimIds.size<trims.length && !isNoise(f.text))
-    .sort((a,b)=>b.trimIds.size-a.trimIds.size)
-    .slice(0,16);
-
-  if(!differentiators.length) return '';
-
-  return `<div class="compare-section">
+  // Return a placeholder div; fill it async
+  setTimeout(()=>loadComparisonTable(trims, featuresByTrim), 0);
+  return `<div class="compare-section" id="compare-section">
     <p class="section-label" style="margin-bottom:20px;">Trim Comparison</p>
-    <div class="compare-wrap">
-      <div class="compare-specs-row">
-        <div class="compare-spec-label"></div>
-        ${trims.map(t=>`<div class="compare-trim-name">${toTitleCase(t.name)}</div>`).join('')}
-      </div>
-      ${[
-        {label:'MPG City',vals:trims.map(t=>t.mpg_city||'—')},
-        {label:'MPG Hwy',vals:trims.map(t=>t.mpg_hwy||'—')},
-        {label:'Horsepower',vals:trims.map(t=>cleanHp(t.horsepower)||'—')},
-        {label:'Towing',vals:trims.map(t=>{const v=cleanTowing(t.towing_capacity);return v?v.toLocaleString()+' lbs':'—';})},
-        {label:'Drivetrain',vals:trims.map(t=>toTitleCase(t.drivetrain||'—'))},
-      ].map(row=>`
-        <div class="compare-specs-row">
-          <div class="compare-spec-label">${row.label}</div>
-          ${row.vals.map(v=>`<div class="compare-spec-val">${v}</div>`).join('')}
-        </div>`).join('')}
-      <div class="compare-specs-row compare-diff-header">
-        <div class="compare-spec-label">What You Get</div>
-        ${trims.map(t=>`<div class="compare-trim-name">${toTitleCase(t.name)}</div>`).join('')}
-      </div>
-      ${differentiators.map(f=>`
-        <div class="compare-specs-row">
-          <div class="compare-spec-label">${toTitleCase(f.text)}</div>
-          ${trims.map(t=>`<div class="compare-spec-val">${f.trimIds.has(t.id)?'<span class="check">✓</span>':'<span class="dash">—</span>'}</div>`).join('')}
-        </div>`).join('')}
+    <div id="compare-table-wrap">
+      ${buildSpecsTable(trims)}
+      <div style="padding:20px;color:var(--p5);font-size:13px;text-align:center;">Loading feature comparison…</div>
     </div>
   </div>`;
+}
+
+function buildSpecsTable(trims){
+  return `<div class="compare-wrap" style="margin-bottom:16px;">
+    <div class="compare-specs-row">
+      <div class="compare-spec-label"></div>
+      ${trims.map(t=>`<div class="compare-trim-name">${toTitleCase(t.name)}</div>`).join('')}
+    </div>
+    ${[
+      {label:'MPG City',vals:trims.map(t=>t.mpg_city||'—')},
+      {label:'MPG Hwy',vals:trims.map(t=>t.mpg_hwy||'—')},
+      {label:'Horsepower',vals:trims.map(t=>cleanHp(t.horsepower)||'—')},
+      {label:'Towing',vals:trims.map(t=>{const v=cleanTowing(t.towing_capacity);return v?v.toLocaleString()+' lbs':'—';})},
+      {label:'Drivetrain',vals:trims.map(t=>toTitleCase(t.drivetrain||'—'))},
+    ].map(row=>`
+      <div class="compare-specs-row">
+        <div class="compare-spec-label">${row.label}</div>
+        ${row.vals.map(v=>`<div class="compare-spec-val">${v}</div>`).join('')}
+      </div>`).join('')}
+  </div>`;
+}
+
+async function loadComparisonTable(trims, featuresByTrim){
+  const wrap = document.getElementById('compare-table-wrap');
+  if(!wrap) return;
+  try{
+    const trimData = trims.map(t=>({
+      name: t.name,
+      features: (featuresByTrim[t.id]||[]).map(f=>f.feature_text)
+    }));
+    const r = await fetch('/api/compare',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({trims:trimData})
+    });
+    if(!r.ok) throw new Error('API error');
+    const compData = await r.json();
+    if(!compData||!compData.length){
+      wrap.innerHTML = buildSpecsTable(trims)+'<div style="padding:20px;color:var(--p5);font-size:13px;text-align:center;">No differentiating features found.</div>';
+      return;
+    }
+    wrap.innerHTML = buildSpecsTable(trims) + `
+      <div class="compare-wrap">
+        <div class="compare-specs-row compare-diff-header">
+          <div class="compare-spec-label">What You Get</div>
+          ${trims.map(t=>`<div class="compare-trim-name">${toTitleCase(t.name)}</div>`).join('')}
+        </div>
+        ${compData.map(row=>`
+          <div class="compare-specs-row">
+            <div class="compare-spec-label">${toTitleCase(row.feature)}</div>
+            ${trims.map((t,idx)=>`<div class="compare-spec-val">${(row.levels||[]).includes(idx+1)?'<span class="check">✓</span>':'<span class="dash">—</span>'}</div>`).join('')}
+          </div>`).join('')}
+      </div>`;
+  }catch(e){
+    wrap.innerHTML = buildSpecsTable(trims)+'<div style="padding:20px;color:var(--p5);font-size:13px;text-align:center;">Comparison unavailable.</div>';
+  }
 }
 
 // ── COLOR INTERACTIONS ──
