@@ -249,6 +249,7 @@ hr{border:none;border-top:1px solid rgba(255,255,255,.07);margin:24px 0;}
     <div class="nav-item" data-page="vehicles" onclick="showPage('vehicles',this)">Vehicles</div>
     <div class="nav-item" data-page="images" onclick="showPage('images',this)">Manage Images</div>
     <div class="nav-item" data-page="users" id="navUsers" onclick="showPage('users',this)" style="display:none;">Users</div>
+    <div class="nav-item" data-page="template" onclick="showPage('template',this)">Comparison Template</div>
     <div class="nav-item" data-page="howto" onclick="showPage('howto',this)">How It Works</div>
     <div class="sidebar-bottom">
       <div style="font-size:11px;color:var(--p5);margin-bottom:12px;" id="currentUserLabel"></div>
@@ -413,6 +414,29 @@ hr{border:none;border-top:1px solid rgba(255,255,255,.07);margin:24px 0;}
       <div class="card" style="max-width:520px;margin-top:20px;">
         <div class="card-title">All Users</div>
         <div id="usersList"><div style="color:var(--p5);">Loading…</div></div>
+      </div>
+    </div>
+
+    <!-- COMPARISON TEMPLATE -->
+    <div class="page" id="page-template">
+      <div class="page-title">Comparison Template</div>
+      <div class="page-sub">These are the rows that appear in every model's trim comparison table on the customer site. Add, remove, or reorder them here — changes apply to all models automatically.</div>
+      <div class="card" style="max-width:680px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+          <div class="card-title" style="margin-bottom:0;">Template Rows</div>
+          <button class="btn btn-red btn-sm" onclick="showAddTemplateRow()">+ Add Row</button>
+        </div>
+        <div id="addTemplateForm" style="display:none;background:var(--p2);border-radius:8px;padding:16px;margin-bottom:16px;">
+          <div class="grid2" style="margin-bottom:10px;">
+            <div class="field" style="margin-bottom:0;"><label>Feature Label</label><input type="text" id="newTplLabel" placeholder="e.g. Heated Rear Seats"></div>
+            <div class="field" style="margin-bottom:0;"><label>Search Terms (comma separated)</label><input type="text" id="newTplTerms" placeholder="e.g. heated rear seat, rear seat heat"></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px;">
+            <button class="btn btn-red btn-sm" onclick="addTemplateRow()">Add</button>
+            <button class="btn btn-outline btn-sm" onclick="document.getElementById('addTemplateForm').style.display='none'">Cancel</button>
+          </div>
+        </div>
+        <div id="templateList"><div style="color:var(--p5);font-size:13px;">Loading…</div></div>
       </div>
     </div>
 
@@ -1133,6 +1157,83 @@ async function removeUser(id,username){
   if(!confirm('Remove @'+username+'? They will no longer be able to log in.')) return;
   await sb('admin_users?id=eq.'+id,'DELETE');
   toast('Removed @'+username,'success'); loadUsers();
+}
+
+// ── COMPARISON TEMPLATE ──
+async function loadTemplateRows(){
+  try{
+    const rows = await sb('comparison_template?order=sort_order.asc&select=*');
+    const list = document.getElementById('templateList');
+    if(!rows||!rows.length){list.innerHTML='<div style="color:var(--p5);font-size:13px;">No template rows yet.</div>';return;}
+    list.innerHTML = rows.map((r,i)=>`
+      <div class="trim-sort-row" style="display:flex;align-items:center;gap:10px;">
+        <div style="display:flex;flex-direction:column;gap:2px;">
+          <button class="trim-order-btn" onclick="moveTemplateRow('${r.id}','up')" ${i===0?'disabled':''}>▲</button>
+          <button class="trim-order-btn" onclick="moveTemplateRow('${r.id}','down')" ${i===rows.length-1?'disabled':''}>▼</button>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:13px;color:var(--white);">${esc(r.feature_label)}</div>
+          <div style="font-size:11px;color:var(--p5);margin-top:2px;">${r.search_terms.join(', ')}</div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;text-transform:none;font-size:12px;color:var(--p6);letter-spacing:0;">
+            <input type="checkbox" ${r.active?'checked':''} onchange="toggleTemplateRow('${r.id}',this.checked)" style="width:auto;background:none;border:none;padding:0;"> Active
+          </label>
+          <button class="btn btn-outline btn-sm" style="color:var(--red);" onclick="deleteTemplateRow('${r.id}','${esc(r.feature_label)}')">✕</button>
+        </div>
+      </div>`).join('');
+  }catch(e){toast('Failed to load template: '+e.message,'error');}
+}
+
+function showAddTemplateRow(){
+  document.getElementById('addTemplateForm').style.display='block';
+  document.getElementById('newTplLabel').focus();
+}
+
+async function addTemplateRow(){
+  const label = document.getElementById('newTplLabel').value.trim();
+  const terms = document.getElementById('newTplTerms').value.split(',').map(s=>s.trim()).filter(Boolean);
+  if(!label){toast('Feature label is required','error');return;}
+  if(!terms.length){toast('At least one search term is required','error');return;}
+  const rows = await sb('comparison_template?select=sort_order&order=sort_order.desc&limit=1');
+  const maxOrder = rows&&rows.length ? (rows[0].sort_order||0)+1 : 1;
+  await sb('comparison_template','POST',{feature_label:label,search_terms:terms,sort_order:maxOrder,active:true});
+  document.getElementById('newTplLabel').value='';
+  document.getElementById('newTplTerms').value='';
+  document.getElementById('addTemplateForm').style.display='none';
+  toast(label+' added','success');
+  loadTemplateRows();
+}
+
+async function deleteTemplateRow(id, label){
+  if(!confirm('Remove "'+label+'" from the comparison template?')) return;
+  await sb('comparison_template?id=eq.'+id,'DELETE');
+  toast('Removed','success');
+  loadTemplateRows();
+}
+
+async function toggleTemplateRow(id, active){
+  await sb('comparison_template?id=eq.'+id,'PATCH',{active});
+  toast(active?'Row activated':'Row hidden','success');
+}
+
+async function moveTemplateRow(id, direction){
+  const rows = await sb('comparison_template?select=id,sort_order&order=sort_order.asc');
+  const idx = rows.findIndex(r=>r.id===id);
+  if(idx===-1) return;
+  const swapIdx = direction==='up'?idx-1:idx+1;
+  if(swapIdx<0||swapIdx>=rows.length) return;
+  const a=rows[idx].sort_order, b=rows[swapIdx].sort_order;
+  await sb('comparison_template?id=eq.'+rows[idx].id,'PATCH',{sort_order:b});
+  await sb('comparison_template?id=eq.'+rows[swapIdx].id,'PATCH',{sort_order:a});
+  loadTemplateRows();
+}
+
+// Load template when page shown
+const origShowPage = showPage;
+function showPage(name, el){
+  origShowPage(name, el);
+  if(name==='template') loadTemplateRows();
 }
 
 // ── TOAST ──
