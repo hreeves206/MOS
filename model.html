@@ -131,6 +131,10 @@ body{
 .compare-diff-header .compare-trim-name{background:var(--p3);font-size:13px;font-family:'Inter',sans-serif;color:var(--p6);}
 .check{color:#4ade80;font-size:16px;}
 .dash{color:var(--p4);}
+/* Sticky trim name header in comparison table */
+.compare-sticky-header{position:sticky;top:126px;z-index:10;background:var(--p2);}
+.compare-sticky-header .compare-spec-label{background:var(--p2);}
+.compare-sticky-header .compare-trim-name{background:var(--p2);}
 
 /* FOOTER */
 .site-footer{border-top:1px solid rgba(255,255,255,.05);padding:48px;text-align:center;color:var(--p5);font-size:12px;}
@@ -435,7 +439,7 @@ function buildCompare(trims, featuresByTrim){
 
 function buildSpecsTable(trims){
   return `<div class="compare-wrap" style="margin-bottom:16px;">
-    <div class="compare-specs-row">
+    <div class="compare-specs-row compare-sticky-header">
       <div class="compare-spec-label"></div>
       ${trims.map(t=>`<div class="compare-trim-name">${toTitleCase(t.name)}</div>`).join('')}
     </div>
@@ -474,7 +478,7 @@ async function loadComparisonTable(trims, featuresByTrim){
     }
     wrap.innerHTML = buildSpecsTable(trims) + `
       <div class="compare-wrap">
-        <div class="compare-specs-row compare-diff-header">
+        <div class="compare-specs-row compare-diff-header compare-sticky-header" style="top:172px;">
           <div class="compare-spec-label">What You Get</div>
           ${trims.map(t=>`<div class="compare-trim-name">${toTitleCase(t.name)}</div>`).join('')}
         </div>
