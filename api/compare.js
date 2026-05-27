@@ -2,6 +2,9 @@ export const config = {
   api: { bodyParser: { sizeLimit: '1mb' } }
 };
 
+const SUPABASE_URL  = 'https://dvznpeelgyebzdublamt.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2em5wZWVsZ3llYnpkdWJsYW10Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwMjEyMjIsImV4cCI6MjA5MzU5NzIyMn0.x4AXUr4PcGkxZUR19T0FhNth1Lo8PsIaeUJxLQiqK9o';
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -10,9 +13,19 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const { modelName, trims } = req.body;
-    if (!modelName || !trims || !trims.length) {
-      return res.status(400).json({ error: 'modelName and trims are required' });
+    const { trims } = req.body;
+    if (!trims || !trims.length) {
+      return res.status(400).json({ error: 'trims are required' });
+    }
+
+    // Load active template rows from Supabase
+    const templateRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/comparison_template?active=eq.true&order=sort_order.asc&select=*`,
+      { headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${SUPABASE_ANON}` } }
+    );
+    const template = await templateRes.json();
+    if (!template || !template.length) {
+      return res.status(400).json({ error: 'No template rows found' });
     }
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -24,43 +37,29 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 2000,
+        max_tokens: 3000,
         messages: [{
           role: 'user',
-          content: `You are analyzing Mazda ${modelName} trim levels to create a customer-facing comparison table for a dealership website.
+          content: `You are checking which Mazda trim levels include specific features for a dealership comparison table.
 
-Here are the trim levels sorted from lowest to highest, each assigned a level number:
-${trims.map((t, i) => `Level ${i + 1}: ${t.name}\nFeatures: ${t.features.join(', ')}`).join('\n\n')}
+TRIM LEVELS AND THEIR FEATURES:
+${trims.map((t, i) => `Trim ${i + 1}: ${t.name}\nFeatures: ${t.features.join(' | ')}`).join('\n\n')}
 
-Return ONLY a valid JSON array with NO markdown, NO backticks, NO explanation.
+TEMPLATE ROWS TO CHECK:
+${template.map((row, i) => `${i + 1}. "${row.feature_label}" — look for any of: ${row.search_terms.join(', ')}`).join('\n')}
 
-The array should contain 10-16 rows showing the most meaningful differences between trim levels that car buyers actually care about.
+For each template row, check which trim NUMBERS (1, 2, 3...) include that feature based on their feature list above.
+Only mark a trim as having a feature if it is explicitly listed in that trim's features. Do not assume.
 
-EXCLUDE these — they are standard on all Mazdas and not useful for comparison:
-- Basic safety: airbags, safety belts, ABS, stability control, traction control, tire pressure monitoring
-- Standard connectivity: Bluetooth, USB ports, AM/FM radio, Apple CarPlay, Android Auto
-- Basic convenience: push button start, keyless entry, power windows, power locks
-- Warranty items and legal disclosures
-
-INCLUDE features that genuinely differ and help buyers decide which trim to choose:
-- Seat materials and comfort (cloth vs leatherette vs leather, heated, ventilated, memory, power adjustment)
-- Audio system upgrades (Bose, premium speakers, SiriusXM)
-- Sunroof / moonroof
-- Wheel size and type upgrades
-- Advanced driver assistance (parking sensors, adaptive cruise, traffic sign recognition, blind spot, rear cross traffic)
-- Power liftgate, heated steering wheel, heated rear seats
-- Display size upgrades, heads-up display
-- Special exterior features (roof rails, exhaust finish, lighting upgrades)
-
-Return format — use level NUMBERS not trim names to avoid matching errors:
+Return ONLY a valid JSON array, NO markdown, NO backticks:
 [
   {
-    "feature": "Feature name in plain customer-friendly language",
-    "levels": [1, 2, 3]
+    "feature": "exact feature_label text",
+    "levels": [1, 3]
   }
 ]
 
-"levels" is an array of level numbers (1, 2, 3, etc.) that HAVE this feature. Only include levels that actually have the feature based on the feature lists provided. Be accurate.`
+Only include rows where at least one trim has the feature AND at least one trim does NOT (rows that actually differentiate trims). Skip rows where all trims have it or no trims have it.`
         }]
       })
     });
