@@ -25,32 +25,38 @@ export default async function handler(req, res) {
         max_tokens: 4000,
         messages: [{
           role: 'user',
-          content: `You are extracting data from a Mazda window sticker. Here is the text:\n\n${pdfText}\n\nReturn ONLY a valid JSON object with NO markdown, NO backticks, NO explanation. Use exactly this structure:
+          content: `You are extracting data from a Mazda window sticker. Return ONLY valid JSON, NO markdown, NO backticks.
 
+Here is the sticker text:
+
+${pdfText}
+
+Return this exact structure:
 {
-  "name": "e.g. CX-50 Hybrid",
+  "name": "model name e.g. CX-5",
   "year": "e.g. 2026",
   "trims": [
     {
-      "name": "e.g. 2.5 Hybrid Preferred",
+      "name": "trim name e.g. 2.5 S Select AWD",
       "level": 1,
-      "engine": "e.g. 2.5L 4-Cylinder Hybrid Engine",
-      "horsepower": 219,
-      "transmission": "e.g. e-CVT",
-      "drivetrain": "e.g. Electric All-Wheel Drive",
-      "mpg_city": 39,
-      "mpg_hwy": 37,
-      "towing_capacity": 1500,
+      "engine": "engine description",
+      "horsepower": 187,
+      "transmission": "e.g. 6-Speed Automatic",
+      "drivetrain": "e.g. AWD",
+      "mpg_city": 26,
+      "mpg_hwy": 31,
+      "towing_capacity": 2000,
       "features": [
-        { "category": "Safety & Security", "text": "feature name" },
-        { "category": "Interior", "text": "feature name" },
-        { "category": "Exterior", "text": "feature name" },
-        { "category": "Engine & Mechanical", "text": "feature name" }
+        {
+          "category": "Safety & Security",
+          "text": "exact feature text in Title Case",
+          "code": "feature_code or null"
+        }
       ],
       "packages": [
         {
-          "name": "e.g. Preferred Package",
-          "features": ["Feature 1", "Feature 2", "Feature 3"]
+          "name": "Package name",
+          "features": ["Feature 1", "Feature 2"]
         }
       ]
     }
@@ -60,31 +66,72 @@ export default async function handler(req, res) {
 
 RULES:
 
-1. LEVEL: Integer representing this trim's position in the lineup for THIS model only. 1 = base/entry trim, 2 = next step up, etc. Read the sticker carefully.
+LEVEL: Integer. 1 = base/entry trim for this model, 2 = next step up, etc.
 
-2. NUMBERS: horsepower and towing_capacity are integers only. towing_capacity in lbs as integer (e.g. 1500). mpg_city and mpg_hwy are integers. year is a string.
+NUMBERS: horsepower and towing_capacity are integers. mpg_city and mpg_hwy are integers. year is a string.
 
-3. FEATURES: Extract ONLY the standard features listed on THIS sticker for THIS specific trim. Do NOT add features from other trim levels. Categorize each as: Safety & Security, Interior, Exterior, or Engine & Mechanical.
+FEATURES: Extract ALL standard features from this sticker. Categorize as: Safety & Security, Interior, Exterior, or Engine & Mechanical. Use clean Title Case text.
 
-4. NORMALIZE FEATURE WORDING — always use these exact standard terms regardless of how the sticker words it:
-   - Seat materials: use exactly "Cloth Seats", "Leatherette Seats", "Leather-Trimmed Seats", or "Full Leather Seats"
-   - Heated seats: use exactly "Heated Front Seats", "Heated Rear Seats"
-   - Ventilated seats: use exactly "Ventilated Front Seats"
-   - Memory seat: use exactly "Driver Seat Memory"
-   - Power seats: use exactly "Power Driver Seat" or "Power Passenger Seat"
-   - Wheels: use exactly "17-Inch Alloy Wheels", "18-Inch Alloy Wheels", or "19-Inch Alloy Wheels"
-   - Audio: use exactly "Bose Audio System" if Bose is mentioned
-   - Moonroof: use exactly "Power Panoramic Moonroof" or "Power Moonroof"
-   - Liftgate: use exactly "Power Rear Liftgate"
-   - Wireless charging: use exactly "Wireless Phone Charger"
-   - Heated steering: use exactly "Heated Steering Wheel"
-   - All other features: use clean plain English, title case
+FEATURE CODES: For each feature, assign a code from this list if it matches. Use null if no code applies.
 
-5. PACKAGES: Extract ALL optional packages listed under a "Packages:" section. Each has a name and listed features. If NO packages section exists on this sticker, create one package called "[Trim Name] Highlights" and populate it with the 6 most impressive customer-facing standard features from this trim — things that would make a customer say "wow, this comes standard." Choose features like wireless Apple CarPlay, Bose audio, heated seats, moonroof, parking sensors, advanced safety tech — not basic things like power windows or seatbelts.
+DRIVETRAIN CODES (assign based on drivetrain field):
+- "drivetrain_fwd" — if Front-Wheel Drive
+- "drivetrain_awd" — if All-Wheel Drive, AWD, i-ACTIV AWD, Electric AWD
 
-6. colors should always be an empty array.
+SEAT MATERIAL CODES (assign to the primary seat material feature):
+- "seat_material_cloth" — cloth, fabric seats
+- "seat_material_leatherette" — leatherette, synthetic leather, sport leatherette, half leatherette
+- "seat_material_leather" — leather-trimmed, genuine leather, full leather, nappa leather
 
-7. If a field is unknown use null for numbers and empty string for text.`
+SEAT COMFORT CODES:
+- "seats_heated_front" — heated front seats
+- "seats_heated_rear" — heated rear seats
+- "seats_ventilated_front" — ventilated front seats, cooled front seats
+- "seats_memory_driver" — driver seat memory, memory seat
+- "seats_power_driver" — power driver seat, 8-way power, 10-way power driver
+- "seats_power_passenger" — power passenger seat, 6-way power passenger
+
+STEERING & COMFORT CODES:
+- "steering_heated" — heated steering wheel
+- "moonroof_panoramic" — panoramic moonroof, power moonroof, sunroof
+- "charger_wireless" — wireless phone charger, wireless charging pad
+- "liftgate_power" — power rear liftgate, power liftgate
+- "mirrors_auto_folding" — auto power folding mirrors, power folding side mirrors
+
+AUDIO & TECH CODES:
+- "audio_bose" — Bose audio, Bose speakers
+- "audio_siriusxm" — SiriusXM, Sirius XM satellite radio
+- "display_active_driving" — active driving display, heads-up display, HUD
+- "cameras_360" — 360-degree camera, surround view camera, 360 view
+
+SAFETY CODES:
+- "safety_blind_spot" — blind spot monitoring, blind spot information
+- "safety_lane_keep" — lane keep assist, lane keeping assist
+- "safety_smart_brake" — smart brake support, automatic emergency braking
+- "safety_radar_cruise" — radar cruise control, adaptive cruise control with stop & go
+- "safety_parking_sensors_front_rear" — front & rear parking sensors, front and rear parking sensors
+- "safety_parking_sensors_rear" — rear parking sensors only (not front)
+
+EXTERIOR CODES:
+- "lighting_adaptive_front" — adaptive front lighting, AFS
+- "roof_rails" — roof rails, roof rack rails
+
+WHEEL SIZE CODES (auto-generate from wheel size on sticker):
+- Format: "wheels_NN" where NN is the wheel diameter in inches
+- Examples: "wheels_17" for 17-inch, "wheels_19" for 19-inch, "wheels_21" for 21-inch
+- Read the wheel size from tire/wheel specs on the sticker
+
+DISPLAY SIZE CODES (auto-generate from display size):
+- Format: "display_NN" where NN is screen size in inches (round to nearest whole number)
+- Examples: "display_8" for 8.8-inch screen, "display_10" for 10.25-inch screen, "display_12" for 12.3-inch screen
+
+ALSO ADD THE DRIVETRAIN CODE as a feature in the Engine & Mechanical category:
+- If AWD: add { "category": "Engine & Mechanical", "text": "All-Wheel Drive (AWD)", "code": "drivetrain_awd" }
+- If FWD: add { "category": "Engine & Mechanical", "text": "Front-Wheel Drive (FWD)", "code": "drivetrain_fwd" }
+
+PACKAGES: Extract all packages listed under "Packages:" section. If NO packages section exists, create one package called "[Trim Name] Highlights" with the 6 most impressive customer-facing features (e.g. wireless Apple CarPlay, Bose audio, heated seats, moonroof, parking sensors, advanced safety — NOT basic items like power windows or seatbelts).
+
+colors: always return empty array [].`
         }]
       })
     });
