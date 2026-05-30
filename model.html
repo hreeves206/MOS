@@ -228,7 +228,7 @@ async function loadModel(){
     sbFetch('models?select=*&published=eq.true&order=sort_order.asc'),
     sbFetch('trims?select=*&order=level.asc'),
     sbFetch('colors?select=*'),
-    sbFetch('features?select=*&order=sort_order.asc'),
+    sbFetch('features?select=id,trim_id,category,feature_text,feature_code,sort_order&order=sort_order.asc'),
     sbFetch('packages?select=*'),
   ]);
 
@@ -421,73 +421,105 @@ function toggleFeats(id,btn){
   btn.textContent=expanded?`Show ${count} more ▾`:'Show less ▴';
 }
 
-// ── COMPARISON — rendered async using template + Claude API ──
-function buildCompare(trims, featuresByTrim){
-  // Return a placeholder div; fill it async
-  setTimeout(()=>loadComparisonTable(trims, featuresByTrim), 0);
-  return `<div class="compare-section" id="compare-section">
-    <p class="section-label" style="margin-bottom:20px;">Trim Comparison</p>
-    <div id="compare-table-wrap">
-      ${buildSpecsTable(trims)}
-      <div style="padding:20px;color:var(--p5);font-size:13px;text-align:center;">Loading feature comparison…</div>
-    </div>
-  </div>`;
-}
-
-function buildSpecsTable(trims){
-  return `<div class="compare-wrap" style="margin-bottom:16px;">
-    <div class="compare-specs-row">
-      <div class="compare-spec-label"></div>
-      ${trims.map(t=>`<div class="compare-trim-name">${toTitleCase(t.name)}</div>`).join('')}
-    </div>
-    ${[
-      {label:'MPG City',vals:trims.map(t=>t.mpg_city||'—')},
-      {label:'MPG Hwy',vals:trims.map(t=>t.mpg_hwy||'—')},
-      {label:'Horsepower',vals:trims.map(t=>cleanHp(t.horsepower)||'—')},
-      {label:'Towing',vals:trims.map(t=>{const v=cleanTowing(t.towing_capacity);return v?v.toLocaleString()+' lbs':'—';})},
-      {label:'Drivetrain',vals:trims.map(t=>toTitleCase(t.drivetrain||'—'))},
-    ].map(row=>`
-      <div class="compare-specs-row">
-        <div class="compare-spec-label">${row.label}</div>
-        ${row.vals.map(v=>`<div class="compare-spec-val">${v}</div>`).join('')}
-      </div>`).join('')}
-  </div>`;
-}
-
-async function loadComparisonTable(trims, featuresByTrim){
-  const wrap = document.getElementById('compare-table-wrap');
-  if(!wrap) return;
+// ── COMPARISON — instant, built from feature codes stored in DB ──
+// Codes loaded once alongside other data
+let _comparisonCodes = null;
+async function loadComparisonCodes(){
+  if(_comparisonCodes) return _comparisonCodes;
   try{
-    const trimData = trims.map(t=>({
-      name: t.name,
-      features: (featuresByTrim[t.id]||[]).map(f=>f.feature_text)
-    }));
-    const r = await fetch('/api/compare',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({trims:trimData})
+    const rows = await sbFetch('comparison_codes?active=eq.true&order=sort_order.asc&select=*');
+    _comparisonCodes = rows||[];
+  }catch(e){ _comparisonCodes=[]; }
+  return _comparisonCodes;
+}
+
+function buildCompare(trims, featuresByTrim){
+  // Build immediately from codes — no API call needed
+  // Gather all codes across all trims
+  const codeToTrims = {}; // code -> Set of trim ids
+  trims.forEach(t=>{
+    (featuresByTrim[t.id]||[]).forEach(f=>{
+      if(!f.feature_code) return;
+      if(!codeToTrims[f.feature_code]) codeToTrims[f.feature_code]=new Set();
+      codeToTrims[f.feature_code].add(t.id);
     });
-    if(!r.ok) throw new Error('API error');
-    const compData = await r.json();
-    if(!compData||!compData.length){
-      wrap.innerHTML = buildSpecsTable(trims)+'<div style="padding:20px;color:var(--p5);font-size:13px;text-align:center;">No differentiating features found.</div>';
+  });
+
+  // Specs table — always shown
+  const specsHtml = `
+    <div class="compare-wrap" style="margin-bottom:16px;">
+      <div class="compare-specs-row">
+        <div class="compare-spec-label"></div>
+        ${trims.map(t=>`<div class="compare-trim-name">${toTitleCase(t.name)}</div>`).join('')}
+      </div>
+      ${[
+        {label:'MPG City',vals:trims.map(t=>t.mpg_city||'—')},
+        {label:'MPG Hwy',vals:trims.map(t=>t.mpg_hwy||'—')},
+        {label:'Horsepower',vals:trims.map(t=>cleanHp(t.horsepower)||'—')},
+        {label:'Towing',vals:trims.map(t=>{const v=cleanTowing(t.towing_capacity);return v?v.toLocaleString()+' lbs':'—';})},
+      ].map(row=>`
+        <div class="compare-specs-row">
+          <div class="compare-spec-label">${row.label}</div>
+          ${row.vals.map(v=>`<div class="compare-spec-val">${v}</div>`).join('')}
+        </div>`).join('')}
+    </div>`;
+
+  // Placeholder — will be filled once codes load
+  const diffId = 'diff-'+Math.random().toString(36).slice(2,8);
+  setTimeout(async()=>{
+    const codes = await loadComparisonCodes();
+    const el = document.getElementById(diffId);
+    if(!el) return;
+
+    // Auto-generated codes (wheels_NN, display_NN) — find from actual data
+    const allCodes = new Set(Object.keys(codeToTrims));
+    const autoCodes = [...allCodes].filter(c=>/^(wheels|display)_\d+$/.test(c))
+      .map(code=>{
+        const n=parseInt(code.split('_')[1]);
+        const prefix=code.split('_')[0];
+        return {
+          code,
+          label: prefix==='wheels' ? `${n}-Inch Wheels` : `${n}" Color Center Display`,
+          sort_order: prefix==='wheels' ? 29 : 30
+        };
+      });
+
+    // Combine predefined + auto-generated codes, filter to only ones that differentiate
+    const allCodeDefs = [...codes, ...autoCodes];
+    const rows = allCodeDefs
+      .filter(c=>{
+        const trimSet = codeToTrims[c.code];
+        if(!trimSet) return false; // no trim has this feature
+        if(trimSet.size===trims.length) return false; // all trims have it — not a differentiator
+        return true;
+      });
+
+    if(!rows.length){
+      el.innerHTML='<div style="padding:20px;color:var(--p5);font-size:13px;text-align:center;">All features are identical across trims.</div>';
       return;
     }
-    wrap.innerHTML = buildSpecsTable(trims) + `
+
+    el.innerHTML = `
       <div class="compare-wrap">
         <div class="compare-specs-row compare-diff-header">
           <div class="compare-spec-label">What You Get</div>
           ${trims.map(t=>`<div class="compare-trim-name">${toTitleCase(t.name)}</div>`).join('')}
         </div>
-        ${compData.map(row=>`
+        ${rows.map(row=>`
           <div class="compare-specs-row">
-            <div class="compare-spec-label">${toTitleCase(row.feature)}</div>
-            ${trims.map((t,idx)=>`<div class="compare-spec-val">${(row.levels||[]).includes(idx+1)?'<span class="check">✓</span>':'<span class="dash">—</span>'}</div>`).join('')}
+            <div class="compare-spec-label">${row.label}</div>
+            ${trims.map(t=>`<div class="compare-spec-val">${(codeToTrims[row.code]||new Set()).has(t.id)?'<span class="check">✓</span>':'<span class="dash">—</span>'}</div>`).join('')}
           </div>`).join('')}
       </div>`;
-  }catch(e){
-    wrap.innerHTML = buildSpecsTable(trims)+'<div style="padding:20px;color:var(--p5);font-size:13px;text-align:center;">Comparison unavailable.</div>';
-  }
+  }, 0);
+
+  return `<div class="compare-section">
+    <p class="section-label" style="margin-bottom:20px;">Trim Comparison</p>
+    ${specsHtml}
+    <div id="${diffId}">
+      <div style="padding:16px 0;color:var(--p5);font-size:13px;">Building comparison…</div>
+    </div>
+  </div>`;
 }
 
 // ── COLOR INTERACTIONS ──
