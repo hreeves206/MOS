@@ -682,7 +682,7 @@ function addPkgFeature(btn, val=''){
 function addFeature(idx,f={}){
   const c=document.getElementById('feats-'+idx); if(!c) return;
   const row=document.createElement('div'); row.className='feature-row';
-  row.innerHTML=`<input type="text" placeholder="Category" value="${esc(f.category||'General')}" style="flex:0 0 130px;" class="feat-cat"><input type="text" placeholder="Feature" value="${esc(f.text||f.feature_text||'')}" class="feat-text"><button class="remove-feat" onclick="this.parentElement.remove()">✕</button>`;
+  row.innerHTML=`<input type="text" placeholder="Category" value="${esc(f.category||'General')}" style="flex:0 0 130px;" class="feat-cat"><input type="text" placeholder="Feature" value="${esc(f.text||f.feature_text||'')}" class="feat-text"><input type="hidden" class="feat-code" value="${esc(f.code||'')}"><button class="remove-feat" onclick="this.parentElement.remove()">✕</button>`;
   c.appendChild(row);
 }
 function addColor(c={}){
@@ -1050,7 +1050,7 @@ async function saveTrimEdits(){
     for(const row of document.querySelectorAll('#editFeaturesList .feature-row')){
       const cat=row.querySelector('.ef-cat').value.trim()||'General';
       const text=row.querySelector('.ef-text').value.trim();
-      if(text) await sb('features','POST',{trim_id:trimId,category:cat,feature_text:text,sort_order:0});
+      if(text) await sb('features','POST',{trim_id:trimId,category:cat,feature_text:text,feature_code:null,sort_order:0});
     }
     closeTrimModal(); toast('Trim updated!','success');
   }catch(e){toast('Save failed: '+e.message,'error');}
