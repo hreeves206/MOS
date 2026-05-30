@@ -755,7 +755,9 @@ async function saveVehicle(publish){
       for(const row of card.querySelectorAll('.features-editor .feature-row')){
         const cat=row.querySelector('.feat-cat').value.trim()||'General';
         const text=row.querySelector('.feat-text').value.trim();
-        if(text) await sb('features','POST',{trim_id:trimId,category:cat,feature_text:text,sort_order:0});
+        const codeEl=row.querySelector('.feat-code');
+        const code=codeEl&&codeEl.value.trim()?codeEl.value.trim():null;
+        if(text) await sb('features','POST',{trim_id:trimId,category:cat,feature_text:text,feature_code:code,sort_order:0});
       }
       // Save packages — delete existing first to avoid duplicates
       await sb('packages?trim_id=eq.'+trimId,'DELETE');
